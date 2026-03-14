@@ -1,0 +1,250 @@
+.chatbudgie-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.chatbudgie-toggle {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: white;
+}
+
+.chatbudgie-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+}
+
+.chatbudgie-toggle svg {
+    width: 28px;
+    height: 28px;
+}
+
+.chatbudgie-container {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    height: 520px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: chatbudgie-slide-up 0.3s ease;
+}
+
+@keyframes chatbudgie-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chatbudgie-container.active {
+    display: flex;
+}
+
+.chatbudgie-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbudgie-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.chatbudgie-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.chatbudgie-close:hover {
+    opacity: 1;
+}
+
+.chatbudgie-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f8f9fa;
+}
+
+.chatbudgie-message {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.chatbudgie-message.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.chatbudgie-message.assistant {
+    align-self: flex-start;
+    background: #fff;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 4px;
+}
+
+.chatbudgie-message.error {
+    align-self: flex-start;
+    background: #fee;
+    color: #c00;
+    border: 1px solid #fcc;
+}
+
+.chatbudgie-message.loading {
+    align-self: flex-start;
+    background: #fff;
+    color: #666;
+    border: 1px solid #e0e0e0;
+}
+
+.chatbudgie-message .typing-indicator {
+    display: flex;
+    gap: 4px;
+}
+
+.chatbudgie-message .typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.chatbudgie-message .typing-indicator span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.chatbudgie-message .typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.chatbudgie-message .typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-4px);
+    }
+}
+
+.chatbudgie-input-area {
+    padding: 16px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 10px;
+}
+
+.chatbudgie-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.chatbudgie-input:focus {
+    border-color: #667eea;
+}
+
+.chatbudgie-send {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.chatbudgie-send:hover {
+    opacity: 0.9;
+}
+
+.chatbudgie-send:active {
+    transform: scale(0.98);
+}
+
+.chatbudgie-send:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.chatbudgie-initial-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.chatbudgie-initial-message h4 {
+    margin: 0 0 8px;
+    color: #333;
+}
+
+.chatbudgie-initial-message p {
+    margin: 0;
+    font-size: 13px;
+}
+
+@media (max-width: 480px) {
+    .chatbudgie-container {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 140px);
+        right: -10px;
+    }
+
+    .chatbudgie-toggle {
+        width: 54px;
+        height: 54px;
+    }
+}
