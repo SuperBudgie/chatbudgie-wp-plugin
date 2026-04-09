@@ -85,6 +85,8 @@ class ChatBudgie {
         add_action('wp_footer', array($this, 'render_chat_widget'));
         add_action('wp_ajax_chatbudgie_send_message', array($this, 'handle_send_message'));
         add_action('wp_ajax_nopriv_chatbudgie_send_message', array($this, 'handle_send_message'));
+        add_action('wp_ajax_chatbudgie_send_message_sse', array($this, 'handle_send_message_sse'));
+        add_action('wp_ajax_nopriv_chatbudgie_send_message_sse', array($this, 'handle_send_message_sse'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
 
@@ -371,6 +373,10 @@ class ChatBudgie {
         try {
             error_log('ChatBudgie starting to build full WordPress index');
 
+            $start_time = microtime(true);
+            $success_count = 0;
+            $failed_count = 0;
+
             // Get all published posts page by page
             $paged = 1;
             $posts_per_page = 10;
@@ -391,7 +397,11 @@ class ChatBudgie {
                     while ($query->have_posts()) {
                         $query->the_post();
                         $post_id = get_the_ID();
-                        $this->index_post($post_id);
+                        if ($this->index_post($post_id)) {
+                            $success_count++;
+                        } else {
+                            $failed_count++;
+                        }
                     }
                     wp_reset_postdata();
                 }
@@ -400,8 +410,13 @@ class ChatBudgie {
 
             } while ($query->have_posts());
 
+            $end_time = microtime(true);
+            $total_time = round($end_time - $start_time, 2);
+
             $stats = $this->indexer->getStats();
-            error_log('ChatBudgie finished building full WordPress index: ' . $stats);
+            error_log('ChatBudgie finished building full WordPress index: ' . json_encode($stats));
+            error_log('ChatBudgie indexing summary: ' . $success_count . ' posts indexed successfully, ' . $failed_count . ' posts failed');
+            error_log('ChatBudgie total indexing time: ' . $total_time . ' seconds');
         } catch (Exception $e) {
             error_log('ChatBudgie error building full WordPress index: ' . $e->getMessage());
         }
@@ -433,7 +448,7 @@ class ChatBudgie {
         $response = wp_remote_post(self::$embeddingAPI, array(
             'headers' => $headers,
             'body' => json_encode($body),
-            'timeout' => 30
+            'timeout' => 60
         ));
 
         if (is_wp_error($response)) {
@@ -708,6 +723,7 @@ class ChatBudgie {
 
         wp_localize_script('chatbudgie-script', 'chatbudgie_params', array(
             'ajax_url' => admin_url('admin-ajax.php'),
+            'sse_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('chatbudgie_nonce'),
             'strings' => array(
                 'placeholder' => __('Please enter your question...', 'chatbudgie'),
@@ -799,6 +815,148 @@ class ChatBudgie {
     }
 
     /**
+     * Handle AJAX chat message requests with SSE streaming
+     * Receives user messages, searches the vector index, and streams response via SSE
+     * Hooked to wp_ajax_chatbudgie_send_message_sse and wp_ajax_nopriv_chatbudgie_send_message_sse
+     *
+     * @return void Outputs SSE stream and exits
+     */
+    public function handle_send_message_sse() {
+        check_ajax_referer('chatbudgie_nonce', 'nonce');
+
+        $message = sanitize_text_field($_POST['message'] ?? '');
+        $conversation_history_raw = $_POST['conversation_history'] ?? '[]';
+        $conversation_history = json_decode(stripslashes($conversation_history_raw), true) ?: array();
+
+        // Set headers for SSE
+        $this->sse_set_headers();
+
+        if (empty($message)) {
+            echo "data:{\"error\":\"Message cannot be empty\"}\n\n";
+            flush();
+            exit;
+        }
+
+        try {
+            // Search the vector index for relevant content
+            $search_results = $this->search_index($message, 5, 0.2);
+
+            // Build context from search results
+            $context = array();
+            if (!empty($search_results)) {
+                foreach ($search_results as $result) {
+                    $context[] = array(
+                        'score' => $result['score'],
+                        'text' => $result['chunkText']
+                    );
+                }
+            }
+
+            // Make request to chat API
+            $api_url = 'https://chat.superbudgie.com/api/rag/chat';
+            
+            $chat_request = array(
+                'context' => $context,
+                'messages' => $conversation_history
+            );
+
+            // Call the streaming chat API
+            $this->stream_api_response($api_url, $chat_request);
+
+        } catch (Exception $e) {
+            error_log('ChatBudgie handle_send_message_sse error: ' . $e->getMessage());
+            echo "data:{\"error\":\"" . addslashes($e->getMessage()) . "\"}\n\n";
+            flush();
+        }
+
+        exit;
+    }
+
+    /**
+     * Stream API response and forward to client via SSE
+     *
+     * @param string $url The API endpoint URL
+     * @param array $body The request body
+     * @return void
+     */
+    private function stream_api_response($url, $body) {
+        $headers = array(
+            'Content-Type: application/json',
+        );
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        //curl_setopt($ch, CURLOPT_VERBOSE, true);
+        
+        // Enable streaming
+        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
+            // Forward data directly to client
+            echo $data;
+            flush();
+            
+            return strlen($data);
+        });
+        
+        $response = curl_exec($ch);
+        
+        if (curl_errno($ch)) {
+            error_log('ChatBudgie API stream error: ' . curl_error($ch));
+            echo "data:{\"error\":\"API stream error: " . addslashes(curl_error($ch)) . "\"}\n\n";
+            flush();
+        }
+        
+        curl_close($ch);
+    }
+
+    /**
+     * Set HTTP headers for SSE streaming
+     *
+     * @return void
+     */
+    private function sse_set_headers() {
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
+        header('Keep-Alive: timeout=60, max=100');
+        header('X-Accel-Buffering: no'); // Disable Nginx buffering
+
+        // Prevent PHP from timing out
+        set_time_limit(0);
+    }
+
+    /**
+     * Send an SSE event to the client
+     *
+     * @param array $data The data to send
+     * @return void
+     */
+    private function sse_send_event($data) {
+        echo "data: " . json_encode($data) . "\n\n";
+        flush();
+    }
+
+    /**
+     * Forward raw SSE data line to the client
+     *
+     * @param string $line The raw SSE data line (e.g., "data:The weather")
+     * @return void
+     */
+    private function sse_send_event_raw($line) {
+        echo $line . "\n";
+        flush();
+    }
+
+    /**
      * Handle AJAX chat message requests
      * Receives user messages, searches the vector index, and returns relevant results
      * Hooked to wp_ajax_chatbudgie_send_message and wp_ajax_nopriv_chatbudgie_send_message
@@ -821,27 +979,21 @@ class ChatBudgie {
 
             if (empty($search_results)) {
                 wp_send_json_success(array(
-                    'reply' => '<p>' . __('I could not find any relevant information to answer your question.', 'chatbudgie') . '</p>',
+                    'reply' => __('I could not find any relevant information to answer your question.', 'chatbudgie'),
                     'results' => array()
                 ));
                 return;
             }
 
-            // Build reply from search results in HTML format
-            $reply = '<div class="chatbudgie-results">';
+            // Build reply from search results - include chunk_id, score, and content
+            $reply = '';
             foreach ($search_results as $index => $result) {
                 if ($index > 0) {
-                    $reply .= '<hr class="chatbudgie-result-divider">';
+                    $reply .= "\n\n---\n\n";
                 }
-                $reply .= '<div class="chatbudgie-result-item">';
-                $reply .= '<div class="chatbudgie-result-meta">';
-                $reply .= '<span class="chatbudgie-result-id">' . esc_html($result['id']) . '</span>';
-                $reply .= '<span class="chatbudgie-result-score">Score: ' . number_format($result['score'], 3) . '</span>';
-                $reply .= '</div>';
-                $reply .= '<div class="chatbudgie-result-content">' . wp_kses_post($result['chunkText']) . '</div>';
-                $reply .= '</div>';
+                $reply .= '[Chunk ID: ' . esc_html($result['id']) . ' | Score: ' . number_format($result['score'], 3) . ']' . "\n";
+                $reply .= $result['chunkText'];
             }
-            $reply .= '</div>';
 
             wp_send_json_success(array(
                 'reply' => $reply,
