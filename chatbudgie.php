@@ -18,6 +18,11 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
 
+// Load Action Scheduler library
+if (file_exists(__DIR__ . '/lib/action-scheduler/action-scheduler.php')) {
+    require_once __DIR__ . '/lib/action-scheduler/action-scheduler.php';
+}
+
 // Load local Vektor library
 if (file_exists(__DIR__ . '/lib/Vektor/Core/Config.php')) {
     require_once __DIR__ . '/lib/Vektor/Core/Config.php';
@@ -89,9 +94,15 @@ class ChatBudgie {
         add_action('wp_ajax_nopriv_chatbudgie_send_message_sse', array($this, 'handle_send_message_sse'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_notices', array($this, 'show_index_status_notice'));
+        add_action('admin_post_chatbudgie_rebuild_index', array($this, 'handle_manual_rebuild_index'));
 
         // Add cron job hook
         add_action('chatbudgie_daily_task', array($this, 'daily_task'));
+
+        // Add Action Scheduler hooks for indexing
+        add_action('chatbudgie_build_index', array($this, 'execute_build_index'));
+        add_action('chatbudgie_index_single_post', array($this, 'execute_index_single_post'), 10, 1);
 
         // Set up cron job on plugin activation
         register_activation_hook(__FILE__, array($this, 'activate'));
@@ -239,7 +250,7 @@ class ChatBudgie {
 
     /**
      * Plugin activation handler
-     * Sets up scheduled tasks and builds the initial WordPress content index
+     * Sets up scheduled tasks and schedules the initial WordPress content index build
      */
     public function activate() {
         // Create index meta table
@@ -254,8 +265,276 @@ class ChatBudgie {
         // Schedule daily task at 3:00 AM local time
         wp_schedule_event(strtotime('03:00:00'), 'daily', 'chatbudgie_daily_task');
 
-        // Build full WordPress index
-        $this->build_wordpress_index();
+        // Schedule immediate index build via Action Scheduler
+        $this->schedule_index_build();
+    }
+
+    /**
+     * Schedule WordPress index build via Action Scheduler
+     * Schedules an immediate background task to build the full index
+     * Cancels the entire group if there are pending tasks before starting fresh
+     *
+     * @return int The action ID
+     */
+    public function schedule_index_build() {
+        // Check if there are any pending actions in the chatbudgie group
+        $pending_actions = as_get_scheduled_actions(array(
+            'group' => 'chatbudgie',
+            'status' => \ActionScheduler_Store::STATUS_PENDING
+        ));
+
+        // If there are pending tasks, cancel the entire group
+        if (!empty($pending_actions)) {
+            $cancelled_count = as_unschedule_all_actions('chatbudgie');
+            error_log('ChatBudgie: Cancelled entire group (' . $cancelled_count . ' action(s)) before scheduling new index build');
+        }
+
+        // Also cancel any running actions in the group
+        $running_actions = as_get_scheduled_actions(array(
+            'group' => 'chatbudgie',
+            'status' => \ActionScheduler_Store::STATUS_RUNNING
+        ));
+
+        foreach ($running_actions as $action) {
+            as_unschedule_action($action->get_id());
+        }
+
+        // Schedule fresh action
+        $action_id = as_enqueue_async_action('chatbudgie_build_index', array(), 'chatbudgie');
+
+        // Update indexing status
+        update_option('chatbudgie_index_status', 'scheduled', false);
+        update_option('chatbudgie_index_last_scheduled', current_time('mysql'), false);
+
+        error_log('ChatBudgie: Scheduled fresh index build with action ID: ' . $action_id);
+
+        return $action_id;
+    }
+
+    /**
+     * Get the current indexing status
+     *
+     * @return array Status information
+     */
+    public function get_index_status() {
+        $status = get_option('chatbudgie_index_status', 'idle');
+        $last_scheduled = get_option('chatbudgie_index_last_scheduled', '');
+        $last_completed = get_option('chatbudgie_index_last_completed', '');
+        $error = get_option('chatbudgie_index_error', '');
+        $scheduled_posts_count = get_option('chatbudgie_scheduled_posts_count', 0);
+
+        // Check if there are pending actions
+        $pending_actions = as_get_scheduled_actions(array(
+            'hook' => 'chatbudgie_build_index',
+            'status' => \ActionScheduler_Store::STATUS_PENDING
+        ));
+
+        $running_actions = as_get_scheduled_actions(array(
+            'hook' => 'chatbudgie_build_index',
+            'status' => \ActionScheduler_Store::STATUS_RUNNING
+        ));
+
+        return array(
+            'status' => !empty($running_actions) ? 'running' : $status,
+            'last_scheduled' => $last_scheduled,
+            'last_completed' => $last_completed,
+            'has_pending_actions' => !empty($pending_actions),
+            'scheduled_posts_count' => $scheduled_posts_count,
+            'error' => $error
+        );
+    }
+
+    /**
+     * Update indexing status
+     *
+     * @param string $status The status (idle, scheduled, running, completed, failed)
+     * @param array $extra Optional extra data (error message, scheduled count, etc.)
+     * @return void
+     */
+    private function update_index_status($status, $extra = array()) {
+        update_option('chatbudgie_index_status', $status);
+
+        if ($status === 'completed') {
+            update_option('chatbudgie_index_last_completed', current_time('mysql'));
+            update_option('chatbudgie_index_error', '');
+            if (isset($extra['scheduled_count'])) {
+                update_option('chatbudgie_scheduled_posts_count', intval($extra['scheduled_count']));
+            }
+        } elseif ($status === 'failed') {
+            if (isset($extra['error'])) {
+                update_option('chatbudgie_index_error', $extra['error']);
+            }
+        }
+    }
+
+    /**
+     * Schedule a single post index via Action Scheduler
+     * Checks if the post needs indexing before scheduling
+     *
+     * @param int $post_id The WordPress post ID
+     * @return int|null The action ID or null if skipped
+     */
+    public function schedule_post_index($post_id) {
+        // Check if post needs indexing
+        $post = get_post($post_id);
+        if (!$post) {
+            error_log('ChatBudgie: Post not found for scheduling: ' . $post_id);
+            return null;
+        }
+
+        // Skip if post is not published
+        if ($post->post_status !== 'publish' || !in_array($post->post_type, array('post', 'page'))) {
+            return null;
+        }
+
+        // Get post modified time
+        $post_modified = $post->post_modified_gmt;
+
+        // Get last index time
+        $last_indexed = $this->get_post_index_time($post_id);
+
+        // Skip if post hasn't been modified since last index
+        if ($last_indexed && strtotime($post_modified) <= strtotime($last_indexed)) {
+            error_log('ChatBudgie: Skipping scheduling post ' . $post_id . ' - not modified since last index');
+            return null;
+        }
+
+        $action_id = as_enqueue_async_action('chatbudgie_index_single_post', array($post_id), 'chatbudgie');
+
+        error_log('ChatBudgie: Scheduled post ' . $post_id . ' index with action ID: ' . $action_id);
+
+        return $action_id;
+    }
+
+    /**
+     * Execute the build index action (called by Action Scheduler)
+     * Schedules all published posts for indexing via Action Scheduler
+     *
+     * @return void
+     * @throws Exception If scheduling fails
+     */
+    public function execute_build_index() {
+        error_log('ChatBudgie: Action Scheduler executing build_wordpress_index');
+        $this->update_index_status('running');
+
+        try {
+            $scheduled_count = 0;
+            $skipped_count = 0;
+
+            // Get all published posts page by page
+            $paged = 1;
+            $posts_per_page = 10;
+
+            do {
+                $args = array(
+                    'post_type' => array('post', 'page'),
+                    'post_status' => 'publish',
+                    'posts_per_page' => $posts_per_page,
+                    'paged' => $paged,
+                    'orderby' => 'ID',
+                    'order' => 'ASC'
+                );
+
+                $query = new WP_Query($args);
+
+                if ($query->have_posts()) {
+                    while ($query->have_posts()) {
+                        $query->the_post();
+                        $post_id = get_the_ID();
+                        // Schedule each post indexing as a separate async task
+                        $action_id = $this->schedule_post_index($post_id);
+                        if ($action_id) {
+                            $scheduled_count++;
+                        } else {
+                            $skipped_count++;
+                        }
+                    }
+                    wp_reset_postdata();
+                }
+
+                $paged++;
+
+            } while ($query->have_posts());
+
+            error_log('ChatBudgie full index schedule task is completed. Post index tasks have been scheduled, indexing summary: ' . $scheduled_count . ' posts scheduled, ' . $skipped_count . ' posts skipped (already indexed)');
+
+            $this->update_index_status('completed', array('scheduled_count' => $scheduled_count));
+        } catch (Exception $e) {
+            error_log('ChatBudgie full index schedule task failed: ' . $e->getMessage());
+            $this->update_index_status('failed', array('error' => $e->getMessage()));
+            // Re-throw exception so Action Scheduler knows this task failed
+            throw new Exception('Full index schedule task failed: ' . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Execute the single post index action (called by Action Scheduler)
+     * Indexes a single post by embedding its content and storing vectors
+     *
+     * @param int $post_id The WordPress post ID
+     * @return void
+     * @throws Exception If indexing fails
+     */
+    public function execute_index_single_post($post_id) {
+        error_log('ChatBudgie: Action Scheduler executing index_post for post ' . $post_id);
+
+        // Get post data
+        $post = get_post($post_id);
+        if (!$post) {
+            error_log('ChatBudgie: Post not found: ' . $post_id);
+            throw new Exception('Post not found: ' . $post_id);
+        }
+
+        // Skip if post is not published
+        if ($post->post_status !== 'publish' || !in_array($post->post_type, array('post', 'page'))) {
+            error_log('ChatBudgie: Skipping post ' . $post_id . ' - not published or wrong post type');
+            return;
+        }
+
+        // Get post modified time
+        $post_modified = $post->post_modified_gmt;
+
+        // Get last index time
+        $last_indexed = $this->get_post_index_time($post_id);
+
+        // Skip if post hasn't been modified since last index
+        if ($last_indexed && strtotime($post_modified) <= strtotime($last_indexed)) {
+            error_log('ChatBudgie: Skipping post ' . $post_id . ' - not modified since last index');
+            return;
+        }
+
+        try {
+            $title = $post->post_title;
+            $content = $post->post_content;
+            $excerpt = $post->post_excerpt;
+
+            // Get embedding chunks from API
+            $chunks = $this->get_embedding($title, $content, $excerpt);
+
+            // Index each chunk
+            foreach ($chunks as $chunk_index => $chunk) {
+                $vector_id = $post_id . '_' . $chunk_index;
+
+                // Check if vector_id exists in index, delete first if it does
+                if ($this->indexer->delete($vector_id)) {
+                    error_log('Deleted existing vector: ' . $vector_id . ' before re-indexing');
+                }
+
+                $this->indexer->insert($vector_id, $chunk['embedding']);
+                error_log('Indexed chunk: ' . $vector_id . ' (' . strlen($chunk['chunkText']) . ' chars)');
+            }
+
+            // Save chunk text to database
+            $this->update_post_chunks($post_id, $chunks);
+
+            // Update index time for this post
+            $this->update_post_index_time($post_id);
+            error_log('ChatBudgie: Indexed post ' . $post_id . ' - ' . $title . ' (' . count($chunks) . ' chunks)');
+        } catch (Exception $e) {
+            error_log('ChatBudgie: Failed to index post ' . $post_id . ': ' . $e->getMessage());
+            // Re-throw exception so Action Scheduler knows this task failed
+            throw new Exception('Failed to index post ' . $post_id . ': ' . $e->getMessage(), 0, $e);
+        }
     }
 
     /**
@@ -294,131 +573,6 @@ class ChatBudgie {
                 ),
                 array('%d', '%d', '%s')
             );
-        }
-    }
-
-    /**
-     * Index a single post if its content has been updated since the last index
-     *
-     * @param int $post_id The WordPress post ID
-     * @return bool True if indexed, false if skipped or failed
-     */
-    public function index_post($post_id) {
-        // Get post data
-        $post = get_post($post_id);
-        if (!$post) {
-            error_log('ChatBudgie: Post not found: ' . $post_id);
-            return false;
-        }
-
-        // Skip if post is not published
-        if ($post->post_status !== 'publish' || !in_array($post->post_type, array('post', 'page'))) {
-            return false;
-        }
-
-        // Get post modified time
-        $post_modified = $post->post_modified_gmt;
-
-        // Get last index time
-        $last_indexed = $this->get_post_index_time($post_id);
-
-        // Skip if post hasn't been modified since last index
-        if ($last_indexed && strtotime($post_modified) <= strtotime($last_indexed)) {
-            error_log('ChatBudgie: Skipping post ' . $post_id . ' - not modified since last index');
-            return false;
-        }
-
-        try {
-            $title = $post->post_title;
-            $content = $post->post_content;
-            $excerpt = $post->post_excerpt;
-
-            // Get embedding chunks from API
-            $chunks = $this->get_embedding($title, $content, $excerpt);
-
-            // Index each chunk
-            foreach ($chunks as $chunk_index => $chunk) {
-                $vector_id = $post_id . '_' . $chunk_index;
-
-                // Check if vector_id exists in index, delete first if it does
-                if ($this->indexer->delete($vector_id)) {
-                    error_log('Deleted existing vector: ' . $vector_id . ' before re-indexing');
-                }
-
-                $this->indexer->insert($vector_id, $chunk['embedding']);
-                error_log('Indexed chunk: ' . $vector_id . ' (' . strlen($chunk['chunkText']) . ' chars)');
-            }
-
-            // Save chunk text to database
-            $this->update_post_chunks($post_id, $chunks);
-
-            // Update index time for this post
-            $this->update_post_index_time($post_id);
-            error_log('ChatBudgie: Indexed post ' . $post_id . ' - ' . $title . ' (' . count($chunks) . ' chunks)');
-
-            return true;
-        } catch (Exception $e) {
-            error_log('ChatBudgie: Failed to index post ' . $post_id . ': ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Build a full WordPress index by embedding all published posts and pages
-     * Queries WordPress content in batches, generates embeddings via API, and stores them in the vector index
-     *
-     * @return void
-     */
-    private function build_wordpress_index() {
-        try {
-            error_log('ChatBudgie starting to build full WordPress index');
-
-            $start_time = microtime(true);
-            $success_count = 0;
-            $failed_count = 0;
-
-            // Get all published posts page by page
-            $paged = 1;
-            $posts_per_page = 10;
-
-            do {
-                $args = array(
-                    'post_type' => array('post', 'page'),
-                    'post_status' => 'publish',
-                    'posts_per_page' => $posts_per_page,
-                    'paged' => $paged,
-                    'orderby' => 'ID',
-                    'order' => 'ASC'
-                );
-
-                $query = new WP_Query($args);
-
-                if ($query->have_posts()) {
-                    while ($query->have_posts()) {
-                        $query->the_post();
-                        $post_id = get_the_ID();
-                        if ($this->index_post($post_id)) {
-                            $success_count++;
-                        } else {
-                            $failed_count++;
-                        }
-                    }
-                    wp_reset_postdata();
-                }
-
-                $paged++;
-
-            } while ($query->have_posts());
-
-            $end_time = microtime(true);
-            $total_time = round($end_time - $start_time, 2);
-
-            $stats = $this->indexer->getStats();
-            error_log('ChatBudgie finished building full WordPress index: ' . json_encode($stats));
-            error_log('ChatBudgie indexing summary: ' . $success_count . ' posts indexed successfully, ' . $failed_count . ' posts failed');
-            error_log('ChatBudgie total indexing time: ' . $total_time . ' seconds');
-        } catch (Exception $e) {
-            error_log('ChatBudgie error building full WordPress index: ' . $e->getMessage());
         }
     }
 
@@ -1007,6 +1161,85 @@ class ChatBudgie {
     }
 
     /**
+     * Show admin notice for index status
+     * Displays the current status of background indexing tasks
+     *
+     * @return void
+     */
+    public function show_index_status_notice() {
+        $status = $this->get_index_status();
+
+        if ($status['status'] === 'running' || $status['has_pending_actions']) {
+            ?>
+            <div class="notice notice-info is-dismissible">
+                <p>
+                    <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
+                    <?php
+                    if ($status['status'] === 'running') {
+                        echo esc_html__('Index build is currently running in the background.', 'chatbudgie');
+                    } elseif ($status['has_pending_actions']) {
+                        echo esc_html__('Index build is scheduled and will run shortly.', 'chatbudgie');
+                    }
+                    ?>
+                </p>
+            </div>
+            <?php
+        } elseif ($status['status'] === 'failed' && $status['error']) {
+            ?>
+            <div class="notice notice-error is-dismissible">
+                <p>
+                    <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
+                    <?php
+                    echo esc_html__('Index build failed:', 'chatbudgie') . ' ' . esc_html($status['error']);
+                    echo ' <a href="' . esc_url(wp_nonce_url(admin_url('admin-post.php?action=chatbudgie_rebuild_index'), 'chatbudgie_rebuild_index')) . '">' . esc_html__('Try again', 'chatbudgie') . '</a>';
+                    ?>
+                </p>
+            </div>
+            <?php
+        } elseif ($status['status'] === 'completed' && $status['last_completed']) {
+            $time = human_time_diff(strtotime($status['last_completed']), current_time('timestamp'));
+            $scheduled_count = isset($status['scheduled_posts_count']) ? $status['scheduled_posts_count'] : 0;
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p>
+                    <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
+                    <?php
+                    if ($scheduled_count > 0) {
+                        printf(
+                            esc_html__('Index scheduling completed successfully %s ago. %d posts scheduled for indexing.', 'chatbudgie'),
+                            esc_html($time),
+                            intval($scheduled_count)
+                        );
+                    } else {
+                        printf(
+                            esc_html__('Index build completed successfully %s ago.', 'chatbudgie'),
+                            esc_html($time)
+                        );
+                    }
+                    ?>
+                </p>
+            </div>
+            <?php
+        }
+    }
+
+    /**
+     * Handle manual index rebuild request
+     *
+     * @return void
+     */
+    public function handle_manual_rebuild_index() {
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+
+        $this->schedule_index_build();
+
+        wp_redirect(wp_get_referer() ? wp_get_referer() : admin_url('options-general.php?page=chatbudgie'));
+        exit;
+    }
+
+    /**
      * Add admin menu page for plugin settings
      * Registers the settings page under WordPress Settings menu
      * 
@@ -1045,9 +1278,81 @@ class ChatBudgie {
      * @return void
      */
     public function render_settings_page() {
+        $index_status = $this->get_index_status();
         ?>
         <div class="wrap">
             <h1><?php echo esc_html__('ChatBudgie Settings', 'chatbudgie'); ?></h1>
+            
+            <!-- Index Status Section -->
+            <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h2 style="margin-top: 0; margin-bottom: 15px;"><?php echo esc_html__('Index Status', 'chatbudgie'); ?></h2>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <p style="font-size: 16px; font-weight: 600; margin: 0;">
+                            <?php echo esc_html__('Status:', 'chatbudgie'); ?> 
+                            <span style="color: <?php 
+                                echo $index_status['status'] === 'running' ? '#f59e0b' : 
+                                    ($index_status['status'] === 'completed' ? '#10b981' : 
+                                    ($index_status['status'] === 'failed' ? '#ef4444' : '#667eea')); 
+                            ?>; font-size: 18px;">
+                                <?php 
+                                echo esc_html(ucfirst($index_status['status']));
+                                ?>
+                            </span>
+                        </p>
+                        <?php if ($index_status['last_scheduled']): ?>
+                        <p style="font-size: 12px; color: #666; margin: 5px 0 0;">
+                            <?php 
+                            printf(
+                                esc_html__('Last scheduled: %s', 'chatbudgie'),
+                                esc_html($index_status['last_scheduled'])
+                            );
+                            ?>
+                        </p>
+                        <?php endif; ?>
+                        <?php if ($index_status['last_completed']): ?>
+                        <p style="font-size: 12px; color: #666; margin: 5px 0 0;">
+                            <?php
+                            printf(
+                                esc_html__('Last completed: %s', 'chatbudgie'),
+                                esc_html($index_status['last_completed'])
+                            );
+                            ?>
+                        </p>
+                        <?php endif; ?>
+                        <?php if ($index_status['status'] === 'completed' && $index_status['scheduled_posts_count'] > 0): ?>
+                        <p style="font-size: 12px; color: #10b981; margin: 5px 0 0;">
+                            <?php
+                            printf(
+                                esc_html__('Posts scheduled for indexing: %d', 'chatbudgie'),
+                                intval($index_status['scheduled_posts_count'])
+                            );
+                            ?>
+                        </p>
+                        <?php endif; ?>
+                        <?php if ($index_status['error']): ?>
+                        <p style="font-size: 12px; color: #ef4444; margin: 5px 0 0;">
+                            <?php 
+                            printf(
+                                esc_html__('Error: %s', 'chatbudgie'),
+                                esc_html($index_status['error'])
+                            );
+                            ?>
+                        </p>
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=chatbudgie_rebuild_index'), 'chatbudgie_rebuild_index')); ?>" 
+                           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s ease;">
+                            <?php echo esc_html__('Rebuild Index', 'chatbudgie'); ?>
+                        </a>
+                        <p style="font-size: 12px; color: #666; margin: 5px 0 0; text-align: center;">
+                            <?php echo esc_html__('Runs in background via Action Scheduler', 'chatbudgie'); ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
             <p style="background: #f0f0f0; padding: 10px; border-left: 4px solid #667eea;">
                 <?php echo esc_html__('API URL is fixed to: http://localhost:5000/chat', 'chatbudgie'); ?>
             </p>

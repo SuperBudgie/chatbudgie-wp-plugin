@@ -10,6 +10,8 @@ Display a chat dialog on WordPress pages, allowing users to converse with a RAG-
 - 🔒 API key authentication support
 - 🎨 Modern design style
 - 💬 Continuous contextual conversations
+- ⚡ Background indexing via Action Scheduler
+- 📊 Index status monitoring and manual rebuild
 
 ## Installation
 
@@ -30,6 +32,31 @@ Display a chat dialog on WordPress pages, allowing users to converse with a RAG-
 - **Customer Service**: Headset customer service SVG icon
 - **Message**: Message bubble SVG icon
 - **Custom Icon URL**: Enter custom image URL (supports SVG, PNG, JPG)
+
+### Index Management
+- **Index Status**: View current background indexing status (idle, scheduled, running, completed, failed)
+- **Rebuild Index**: Manually trigger a full index rebuild (runs in background via Action Scheduler)
+- **Automatic Scheduling**: Index build is automatically scheduled on plugin activation
+
+## Background Indexing
+
+ChatBudgie uses Action Scheduler to handle time-consuming indexing tasks in the background, preventing timeouts and keeping your site responsive.
+
+### How It Works
+
+1. **Automatic Trigger**: Index build is scheduled immediately upon plugin activation
+2. **Background Processing**: All posts and pages are indexed asynchronously without blocking
+3. **Status Monitoring**: Real-time status updates in the admin area
+4. **Error Recovery**: Failed index builds are logged with error messages for debugging
+5. **Manual Rebuild**: Click "Rebuild Index" in settings to manually trigger reindexing
+
+### Index Status Options
+
+- **idle**: No indexing activity
+- **scheduled**: Index build queued and waiting to run
+- **running**: Currently processing posts
+- **completed**: Last index build finished successfully
+- **failed**: Error occurred during indexing (check error message)
 
 ## API Specifications
 
@@ -68,6 +95,10 @@ Display a chat dialog on WordPress pages, allowing users to converse with a RAG-
 ```
 chatbudgie/
 ├── chatbudgie.php          # Main plugin file
+├── lib/
+│   ├── action-scheduler/   # Action Scheduler library for background tasks
+│   └── Vektor/             # Vector search library
+├── data/                   # Vector index data storage
 └── assets/
     ├── css/
     │   └── chatbudgie.css  # Stylesheet
