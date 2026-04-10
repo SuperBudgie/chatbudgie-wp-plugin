@@ -88,8 +88,6 @@ class ChatBudgie {
 
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_footer', array($this, 'render_chat_widget'));
-        add_action('wp_ajax_chatbudgie_send_message', array($this, 'handle_send_message'));
-        add_action('wp_ajax_nopriv_chatbudgie_send_message', array($this, 'handle_send_message'));
         add_action('wp_ajax_chatbudgie_send_message_sse', array($this, 'handle_send_message_sse'));
         add_action('wp_ajax_nopriv_chatbudgie_send_message_sse', array($this, 'handle_send_message_sse'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
@@ -103,6 +101,13 @@ class ChatBudgie {
         // Add Action Scheduler hooks for indexing
         add_action('chatbudgie_build_index', array($this, 'execute_build_index'));
         add_action('chatbudgie_index_single_post', array($this, 'execute_index_single_post'), 10, 1);
+
+        // Hook into post save/update to schedule indexing
+        add_action('save_post', array($this, 'handle_post_save'), 10, 3);
+        add_action('transition_post_status', array($this, 'handle_post_status_transition'), 10, 3);
+
+        // Hook into post deletion and status changes to remove indexes
+        add_action('before_delete_post', array($this, 'handle_post_delete'));
 
         // Set up cron job on plugin activation
         register_activation_hook(__FILE__, array($this, 'activate'));
@@ -407,6 +412,126 @@ class ChatBudgie {
     }
 
     /**
+     * Handle post save event to schedule indexing
+     *
+     * @param int $post_id The post ID
+     * @param WP_Post $post The post object
+     * @param bool $update Whether this is an existing post being updated
+     * @return void
+     */
+    public function handle_post_save($post_id, $post, $update) {
+        // Skip autosaves
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        // Skip revisions
+        if (wp_is_post_revision($post_id)) {
+            return;
+        }
+
+        // Only index posts and pages
+        if (!in_array($post->post_type, array('post', 'page'))) {
+            return;
+        }
+
+        // Schedule indexing for published posts
+        if ($post->post_status === 'publish') {
+            $this->schedule_post_index($post_id);
+        }
+    }
+
+    /**
+     * Handle post status transition to schedule or remove indexing
+     *
+     * @param string $new_status New post status
+     * @param string $old_status Old post status
+     * @param WP_Post $post The post object
+     * @return void
+     */
+    public function handle_post_status_transition($new_status, $old_status, $post) {
+        // Skip autosaves
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        // Only index posts and pages
+        if (!in_array($post->post_type, array('post', 'page'))) {
+            return;
+        }
+
+        // Post became published - schedule indexing
+        if ($new_status === 'publish' && $old_status !== 'publish') {
+            $this->schedule_post_index($post->ID);
+        }
+
+        // Post changed from published to non-published - remove index
+        if ($old_status === 'publish' && $new_status !== 'publish') {
+            // Delete vectors for this post
+            $this->delete_post_vectors($post->ID);
+
+            // Delete chunk data
+            $this->delete_post_chunks($post->ID);
+
+            // Delete index time record
+            $this->delete_post_index_time($post->ID);
+
+            error_log('ChatBudgie: Deleted index for unpublished post ' . $post->ID . ' (status changed to: ' . $new_status . ')');
+        }
+    }
+
+    /**
+     * Handle post deletion to remove index
+     *
+     * @param int $post_id The post ID being deleted
+     * @return void
+     */
+    public function handle_post_delete($post_id) {
+        // Delete vectors for this post
+        $this->delete_post_vectors($post_id);
+
+        // Delete chunk data
+        $this->delete_post_chunks($post_id);
+
+        // Delete index time record
+        $this->delete_post_index_time($post_id);
+
+        error_log('ChatBudgie: Deleted index for deleted post ' . $post_id);
+    }
+
+    /**
+     * Delete all vector entries for a specific post
+     *
+     * @param int $post_id The WordPress post ID
+     * @return void
+     */
+    private function delete_post_vectors($post_id) {
+        global $wpdb;
+
+        try {
+            // Get chunk IDs from the chunk table for this post
+            $chunk_table = $wpdb->prefix . CHATBUDGIE_CHUNK_TABLE;
+            $chunk_ids = $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT chunk_id FROM {$chunk_table} WHERE post_id = %d",
+                    $post_id
+                )
+            );
+
+            if (!empty($chunk_ids)) {
+                // Delete vectors for each chunk
+                foreach ($chunk_ids as $chunk_id) {
+                    $vector_id = $post_id . '_' . $chunk_id;
+                    $this->indexer->delete($vector_id);
+                }
+                error_log('ChatBudgie: Deleted ' . count($chunk_ids) . ' vectors for post ' . $post_id);
+            }
+        } catch (Exception $e) {
+            error_log('ChatBudgie: Error deleting vectors for post ' . $post_id . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Execute the build index action (called by Action Scheduler)
      * Schedules all published posts for indexing via Action Scheduler
      *
@@ -504,9 +629,9 @@ class ChatBudgie {
         }
 
         try {
-            $title = $post->post_title;
-            $content = $post->post_content;
-            $excerpt = $post->post_excerpt;
+            $title = wp_strip_all_tags($post->post_title);
+            $content = wp_strip_all_tags(strip_shortcodes($post->post_content));
+            $excerpt = wp_strip_all_tags(strip_shortcodes($post->post_excerpt));
 
             // Get embedding chunks from API
             $chunks = $this->get_embedding($title, $content, $excerpt);
@@ -653,8 +778,7 @@ class ChatBudgie {
      * @param string $query_text The search query text
      * @param int $k Maximum number of results to return (default: 5)
      * @param float $threshold Minimum similarity score threshold (default: 0.7)
-     * @return array Array of results containing 'id', 'score', and 'chunkText'
-     * @throws Exception If embedding or search fails
+     * @return array Array of results containing 'id', 'score', and 'chunkText'. Returns empty array on error.
      */
     public function search_index($query_text, $k = 5, $threshold = 0.7) {
         try {
@@ -663,7 +787,8 @@ class ChatBudgie {
 
             // Get the first chunk's embedding as the query vector
             if (empty($embedding_data) || !isset($embedding_data[0]['embedding'])) {
-                throw new Exception('Failed to generate query embedding');
+                error_log('ChatBudgie search_index error: Failed to generate query embedding');
+                return array();
             }
 
             $query_vector = $embedding_data[0]['embedding'];
@@ -694,7 +819,8 @@ class ChatBudgie {
 
         } catch (Exception $e) {
             error_log('ChatBudgie search_index error: ' . $e->getMessage());
-            throw $e;
+            // Return empty array instead of throwing exception
+            return array();
         }
     }
 
@@ -992,7 +1118,7 @@ class ChatBudgie {
         }
 
         try {
-            // Search the vector index for relevant content
+            // Search the vector index for relevant content (returns empty array on error)
             $search_results = $this->search_index($message, 5, 0.2);
 
             // Build context from search results
@@ -1008,7 +1134,7 @@ class ChatBudgie {
 
             // Make request to chat API
             $api_url = 'https://chat.superbudgie.com/api/rag/chat';
-            
+
             $chat_request = array(
                 'context' => $context,
                 'messages' => $conversation_history
@@ -1108,56 +1234,6 @@ class ChatBudgie {
     private function sse_send_event_raw($line) {
         echo $line . "\n";
         flush();
-    }
-
-    /**
-     * Handle AJAX chat message requests
-     * Receives user messages, searches the vector index, and returns relevant results
-     * Hooked to wp_ajax_chatbudgie_send_message and wp_ajax_nopriv_chatbudgie_send_message
-     *
-     * @return void Outputs JSON response and exits
-     */
-    public function handle_send_message() {
-        check_ajax_referer('chatbudgie_nonce', 'nonce');
-
-        $message = sanitize_text_field($_POST['message'] ?? '');
-        $conversation_history = $_POST['conversation_history'] ?? array();
-
-        if (empty($message)) {
-            wp_send_json_error(array('message' => 'Message cannot be empty'));
-        }
-
-        try {
-            // Search the vector index for relevant content
-            $search_results = $this->search_index($message, 5, 0.2);
-
-            if (empty($search_results)) {
-                wp_send_json_success(array(
-                    'reply' => __('I could not find any relevant information to answer your question.', 'chatbudgie'),
-                    'results' => array()
-                ));
-                return;
-            }
-
-            // Build reply from search results - include chunk_id, score, and content
-            $reply = '';
-            foreach ($search_results as $index => $result) {
-                if ($index > 0) {
-                    $reply .= "\n\n---\n\n";
-                }
-                $reply .= '[Chunk ID: ' . esc_html($result['id']) . ' | Score: ' . number_format($result['score'], 3) . ']' . "\n";
-                $reply .= $result['chunkText'];
-            }
-
-            wp_send_json_success(array(
-                'reply' => $reply,
-                'results' => $search_results
-            ));
-
-        } catch (Exception $e) {
-            error_log('ChatBudgie handle_send_message error: ' . $e->getMessage());
-            wp_send_json_error(array('message' => $e->getMessage()));
-        }
     }
 
     /**
