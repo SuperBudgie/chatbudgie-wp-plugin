@@ -277,39 +277,32 @@ class ChatBudgie {
     /**
      * Schedule WordPress index build via Action Scheduler
      * Schedules an immediate background task to build the full index
-     * Cancels the entire group if there are pending tasks before starting fresh
+     * Deletes existing build and single post indexing actions from database before starting fresh
      *
      * @return int The action ID
      */
     public function schedule_index_build() {
-        // Check if there are any pending actions in the chatbudgie group
-        $pending_actions = as_get_scheduled_actions(array(
-            'group' => 'chatbudgie',
-            'status' => \ActionScheduler_Store::STATUS_PENDING
-        ));
+        global $wpdb;
 
-        // If there are pending tasks, cancel the entire group
-        if (!empty($pending_actions)) {
-            $cancelled_count = as_unschedule_all_actions('chatbudgie');
-            error_log('ChatBudgie: Cancelled entire group (' . $cancelled_count . ' action(s)) before scheduling new index build');
-        }
+        // Delete all existing build and single post indexing actions via direct SQL for efficiency
+        $table_name = $wpdb->prefix . 'actionscheduler_actions';
+        $group_table = $wpdb->prefix . 'actionscheduler_groups';
 
-        // Also cancel any running actions in the group
-        $running_actions = as_get_scheduled_actions(array(
-            'group' => 'chatbudgie',
-            'status' => \ActionScheduler_Store::STATUS_RUNNING
-        ));
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE a FROM {$table_name} a
+                 INNER JOIN {$group_table} g ON a.group_id = g.group_id
+                 WHERE g.slug = %s AND a.hook IN (%s, %s)",
+                'chatbudgie',
+                'chatbudgie_build_index',
+                'chatbudgie_index_single_post'
+            )
+        );
 
-        foreach ($running_actions as $action) {
-            as_unschedule_action($action->get_id());
-        }
+        error_log('ChatBudgie: Deleted existing indexing actions from database before scheduling new build');
 
         // Schedule fresh action
         $action_id = as_enqueue_async_action('chatbudgie_build_index', array(), 'chatbudgie');
-
-        // Update indexing status
-        update_option('chatbudgie_index_status', 'scheduled', false);
-        update_option('chatbudgie_index_last_scheduled', current_time('mysql'), false);
 
         error_log('ChatBudgie: Scheduled fresh index build with action ID: ' . $action_id);
 
@@ -322,54 +315,71 @@ class ChatBudgie {
      * @return array Status information
      */
     public function get_index_status() {
-        $status = get_option('chatbudgie_index_status', 'idle');
-        $last_scheduled = get_option('chatbudgie_index_last_scheduled', '');
-        $last_completed = get_option('chatbudgie_index_last_completed', '');
-        $error = get_option('chatbudgie_index_error', '');
-        $scheduled_posts_count = get_option('chatbudgie_scheduled_posts_count', 0);
+        $error = '';
+        $store = \ActionScheduler_Store::instance();
 
-        // Check if there are pending actions
-        $pending_actions = as_get_scheduled_actions(array(
+        // Get total count of all post indexing tasks (no status filter)
+        $scheduled_count = $store->query_actions(array(
+            'hook' => 'chatbudgie_index_single_post'
+        ), 'count');
+
+        // Get count of completed tasks
+        $completed_count = $store->query_actions(array(
+            'hook' => 'chatbudgie_index_single_post',
+            'status' => \ActionScheduler_Store::STATUS_COMPLETE
+        ), 'count');
+
+        // Check build index task status
+        $pending_build_actions = as_get_scheduled_actions(array(
             'hook' => 'chatbudgie_build_index',
             'status' => \ActionScheduler_Store::STATUS_PENDING
         ));
 
-        $running_actions = as_get_scheduled_actions(array(
+        $running_build_actions = as_get_scheduled_actions(array(
             'hook' => 'chatbudgie_build_index',
             'status' => \ActionScheduler_Store::STATUS_RUNNING
         ));
 
+        $failed_build_actions = as_get_scheduled_actions(array(
+            'hook' => 'chatbudgie_build_index',
+            'status' => \ActionScheduler_Store::STATUS_FAILED
+        ));
+
+        // Determine status based on rules:
+        // 1. If build task failed → 'failed'
+        // 2. If build task is pending/running → 'pending'
+        // 3. If build task done but post tasks still running → 'running'
+        // 4. If all post tasks complete → 'completed'
+        if (!empty($failed_build_actions)) {
+            $status = 'failed';
+            if (isset($failed_build_actions[0])) {
+                $error = $failed_build_actions[0]->get_message();
+            }
+        } elseif (!empty($pending_build_actions) || !empty($running_build_actions)) {
+            $status = 'pending';
+        } elseif ($scheduled_count > 0 && $completed_count < $scheduled_count) {
+            $status = 'running';
+        } elseif ($scheduled_count > 0 && $completed_count >= $scheduled_count) {
+            $status = 'completed';
+        } else {
+            $status = 'idle';
+        }
+
+        // Calculate progress (based on completed vs total)
+        $progress = 0;
+        if ($scheduled_count > 0) {
+            $progress = min(100, round(($completed_count / $scheduled_count) * 100));
+        } elseif ($status === 'completed') {
+            $progress = 100;
+        }
+
         return array(
-            'status' => !empty($running_actions) ? 'running' : $status,
-            'last_scheduled' => $last_scheduled,
-            'last_completed' => $last_completed,
-            'has_pending_actions' => !empty($pending_actions),
-            'scheduled_posts_count' => $scheduled_posts_count,
+            'status' => $status,
+            'scheduled_posts_count' => $scheduled_count,
+            'completed_posts_count' => $completed_count,
+            'progress' => $progress,
             'error' => $error
         );
-    }
-
-    /**
-     * Update indexing status
-     *
-     * @param string $status The status (idle, scheduled, running, completed, failed)
-     * @param array $extra Optional extra data (error message, scheduled count, etc.)
-     * @return void
-     */
-    private function update_index_status($status, $extra = array()) {
-        update_option('chatbudgie_index_status', $status);
-
-        if ($status === 'completed') {
-            update_option('chatbudgie_index_last_completed', current_time('mysql'));
-            update_option('chatbudgie_index_error', '');
-            if (isset($extra['scheduled_count'])) {
-                update_option('chatbudgie_scheduled_posts_count', intval($extra['scheduled_count']));
-            }
-        } elseif ($status === 'failed') {
-            if (isset($extra['error'])) {
-                update_option('chatbudgie_index_error', $extra['error']);
-            }
-        }
     }
 
     /**
@@ -540,7 +550,6 @@ class ChatBudgie {
      */
     public function execute_build_index() {
         error_log('ChatBudgie: Action Scheduler executing build_wordpress_index');
-        $this->update_index_status('running');
 
         try {
             $scheduled_count = 0;
@@ -582,11 +591,8 @@ class ChatBudgie {
             } while ($query->have_posts());
 
             error_log('ChatBudgie full index schedule task is completed. Post index tasks have been scheduled, indexing summary: ' . $scheduled_count . ' posts scheduled, ' . $skipped_count . ' posts skipped (already indexed)');
-
-            $this->update_index_status('completed', array('scheduled_count' => $scheduled_count));
         } catch (Exception $e) {
             error_log('ChatBudgie full index schedule task failed: ' . $e->getMessage());
-            $this->update_index_status('failed', array('error' => $e->getMessage()));
             // Re-throw exception so Action Scheduler knows this task failed
             throw new Exception('Full index schedule task failed: ' . $e->getMessage(), 0, $e);
         }
@@ -1245,53 +1251,53 @@ class ChatBudgie {
     public function show_index_status_notice() {
         $status = $this->get_index_status();
 
-        if ($status['status'] === 'running' || $status['has_pending_actions']) {
+        if ($status['status'] === 'pending') {
+            ?>
+            <div class="notice notice-info is-dismissible">
+                <p>
+                    <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
+                    <?php echo esc_html__('Index build is scheduled and will start shortly.', 'chatbudgie'); ?>
+                </p>
+            </div>
+            <?php
+        } elseif ($status['status'] === 'running') {
+            $completed = $status['completed_posts_count'];
+            $scheduled = $status['scheduled_posts_count'];
+            $progress = $status['progress'];
             ?>
             <div class="notice notice-info is-dismissible">
                 <p>
                     <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
                     <?php
-                    if ($status['status'] === 'running') {
-                        echo esc_html__('Index build is currently running in the background.', 'chatbudgie');
-                    } elseif ($status['has_pending_actions']) {
-                        echo esc_html__('Index build is scheduled and will run shortly.', 'chatbudgie');
-                    }
+                    printf(
+                        esc_html__('Indexing progress: %d of %d posts completed (%d%%)', 'chatbudgie'),
+                        intval($completed),
+                        intval($scheduled),
+                        intval($progress)
+                    );
                     ?>
+                </p>
+                <progress value="<?php echo esc_attr($progress); ?>" max="100" style="width: 100%; height: 20px;"></progress>
+            </div>
+            <?php
+        } elseif ($status['status'] === 'completed') {
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p>
+                    <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
+                    <?php echo esc_html__('Index build completed successfully.', 'chatbudgie'); ?>
                 </p>
             </div>
             <?php
-        } elseif ($status['status'] === 'failed' && $status['error']) {
+        } elseif ($status['status'] === 'failed') {
+            $error_msg = isset($status['error']) ? $status['error'] : 'Unknown error';
             ?>
             <div class="notice notice-error is-dismissible">
                 <p>
                     <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
                     <?php
-                    echo esc_html__('Index build failed:', 'chatbudgie') . ' ' . esc_html($status['error']);
+                    echo esc_html__('Index build failed:', 'chatbudgie') . ' ' . esc_html($error_msg);
                     echo ' <a href="' . esc_url(wp_nonce_url(admin_url('admin-post.php?action=chatbudgie_rebuild_index'), 'chatbudgie_rebuild_index')) . '">' . esc_html__('Try again', 'chatbudgie') . '</a>';
-                    ?>
-                </p>
-            </div>
-            <?php
-        } elseif ($status['status'] === 'completed' && $status['last_completed']) {
-            $time = human_time_diff(strtotime($status['last_completed']), current_time('timestamp'));
-            $scheduled_count = isset($status['scheduled_posts_count']) ? $status['scheduled_posts_count'] : 0;
-            ?>
-            <div class="notice notice-success is-dismissible">
-                <p>
-                    <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
-                    <?php
-                    if ($scheduled_count > 0) {
-                        printf(
-                            esc_html__('Index scheduling completed successfully %s ago. %d posts scheduled for indexing.', 'chatbudgie'),
-                            esc_html($time),
-                            intval($scheduled_count)
-                        );
-                    } else {
-                        printf(
-                            esc_html__('Index build completed successfully %s ago.', 'chatbudgie'),
-                            esc_html($time)
-                        );
-                    }
                     ?>
                 </p>
             </div>
@@ -1365,50 +1371,42 @@ class ChatBudgie {
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div>
                         <p style="font-size: 16px; font-weight: 600; margin: 0;">
-                            <?php echo esc_html__('Status:', 'chatbudgie'); ?> 
-                            <span style="color: <?php 
-                                echo $index_status['status'] === 'running' ? '#f59e0b' : 
-                                    ($index_status['status'] === 'completed' ? '#10b981' : 
-                                    ($index_status['status'] === 'failed' ? '#ef4444' : '#667eea')); 
+                            <?php echo esc_html__('Status:', 'chatbudgie'); ?>
+                            <span style="color: <?php
+                                echo $index_status['status'] === 'running' ? '#f59e0b' :
+                                    ($index_status['status'] === 'completed' ? '#10b981' :
+                                    ($index_status['status'] === 'failed' ? '#ef4444' : '#667eea'));
                             ?>; font-size: 18px;">
-                                <?php 
+                                <?php
                                 echo esc_html(ucfirst($index_status['status']));
                                 ?>
                             </span>
                         </p>
-                        <?php if ($index_status['last_scheduled']): ?>
-                        <p style="font-size: 12px; color: #666; margin: 5px 0 0;">
-                            <?php 
-                            printf(
-                                esc_html__('Last scheduled: %s', 'chatbudgie'),
-                                esc_html($index_status['last_scheduled'])
-                            );
-                            ?>
-                        </p>
-                        <?php endif; ?>
-                        <?php if ($index_status['last_completed']): ?>
+                        <?php if ($index_status['scheduled_posts_count'] > 0): ?>
                         <p style="font-size: 12px; color: #666; margin: 5px 0 0;">
                             <?php
                             printf(
-                                esc_html__('Last completed: %s', 'chatbudgie'),
-                                esc_html($index_status['last_completed'])
-                            );
-                            ?>
-                        </p>
-                        <?php endif; ?>
-                        <?php if ($index_status['status'] === 'completed' && $index_status['scheduled_posts_count'] > 0): ?>
-                        <p style="font-size: 12px; color: #10b981; margin: 5px 0 0;">
-                            <?php
-                            printf(
-                                esc_html__('Posts scheduled for indexing: %d', 'chatbudgie'),
+                                esc_html__('Indexing: %d of %d posts completed', 'chatbudgie'),
+                                intval($index_status['completed_posts_count']),
                                 intval($index_status['scheduled_posts_count'])
                             );
                             ?>
                         </p>
+                        <?php if ($index_status['progress'] > 0 && $index_status['progress'] < 100): ?>
+                        <progress value="<?php echo esc_attr($index_status['progress']); ?>" max="100" style="width: 100%; height: 20px; margin-top: 5px;"></progress>
+                        <p style="font-size: 12px; color: #10b981; margin: 3px 0 0;">
+                            <?php
+                            printf(
+                                esc_html__('Progress: %d%%', 'chatbudgie'),
+                                intval($index_status['progress'])
+                            );
+                            ?>
+                        </p>
                         <?php endif; ?>
-                        <?php if ($index_status['error']): ?>
+                        <?php endif; ?>
+                        <?php if (isset($index_status['error']) && $index_status['error']): ?>
                         <p style="font-size: 12px; color: #ef4444; margin: 5px 0 0;">
-                            <?php 
+                            <?php
                             printf(
                                 esc_html__('Error: %s', 'chatbudgie'),
                                 esc_html($index_status['error'])
