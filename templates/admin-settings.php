@@ -74,9 +74,6 @@ $index_status = $this->get_index_status();
         </div>
     </div>
     
-    <p style="background: #f0f0f0; padding: 10px; border-left: 4px solid #667eea;">
-        <?php echo esc_html__('API URL is fixed to: http://localhost:5000/chat', 'chatbudgie'); ?>
-    </p>
     <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
         <h2 style="margin-top: 0; margin-bottom: 15px;"><?php echo esc_html__('Token Management', 'chatbudgie'); ?></h2>
         <div style="display: flex; align-items: center; gap: 20px;">

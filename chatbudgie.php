@@ -37,8 +37,12 @@ if (file_exists(__DIR__ . '/lib/Vektor/Core/Config.php')) {
 }
 
 define('CHATBUDGIE_VERSION', '1.0.0');
+define('CHATBUDGIE_APP_NAME', 'chatbudgie');
 define('CHATBUDGIE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CHATBUDGIE_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/');
+//define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');
+//define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');
 
 use ChatBudgie\Vektor\Core\Config;
 use ChatBudgie\Vektor\Services\Indexer;
@@ -48,9 +52,9 @@ use ChatBudgie\Vektor\Services\Optimizer;
 class ChatBudgie {
     public const DATA_DIR = CHATBUDGIE_PLUGIN_DIR . '/data';
     public const EMBEDDING_DIMENSION = 1536;
-    public const BASE_URL = 'https://chat.superbudgie.com/';
-    public const EMBEDDING_API = self::BASE_URL . 'api/rag/embedding/v1';
-    public const CHAT_API = self::BASE_URL . 'api/rag/chat';
+    public const EMBEDDING_API = CHATBUDGIE_BASE_URL . 'api/rag/embedding/v1';
+    public const CHAT_API = CHATBUDGIE_BASE_URL . 'api/rag/chat';
+    public const REFRESH_APP_KEY_API = CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
     public const INDEX_META_TABLE = 'chatbudgie_index_meta';
     public const CHUNK_TABLE = 'chatbudgie_chunk_data';
 
@@ -98,6 +102,10 @@ class ChatBudgie {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_notices', array($this, 'show_index_status_notice'));
         add_action('admin_post_chatbudgie_rebuild_index', array($this, 'handle_manual_rebuild_index'));
+
+        // Add login callback action
+        add_action('admin_post_chatbudgie_login_callback', array($this, 'handle_login_callback'));
+        add_action('admin_post_nopriv_chatbudgie_login_callback', array($this, 'handle_login_callback'));
 
         // Add cron job hook
         add_action('chatbudgie_daily_task', array($this, 'daily_task'));
@@ -726,6 +734,7 @@ class ChatBudgie {
 
         $headers = array(
             'Content-Type: application/json',
+            'appKey: ' . get_option('chatbudgie_app_key', ''),
         );
 
         $response = wp_remote_post(self::EMBEDDING_API, array(
@@ -1128,6 +1137,7 @@ class ChatBudgie {
     private function stream_api_response($url, $body) {
         $headers = array(
             'Content-Type: application/json',
+            'appKey: ' . get_option('chatbudgie_app_key', ''),
         );
 
         $ch = curl_init();
@@ -1292,13 +1302,115 @@ class ChatBudgie {
      * @return void
      */
     public function add_admin_menu() {
-        add_options_page(
-            __('ChatBudgie Settings', 'chatbudgie'),
+        // Main Menu
+        add_menu_page(
             __('ChatBudgie', 'chatbudgie'),
+            __('ChatBudgie', 'chatbudgie'),
+            'manage_options',
+            'chatbudgie',
+            array($this, 'render_settings_page'),
+            'dashicons-format-chat',
+            25
+        );
+
+        // Subpages
+        add_submenu_page(
+            'chatbudgie',
+            __('Settings', 'chatbudgie'),
+            __('Settings', 'chatbudgie'),
             'manage_options',
             'chatbudgie',
             array($this, 'render_settings_page')
         );
+
+        add_submenu_page(
+            'chatbudgie',
+            __('Activity', 'chatbudgie'),
+            __('Activity', 'chatbudgie'),
+            'manage_options',
+            'chatbudgie-activity',
+            array($this, 'render_activity_page')
+        );
+
+        add_submenu_page(
+            'chatbudgie',
+            __('Orders', 'chatbudgie'),
+            __('Orders', 'chatbudgie'),
+            'manage_options',
+            'chatbudgie-orders',
+            array($this, 'render_orders_page')
+        );
+    }
+
+    /**
+     * Render the activity page
+     * 
+     * @return void
+     */
+    public function render_activity_page() {
+        echo '<div class="wrap"><h1>' . esc_html__('Chat Activity', 'chatbudgie') . '</h1><p>' . esc_html__('Coming soon...', 'chatbudgie') . '</p></div>';
+    }
+
+    /**
+     * Render the orders page
+     * 
+     * @return void
+     */
+    public function render_orders_page() {
+        echo '<div class="wrap"><h1>' . esc_html__('Orders', 'chatbudgie') . '</h1><p>' . esc_html__('Coming soon...', 'chatbudgie') . '</p></div>';
+    }
+
+    /**
+     * Handle the login callback from the login server
+     * 
+     * @return void
+     */
+    public function handle_login_callback() {
+        $code = sanitize_text_field($_GET['code'] ?? '');
+
+        if (empty($code)) {
+            wp_die(__('Authorization code is missing', 'chatbudgie'), __('Login Error', 'chatbudgie'), array('response' => 400));
+        }
+
+        // Call the refresh appkey API
+        $response = wp_remote_post(self::REFRESH_APP_KEY_API, array(
+            'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+            'body'    => array(
+                'code'    => $code,
+                'appName' => CHATBUDGIE_APP_NAME,
+                'siteUrl' => get_site_url(),
+            ),
+            'timeout' => 30,
+            //'sslverify' => false,
+        ));
+
+        if (is_wp_error($response)) {
+            wp_die($response->get_error_message(), __('API Error', 'chatbudgie'), array('response' => 500));
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        // Extract appkey from response. Try different common keys.
+        $app_key = '';
+        if (isset($body['data']['appKey'])) {
+            $app_key = $body['data']['appKey'];
+        } elseif (isset($body['data']['app_key'])) {
+            $app_key = $body['data']['app_key'];
+        } elseif (isset($body['appKey'])) {
+            $app_key = $body['appKey'];
+        } elseif (isset($body['app_key'])) {
+            $app_key = $body['app_key'];
+        }
+
+        if ($app_key) {
+            update_option('chatbudgie_app_key', $app_key);
+            
+            // Redirect to settings page
+            wp_redirect(admin_url('admin.php?page=chatbudgie'));
+            exit;
+        }
+
+        wp_die(__('Failed to retrieve appKey from login server', 'chatbudgie'), __('Login Error', 'chatbudgie'), array('response' => 500));
     }
 
     /**
