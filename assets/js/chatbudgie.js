@@ -59,7 +59,7 @@
         loadHistory();
         
         if (conversationHistory.length === 0) {
-            addBotMessage('How can I help you today?');
+            addBotMessage(chatbudgie_params.strings.welcome);
         } else {
             renderHistory();
         }
@@ -241,7 +241,8 @@
             });
 
             if (!response.ok) {
-                throw new Error(chatbudgie_params.strings.error);
+                var errorText = await response.text();
+                throw new Error(errorText || chatbudgie_params.strings.error);
             }
 
             const reader = response.body.getReader();

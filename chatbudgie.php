@@ -729,23 +729,25 @@ class ChatBudgie {
             'title' => $title,
             'excerpt' => $excerpt,
             'content' => $content,
-            'contentType' => 'text/html'
+            'contentType' => 'text/html',
+            'appName' => CHATBUDGIE_APP_NAME
         );
 
         $headers = array(
-            'Content-Type: application/json',
-            'appKey: ' . get_option('chatbudgie_app_key', ''),
+            'Content-Type' => 'application/json',
+            'appKey' => get_option('chatbudgie_app_key', '')
         );
 
         $response = wp_remote_post(self::EMBEDDING_API, array(
             'headers' => $headers,
             'body' => json_encode($body),
-            'timeout' => 60
+            'timeout' => 60,
+            'sslverify' => false
         ));
 
         if (is_wp_error($response)) {
             $error_message = $response->get_error_message();
-            throw new Exception('API request failed: ' . $error_message);
+            throw new Exception('Embedding API request failed: ' . $error_message);
         }
 
         $response_body = wp_remote_retrieve_body($response);
@@ -1026,6 +1028,7 @@ class ChatBudgie {
             'nonce' => wp_create_nonce('chatbudgie_nonce'),
             'strings' => array(
                 'placeholder' => __('Please enter your question...', 'chatbudgie'),
+                'welcome' => get_option('chatbudgie_welcome_message', __("I'm ChatBudgie, assistant of the website. How can I help you today?", 'chatbudgie')),
                 'sending' => __('Sending...', 'chatbudgie'),
                 'error' => __('Failed to send, please try again', 'chatbudgie'),
                 'api_error' => __('API call failed', 'chatbudgie')
@@ -1097,8 +1100,7 @@ class ChatBudgie {
         $this->sse_set_headers();
 
         if (empty($message)) {
-            echo "data:{\"error\":\"Message cannot be empty\"}\n\n";
-            flush();
+            $this->sse_send_error('Message cannot be empty', 400);
             exit;
         }
 
@@ -1120,7 +1122,9 @@ class ChatBudgie {
             // Make request to chat API
             $chat_request = array(
                 'context' => $context,
-                'messages' => $conversation_history
+                'messages' => $conversation_history,
+                'appName' => CHATBUDGIE_APP_NAME,
+                'siteUrl' => get_site_url()
             );
 
             // Call the streaming chat API
@@ -1128,8 +1132,11 @@ class ChatBudgie {
 
         } catch (Exception $e) {
             error_log('ChatBudgie handle_send_message_sse error: ' . $e->getMessage());
-            echo "data:{\"error\":\"" . addslashes($e->getMessage()) . "\"}\n\n";
-            flush();
+            $status_code = $e->getCode();
+            if (!is_int($status_code) || $status_code < 400 || $status_code > 599) {
+                $status_code = 500;
+            }
+            $this->sse_send_error($e->getMessage(), $status_code);
         }
 
         exit;
@@ -1156,6 +1163,8 @@ class ChatBudgie {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
         
         // Enable streaming
@@ -1173,12 +1182,21 @@ class ChatBudgie {
         $response = curl_exec($ch);
         
         if (curl_errno($ch)) {
-            error_log('ChatBudgie API stream error: ' . curl_error($ch));
-            echo "data:{\"error\":\"API stream error: " . addslashes(curl_error($ch)) . "\"}\n\n";
-            if (ob_get_level()) {
-                ob_flush();
+            $error_message = 'API stream error: ' . curl_error($ch);
+            error_log('ChatBudgie ' . $error_message);
+            curl_close($ch);
+            throw new Exception($error_message, 502);
+        }
+        
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_code !== 200) {
+            $error_message = 'API stream error: Received HTTP code ' . $http_code;
+            if ($http_code === 401) {
+                $error_message .= ' - Please login ChatBudgie account in the setting page';
             }
-            flush();
+            error_log('ChatBudgie ' . $error_message);
+            curl_close($ch);
+            throw new Exception($error_message, $http_code);
         }
         
         curl_close($ch);
@@ -1227,6 +1245,28 @@ class ChatBudgie {
      */
     private function sse_send_event_raw($line) {
         echo $line . "\n";
+        if (ob_get_level()) {
+            ob_flush();
+        }
+        flush();
+    }
+
+    /**
+     * Send an SSE error event and set an HTTP error status when possible
+     *
+     * @param string $message The error message to send
+     * @param int|null $status_code The HTTP status code to set before output starts
+     * @return void
+     */
+    private function sse_send_error($message, $status_code = 500) {
+        if ($status_code !== null && !headers_sent()) {
+            status_header($status_code);
+        }
+
+        if (!$message) {
+            $message = 'An unknown error occurred';
+        }
+        echo 'error:' . $message . "\n\n";
         if (ob_get_level()) {
             ob_flush();
         }
@@ -1402,7 +1442,7 @@ class ChatBudgie {
                 'siteUrl' => get_site_url(),
             ),
             'timeout' => 30,
-            //'sslverify' => false,
+            'sslverify' => false,
         ));
 
         if (is_wp_error($response)) {
@@ -1451,6 +1491,7 @@ class ChatBudgie {
      */
     public function register_settings() {
         register_setting('chatbudgie_settings', 'chatbudgie_app_key');
+        register_setting('chatbudgie_settings', 'chatbudgie_welcome_message');
         register_setting('chatbudgie_settings', 'chatbudgie_icon_type');
         register_setting('chatbudgie_settings', 'chatbudgie_custom_icon');
         register_setting('chatbudgie_settings', 'chatbudgie_primary_color');
