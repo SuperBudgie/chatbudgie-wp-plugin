@@ -2,9 +2,9 @@
 /**
  * Plugin Name: ChatBudgie
  * Plugin URI: https://example.com/chatbudgie
- * Description: Display a chat dialog on WordPress pages, allowing users to converse with a RAG-based Agent to get website-related answers
+ * Description: Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers
  * Version: 1.0.0
- * Author: Budgie Team
+ * Author: SuperBudgie Team
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: chatbudgie
@@ -40,8 +40,8 @@ define('CHATBUDGIE_VERSION', '1.0.0');
 define('CHATBUDGIE_APP_NAME', 'chatbudgie');
 define('CHATBUDGIE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CHATBUDGIE_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/');
-//define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');
+//define('CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/');
+define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');
 //define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');
 
 use ChatBudgie\Vektor\Core\Config;
@@ -54,6 +54,7 @@ class ChatBudgie {
     public const EMBEDDING_DIMENSION = 1536;
     public const EMBEDDING_API = CHATBUDGIE_BASE_URL . 'api/rag/embedding/v1';
     public const CHAT_API = CHATBUDGIE_BASE_URL . 'api/rag/chat';
+    public const USER_INFO_API = CHATBUDGIE_BASE_URL . 'api/user/info';
     public const REFRESH_APP_KEY_API = CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
     public const INDEX_META_TABLE = 'chatbudgie_index_meta';
     public const CHUNK_TABLE = 'chatbudgie_chunk_data';
@@ -993,6 +994,51 @@ class ChatBudgie {
     }
 
     /**
+     * Get user account information from the API
+     * 
+     * @return array User info array on success
+     * @throws Exception If API request fails or returns an error
+     */
+    public function get_user_info() {
+        $app_key = get_option('chatbudgie_app_key', '');
+        
+        if (empty($app_key)) {
+            throw new Exception('Application key is missing', 401);
+        }
+
+        $headers = array(
+            'appKey' => $app_key
+        );
+
+        $response = wp_remote_get(self::USER_INFO_API, array(
+            'headers'   => $headers,
+            'timeout'   => 15,
+            'sslverify' => false
+        ));
+
+        if (is_wp_error($response)) {
+            error_log('ChatBudgie: User info API request failed: ' . $response->get_error_message());
+            throw new Exception('API request failed: ' . $response->get_error_message());
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $data = json_decode($response_body, true);
+
+        if ($status_code !== 200) {
+            $message = isset($data['message']) ? $data['message'] : 'API error';
+            error_log('ChatBudgie: User info API error: ' . $message . ' (Status: ' . $status_code . ')');
+            throw new Exception($message, $status_code);
+        }
+
+        if (!isset($data['data'])) {
+            throw new Exception('Invalid API response format');
+        }
+
+        return $data['data'];
+    }
+
+    /**
      * Enqueue frontend scripts and styles
      * Loads CSS, JavaScript, and passes PHP variables to the frontend via wp_localize_script
      * 
@@ -1051,9 +1097,26 @@ class ChatBudgie {
         wp_enqueue_style(
             'chatbudgie-admin-style',
             CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie-admin.css',
-            array(),
+            array('wp-color-picker'),
             CHATBUDGIE_VERSION
         );
+
+        wp_enqueue_script(
+            'chatbudgie-admin-script',
+            CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie-admin.js',
+            array('jquery', 'wp-color-picker'),
+            CHATBUDGIE_VERSION,
+            true
+        );
+
+        wp_localize_script('chatbudgie-admin-script', 'chatbudgie_admin_params', array(
+            'confirm_rebuild' => __('Are you sure you want to rebuild the index? This action may take some time, it will delete the existing index data.', 'chatbudgie'),
+            'choose_icon' => __('Choose Icon', 'chatbudgie'),
+            'select_icon' => __('Select Icon', 'chatbudgie'),
+        ));
+
+        // Enqueue WordPress media scripts
+        wp_enqueue_media();
     }
 
     /**
@@ -1353,11 +1416,11 @@ class ChatBudgie {
 
         add_submenu_page(
             'chatbudgie',
-            __('Activity', 'chatbudgie'),
-            __('Activity', 'chatbudgie'),
+            __('Usage', 'chatbudgie'),
+            __('Usage', 'chatbudgie'),
             'manage_options',
-            'chatbudgie-activity',
-            array($this, 'render_activity_page')
+            'chatbudgie-usage',
+            array($this, 'render_usage_page')
         );
 
         add_submenu_page(
@@ -1371,12 +1434,26 @@ class ChatBudgie {
     }
 
     /**
-     * Render the activity page
+     * Render the usage page
      * 
      * @return void
      */
-    public function render_activity_page() {
-        echo '<div class="wrap"><h1>' . esc_html__('Chat Activity', 'chatbudgie') . '</h1><p>' . esc_html__('Coming soon...', 'chatbudgie') . '</p></div>';
+    public function render_usage_page() {
+        try {
+            $user_info = $this->get_user_info();
+            include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-usage.php';
+        } catch (Exception $e) {
+            if ($e->getCode() === 401) {
+                // Key is invalid, clear it and show login page
+                update_option('chatbudgie_app_key', '');
+                $this->render_login_page();
+            } else {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Failed to fetch usage info. Please try again later.', 'chatbudgie') . ' (' . esc_html($e->getMessage()) . ')</p></div>';
+                // Still try to show the page but without user info
+                $user_info = null;
+                include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-usage.php';
+            }
+        }
     }
 
     /**
@@ -1385,7 +1462,7 @@ class ChatBudgie {
      * @return void
      */
     public function render_orders_page() {
-        echo '<div class="wrap"><h1>' . esc_html__('Orders', 'chatbudgie') . '</h1><p>' . esc_html__('Coming soon...', 'chatbudgie') . '</p></div>';
+        include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
     }
 
     /**
@@ -1457,15 +1534,12 @@ class ChatBudgie {
      * @return void
      */
     public function register_settings() {
-        register_setting('chatbudgie_settings', 'chatbudgie_app_key');
-        register_setting('chatbudgie_settings', 'chatbudgie_welcome_message');
-        register_setting('chatbudgie_settings', 'chatbudgie_icon_type');
-        register_setting('chatbudgie_settings', 'chatbudgie_custom_icon');
-        register_setting('chatbudgie_settings', 'chatbudgie_primary_color');
-        register_setting('chatbudgie_settings', 'chatbudgie_secondary_color');
-        register_setting('chatbudgie_settings', 'chatbudgie_tokens');
-        register_setting('chatbudgie_settings', 'chatbudgie_openrouter_api_key');
-        register_setting('chatbudgie_settings', 'chatbudgie_openrouter_model');
+        register_setting('chatbudgie_general_settings', 'chatbudgie_app_key');
+
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_welcome_message');
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_custom_icon');
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_primary_color');
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_secondary_color');
     }
 
     /**
@@ -1482,8 +1556,22 @@ class ChatBudgie {
             $this->render_login_page();
             return;
         }
-        
-        include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
+
+        try {
+            $user_info = $this->get_user_info();
+            include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
+        } catch (Exception $e) {
+            if ($e->getCode() === 401) {
+                // Key is invalid, clear it and show login page
+                update_option('chatbudgie_app_key', '');
+                $this->render_login_page();
+            } else {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Failed to fetch account info. Please try again later.', 'chatbudgie') . ' (' . esc_html($e->getMessage()) . ')</p></div>';
+                // Still try to show the page but without user info
+                $user_info = null;
+                include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
+            }
+        }
     }
 }
 

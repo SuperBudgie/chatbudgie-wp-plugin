@@ -8,218 +8,292 @@ if (!defined('ABSPATH')) {
 }
 
 $index_status = $this->get_index_status();
+$welcome_message = get_option('chatbudgie_welcome_message', __("I'm ChatBudgie, your AI assistant. How can I help you today?", 'chatbudgie'));
+$primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
+$secondary_color = get_option('chatbudgie_secondary_color', '#dbe9ff');
+$selected_avatar = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png');
+$progress = max(0, min(100, (int) $index_status['progress']));
+$total_files = max(0, (int) $index_status['scheduled_posts_count']);
+$indexed_files = max(0, (int) $index_status['completed_posts_count']);
+$remaining_files = max(0, $total_files - $indexed_files);
+
+$status_labels = array(
+    'pending' => __('Preparing index', 'chatbudgie'),
+    'running' => __('Indexing content', 'chatbudgie'),
+    'completed' => __('Index is ready', 'chatbudgie'),
+    'failed' => __('Index needs attention', 'chatbudgie'),
+);
+$status_label = isset($status_labels[$index_status['status']]) ? $status_labels[$index_status['status']] : __('Status unavailable', 'chatbudgie');
+
+if ($index_status['status'] === 'failed') {
+    $eta_label = __('Check logs', 'chatbudgie');
+} elseif ($index_status['status'] === 'completed') {
+    $eta_label = __('Ready now', 'chatbudgie');
+} elseif ($remaining_files > 0) {
+    $eta_seconds = $remaining_files * 12;
+    $eta_minutes = floor($eta_seconds / 60);
+    $eta_remainder = $eta_seconds % 60;
+    $eta_label = $eta_minutes > 0
+        ? sprintf(__('%dm %02ds', 'chatbudgie'), $eta_minutes, $eta_remainder)
+        : sprintf(__('%ds', 'chatbudgie'), $eta_remainder);
+} else {
+    $eta_label = __('Starting', 'chatbudgie');
+}
+
+$color_options = array(
+    array('primary' => '#2f7bff', 'secondary' => '#dbe9ff', 'label' => __('Ocean Blue', 'chatbudgie')),
+    array('primary' => '#7c3aed', 'secondary' => '#ede9fe', 'label' => __('Violet', 'chatbudgie')),
+    array('primary' => '#14b8a6', 'secondary' => '#ccfbf1', 'label' => __('Teal', 'chatbudgie')),
+    array('primary' => '#f59e0b', 'secondary' => '#fef3c7', 'label' => __('Amber', 'chatbudgie')),
+    array('primary' => '#f43f5e', 'secondary' => '#ffe4e6', 'label' => __('Rose', 'chatbudgie')),
+);
+
+$avatar_options = array(
+    CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png',
+    CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar-2.png',
+    CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar.png',
+    CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar-green.png',
+    CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar2.png'
+);
+
+$is_predefined_avatar = in_array($selected_avatar, $avatar_options);
+
+$has_matching_palette = false;
+foreach ($color_options as $color_option) {
+    if (strcasecmp($color_option['primary'], $primary_color) === 0) {
+        $has_matching_palette = true;
+        break;
+    }
+}
+
 ?>
-<div class="wrap">
-    <h1><?php echo esc_html__('ChatBudgie Settings', 'chatbudgie'); ?></h1>
-    
-    <!-- Index Status Section -->
-    <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-        <h2 style="margin-top: 0; margin-bottom: 15px;"><?php echo esc_html__('Index Status', 'chatbudgie'); ?></h2>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-                <p style="font-size: 16px; font-weight: 600; margin: 0;">
-                    <?php echo esc_html__('Status:', 'chatbudgie'); ?>
-                    <span style="color: <?php
-                        echo $index_status['status'] === 'running' ? '#f59e0b' :
-                            ($index_status['status'] === 'completed' ? '#10b981' :
-                            ($index_status['status'] === 'failed' ? '#ef4444' : '#667eea'));
-                    ?>; font-size: 18px;">
-                        <?php
-                        echo esc_html(ucfirst($index_status['status']));
-                        ?>
+
+<div class="page page--settings">
+    <header class="header header--settings">
+        <div class="brand">
+            <img class="brand__mark" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/logo.png'); ?>" alt="" />
+            <span class="brand__name">Chat<span class="brand__name--accent">Budgie</span></span>
+        </div>
+    </header>
+
+    <main class="settings" role="main">
+        <section class="settings__hero" aria-labelledby="settings-title">
+            <h1 id="settings-title" class="settings__title"><?php echo esc_html__('Dashboard', 'chatbudgie'); ?></h1>
+            <p class="settings__sub"><?php echo esc_html__('Manage your chatbot settings and account.', 'chatbudgie'); ?></p>
+        </section>
+
+        <?php
+        // $user_info is passed from the controller
+        include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-account-summary.php';
+        ?>
+
+        <section class="settings-card" aria-labelledby="index-status-title">
+            <div class="settings-card__header">
+                <div>
+                    <h2 id="index-status-title" class="settings-card__title"><?php echo esc_html__('Indexing Status', 'chatbudgie'); ?></h2>
+                    <p class="settings-card__sub"><?php echo esc_html($status_label); ?></p>
+                </div>
+                <a class="cb-btn cb-btn--ghost" id="chatbudgie-rebuild-index" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=chatbudgie_rebuild_index'), 'chatbudgie_rebuild_index')); ?>">
+                    <span class="cb-icon cb-icon--sm" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+                            <path d="M21 3v6h-6"></path>
+                        </svg>
                     </span>
-                </p>
-                <?php if ($index_status['scheduled_posts_count'] > 0): ?>
-                <p style="font-size: 12px; color: #666; margin: 5px 0 0;">
-                    <?php
-                    printf(
-                        esc_html__('Indexing: %d of %d posts completed', 'chatbudgie'),
-                        intval($index_status['completed_posts_count']),
-                        intval($index_status['scheduled_posts_count'])
-                    );
-                    ?>
-                </p>
-                <?php if ($index_status['progress'] > 0 && $index_status['progress'] < 100): ?>
-                <progress value="<?php echo esc_attr($index_status['progress']); ?>" max="100" style="width: 100%; height: 20px; margin-top: 5px;"></progress>
-                <p style="font-size: 12px; color: #10b981; margin: 3px 0 0;">
-                    <?php
-                    printf(
-                        esc_html__('Progress: %d%%', 'chatbudgie'),
-                        intval($index_status['progress'])
-                    );
-                    ?>
-                </p>
-                <?php endif; ?>
-                <?php endif; ?>
-                <?php if (isset($index_status['error']) && $index_status['error']): ?>
-                <p style="font-size: 12px; color: #ef4444; margin: 5px 0 0;">
-                    <?php
-                    printf(
-                        esc_html__('Error: %s', 'chatbudgie'),
-                        esc_html($index_status['error'])
-                    );
-                    ?>
-                </p>
-                <?php endif; ?>
-            </div>
-            <div>
-                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=chatbudgie_rebuild_index'), 'chatbudgie_rebuild_index')); ?>" 
-                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s ease;">
                     <?php echo esc_html__('Rebuild Index', 'chatbudgie'); ?>
                 </a>
-                <p style="font-size: 12px; color: #666; margin: 5px 0 0; text-align: center;">
-                    <?php echo esc_html__('Runs in background via Action Scheduler', 'chatbudgie'); ?>
-                </p>
             </div>
-        </div>
-    </div>
-    
-    <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-        <h2 style="margin-top: 0; margin-bottom: 15px;"><?php echo esc_html__('Token Management', 'chatbudgie'); ?></h2>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <div>
-                <p style="font-size: 16px; font-weight: 600; margin: 0;">
-                    <?php echo esc_html__('Remaining Tokens:', 'chatbudgie'); ?> <span style="color: #667eea; font-size: 24px;"><?php echo esc_html(get_option('chatbudgie_tokens', 1000)); ?></span>
-                </p>
-                <p style="font-size: 12px; color: #666; margin: 5px 0 0;">
-                    <?php echo esc_html__('Number of tokens available for API calls', 'chatbudgie'); ?>
-                </p>
-            </div>
-            <button type="button" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                <?php echo esc_html__('Recharge Tokens', 'chatbudgie'); ?>
-            </button>
-        </div>
-    </div>
-    <form method="post" action="options.php">
-        <?php settings_fields('chatbudgie_settings'); ?>
-        <table class="form-table">
-            <tr valign="top">
-                <th scope="row"><?php echo esc_html__('Chat Bubble Icon', 'chatbudgie'); ?></th>
-                <td>
-                    <?php $icon_type = get_option('chatbudgie_icon_type', 'default'); ?>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="radio" name="chatbudgie_icon_type" value="default" <?php checked($icon_type, 'default'); ?> />
-                        <span style="margin-left: 8px;"><?php echo esc_html__('Default Icon', 'chatbudgie'); ?></span>
-                        <span style="margin-left: 10px; display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; vertical-align: middle; text-align: center; line-height: 40px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align: middle;">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                        </span>
-                    </label>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="radio" name="chatbudgie_icon_type" value="robot" <?php checked($icon_type, 'robot'); ?> />
-                        <span style="margin-left: 8px;"><?php echo esc_html__('Robot', 'chatbudgie'); ?></span>
-                        <span style="margin-left: 10px; display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; vertical-align: middle; text-align: center; line-height: 40px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align: middle;">
-                                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                                <circle cx="12" cy="5" r="2"></circle>
-                                <path d="M12 7v4"></path>
-                                <line x1="8" y1="16" x2="8" y2="16"></line>
-                                <line x1="16" y1="16" x2="16" y2="16"></line>
-                            </svg>
-                        </span>
-                    </label>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="radio" name="chatbudgie_icon_type" value="headphones" <?php checked($icon_type, 'headphones'); ?> />
-                        <span style="margin-left: 8px;"><?php echo esc_html__('Customer Service', 'chatbudgie'); ?></span>
-                        <span style="margin-left: 10px; display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; vertical-align: middle; text-align: center; line-height: 40px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align: middle;">
-                                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-                                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-                            </svg>
-                        </span>
-                    </label>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="radio" name="chatbudgie_icon_type" value="message" <?php checked($icon_type, 'message'); ?> />
-                        <span style="margin-left: 8px;"><?php echo esc_html__('Message', 'chatbudgie'); ?></span>
-                        <span style="margin-left: 10px; display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; vertical-align: middle; text-align: center; line-height: 40px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align: middle;">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                            </svg>
-                        </span>
-                    </label>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="radio" name="chatbudgie_icon_type" value="budgie" <?php checked($icon_type, 'budgie'); ?> />
-                        <span style="margin-left: 8px;"><?php echo esc_html__('小鸟 (Budgie)', 'chatbudgie'); ?></span>
-                        <span style="margin-left: 10px; display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; vertical-align: middle; text-align: center; line-height: 40px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-                                <path d="M16 7h.01"/>
-                                <path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/>
-                                <path d="m20 7 2 .5-2 .5"/>
-                                <path d="M10 18v3"/>
-                                <path d="M14 17.75V21"/>
-                                <path d="M7 18a6 6 0 0 0 3.84-10.61"/>
-                            </svg>
-                        </span>
-                    </label>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="radio" name="chatbudgie_icon_type" value="custom" <?php checked($icon_type, 'custom'); ?> />
-                        <span style="margin-left: 8px;"><?php echo esc_html__('自定义图标 URL', 'chatbudgie'); ?></span>
-                    </label>
-                    <div id="custom-icon-url" style="margin-left: 28px; margin-top: 10px; <?php echo $icon_type === 'custom' ? '' : 'display: none;'; ?>">
-                        <input type="url" name="chatbudgie_custom_icon" value="<?php echo esc_attr(get_option('chatbudgie_custom_icon')); ?>" class="regular-text" placeholder="https://example.com/icon.svg" />
-                        <p class="description"><?php echo esc_html__('输入自定义图标的 URL 地址（支持 SVG、PNG、JPG 格式）', 'chatbudgie'); ?></p>
+
+            <div class="indexing">
+                <div class="indexing__progress">
+                    <div class="indexing__track" aria-hidden="true">
+                        <span class="indexing__bar" style="width: <?php echo esc_attr($progress); ?>%;"></span>
                     </div>
-                </td>
-            </tr>
-        <tr valign="top">
-            <th scope="row"><?php echo esc_html__('OpenRouter API 配置', 'chatbudgie'); ?></th>
-            <td>
-                <table class="form-table">
-                    <tr>
-                        <th scope="row"><?php echo esc_html__('API Key', 'chatbudgie'); ?></th>
-                        <td>
-                            <input type="password" name="chatbudgie_openrouter_api_key" value="<?php echo esc_attr(get_option('chatbudgie_openrouter_api_key')); ?>" class="regular-text" />
-                            <p class="description"><?php echo esc_html__('Your API key for authentication', 'chatbudgie'); ?></p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var radios = document.querySelectorAll('input[name="chatbudgie_icon_type"]');
-            var customUrlDiv = document.getElementById('custom-icon-url');
-            radios.forEach(function(radio) {
-                radio.addEventListener('change', function() {
-                    customUrlDiv.style.display = this.value === 'custom' ? 'block' : 'none';
-                });
-            });
+                    <span class="indexing__percent"><?php echo esc_html($progress); ?>%</span>
+                </div>
 
-            // Token recharge functionality
-            var rechargeButton = document.querySelector('button[type="button"]');
-            if (rechargeButton) {
-                rechargeButton.addEventListener('click', function() {
-                    var amount = prompt('<?php echo esc_js(__('Please enter the number of tokens to recharge:', 'chatbudgie')); ?>', '1000');
-                    if (amount && !isNaN(amount) && amount > 0) {
-                        var currentTokens = parseInt('<?php echo esc_js(get_option('chatbudgie_tokens', 1000)); ?>');
-                        var newTokens = currentTokens + parseInt(amount);
+                <div class="stats-grid">
+                    <article class="stat-tile">
+                        <span class="stat-tile__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <path d="M14 2v6h6"></path>
+                                <path d="M8 13h8"></path>
+                                <path d="M8 17h8"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="stat-tile__label"><?php echo esc_html__('Total Files', 'chatbudgie'); ?></p>
+                            <p class="stat-tile__value"><?php echo esc_html(number_format_i18n($total_files)); ?></p>
+                        </div>
+                    </article>
 
-                        // Create hidden field to store new token amount
-                        var tokenField = document.getElementById('chatbudgie_tokens');
-                        if (!tokenField) {
-                            tokenField = document.createElement('input');
-                            tokenField.type = 'hidden';
-                            tokenField.id = 'chatbudgie_tokens';
-                            tokenField.name = 'chatbudgie_tokens';
-                            document.querySelector('form').appendChild(tokenField);
-                        }
-                        tokenField.value = newTokens;
+                    <article class="stat-tile">
+                        <span class="stat-tile__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M12 3 4 7l8 4 8-4-8-4Z"></path>
+                                <path d="m4 12 8 4 8-4"></path>
+                                <path d="m4 17 8 4 8-4"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="stat-tile__label"><?php echo esc_html__('Indexed Files', 'chatbudgie'); ?></p>
+                            <p class="stat-tile__value"><?php echo esc_html(number_format_i18n($indexed_files)); ?></p>
+                        </div>
+                    </article>
 
-                        // Show success message
-                        alert('<?php echo esc_js(__('Recharge successful!', 'chatbudgie')); ?> \n<?php echo esc_js(__('New token amount:', 'chatbudgie')); ?> ' + newTokens);
+                    <article class="stat-tile">
+                        <span class="stat-tile__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="M12 7v5l3 3"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="stat-tile__label"><?php echo esc_html__('Estimated Time', 'chatbudgie'); ?></p>
+                            <p class="stat-tile__value"><?php echo esc_html($eta_label); ?></p>
+                        </div>
+                    </article>
+                </div>
 
-                        // Update display
-                        var tokenDisplay = document.querySelector('span[style*="color: #667eea"]');
-                        if (tokenDisplay) {
-                            tokenDisplay.textContent = newTokens;
-                        }
-                    }
-                });
-            }
-        });
-        </script>
-        <?php submit_button(); ?>
-    </form>
+                <?php if (!empty($index_status['error'])) : ?>
+                    <p class="settings-alert settings-alert--error"><?php echo esc_html($index_status['error']); ?></p>
+                <?php else : ?>
+                    <p class="settings-note"><?php echo esc_html__('Indexing runs in the background.', 'chatbudgie'); ?></p>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <form method="post" action="options.php" class="settings-form">
+            <?php settings_fields('chatbudgie_appearance_settings'); ?>
+            <input type="hidden" name="chatbudgie_secondary_color" id="chatbudgie_secondary_color" value="<?php echo esc_attr($secondary_color); ?>" />
+            <input type="hidden" name="chatbudgie_custom_icon" id="chatbudgie_custom_icon" value="<?php echo esc_attr($selected_avatar); ?>" />
+
+            <section class="settings-card" aria-labelledby="appearance-title">
+                <div class="settings-card__header">
+                    <h2 id="appearance-title" class="settings-card__title"><?php echo esc_html__('Appearance', 'chatbudgie'); ?></h2>
+                </div>
+
+                <div class="settings-stack">
+                    <div class="setting-row">
+                        <div class="setting-row__intro">
+                            <div class="setting-row__icon setting-row__icon--avatar">
+                                <img id="chatbudgie-icon-preview" src="<?php echo esc_url($selected_avatar); ?>" alt="" />
+                            </div>
+                            <div>
+                                <h3 class="setting-row__title"><?php echo esc_html__('Chatbot Icon', 'chatbudgie'); ?></h3>
+                                <p class="setting-row__text"><?php echo esc_html__('Choose the avatar that represents your chatbot.', 'chatbudgie'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="setting-row__content">
+                            <div class="avatar-options" role="radiogroup" aria-label="<?php echo esc_attr__('Avatar options', 'chatbudgie'); ?>">
+                                <?php foreach ($avatar_options as $avatar_url) : ?>
+                                    <?php $is_selected = ($avatar_url === $selected_avatar); ?>
+                                    <label class="avatar-choice<?php echo $is_selected ? ' is-active' : ''; ?>">
+                                        <input
+                                            type="radio"
+                                            name="chatbudgie_avatar_choice"
+                                            value="<?php echo esc_attr($avatar_url); ?>"
+                                            <?php checked($is_selected); ?>
+                                            class="screen-reader-text"
+                                        />
+                                        <img src="<?php echo esc_url($avatar_url); ?>" alt="" />
+                                    </label>
+                                <?php endforeach; ?>
+                                
+                                <label class="avatar-choice custom-choice<?php echo (!$is_predefined_avatar && $selected_avatar !== '' ? ' is-active' : ''); ?>" <?php echo ($is_predefined_avatar || $selected_avatar === '' ? 'style="display: none;"' : ''); ?>>
+                                    <input
+                                        type="radio"
+                                        name="chatbudgie_avatar_choice"
+                                        value="<?php echo esc_attr($selected_avatar); ?>"
+                                        <?php checked(!$is_predefined_avatar && $selected_avatar !== ''); ?>
+                                        class="screen-reader-text"
+                                    />
+                                    <img src="<?php echo esc_url($selected_avatar); ?>" alt="" />
+                                </label>
+                                <button type="button" class="cb-btn cb-btn--ghost cb-btn--icon" id="chatbudgie-change-icon" aria-label="<?php echo esc_attr__('Change Icon', 'chatbudgie'); ?>">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-row__intro">
+                            <div class="setting-row__icon setting-row__icon--swatch" style="--swatch-color: <?php echo esc_attr($primary_color); ?>;"></div>
+                            <div>
+                                <h3 class="setting-row__title"><?php echo esc_html__('Primary Color', 'chatbudgie'); ?></h3>
+                                <p class="setting-row__text"><?php echo esc_html__('Set the main color for your chatbot UI.', 'chatbudgie'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="setting-row__content">
+                            <div class="color-options" role="radiogroup" aria-label="<?php echo esc_attr__('Primary color options', 'chatbudgie'); ?>">
+                                <?php foreach ($color_options as $color_option) : ?>
+                                    <?php $is_selected = strcasecmp($color_option['primary'], $primary_color) === 0; ?>
+                                    <label class="color-choice<?php echo $is_selected ? ' is-active' : ''; ?>" title="<?php echo esc_attr($color_option['label']); ?>">
+                                        <input
+                                            type="radio"
+                                            name="chatbudgie_primary_color"
+                                            value="<?php echo esc_attr($color_option['primary']); ?>"
+                                            data-secondary="<?php echo esc_attr($color_option['secondary']); ?>"
+                                            <?php checked($is_selected); ?>
+                                        />
+                                        <span class="color-choice__swatch" style="--color-choice: <?php echo esc_attr($color_option['primary']); ?>;"></span>
+                                        <span class="screen-reader-text"><?php echo esc_html($color_option['label']); ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+
+                                <div class="color-choice color-choice--picker<?php echo (!$has_matching_palette ? ' is-active' : ''); ?>">
+                                    <input type="text" id="chatbudgie-custom-color-picker" name="chatbudgie_primary_color" value="<?php echo esc_attr($primary_color); ?>" class="chatbudgie-color-picker" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-row__intro">
+                            <div class="setting-row__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="setting-row__title"><?php echo esc_html__('Welcome Message', 'chatbudgie'); ?></h3>
+                                <p class="setting-row__text"><?php echo esc_html__('Set the default greeting message for your visitors.', 'chatbudgie'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="setting-row__content">
+                            <label class="field field--textarea">
+                                <textarea
+                                    name="chatbudgie_welcome_message"
+                                    id="chatbudgie_welcome_message"
+                                    class="field__input field__input--textarea"
+                                    rows="4"
+                                    maxlength="200"
+                                ><?php echo esc_textarea($welcome_message); ?></textarea>
+                                <span class="field__counter"><span id="chatbudgie-message-count"><?php echo esc_html(strlen($welcome_message)); ?></span> / 200</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-row__intro"></div>
+                        <div class="setting-row__content settings-form__footer">
+                            <button type="submit" class="cb-btn cb-btn--primary" id="chatbudgie-save-appearance" disabled>
+                                <?php echo esc_html__('Save Settings', 'chatbudgie'); ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </form>
+
+        <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>
+    </main>
 </div>

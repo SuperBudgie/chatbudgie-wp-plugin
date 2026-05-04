@@ -43,10 +43,6 @@
     text-decoration: none;
     list-style: none;
     text-align: left;
-    max-width: none;
-    max-height: none;
-    min-width: 0;
-    min-height: 0;
 }
 
 #chatbudgie-widget.is-open {

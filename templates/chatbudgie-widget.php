@@ -8,9 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$icon_type = get_option('chatbudgie_icon_type', 'default');
-$custom_icon = get_option('chatbudgie_custom_icon', '');
-$avatar_url = CHATBUDGIE_PLUGIN_URL . '/assets/images/budgie-avatar.png';
+$avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . '/assets/images/budgie-avatar.png');
 ?>
 
 <div class="chatbudgie-widget" id="chatbudgie-widget" role="dialog" aria-label="ChatBudgie chat window">
