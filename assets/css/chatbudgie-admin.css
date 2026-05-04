@@ -779,6 +779,21 @@ a:hover { text-decoration: underline; }
   position: relative;
 }
 
+.color-choice.color-choice--picker {
+  width: 150px;
+}
+
+.color-choice--picker .wp-picker-container .wp-color-result.button {
+  font-size: 15px;
+  margin:0;
+  padding: 0 0 0 36px;
+  border-radius: 12px;
+}
+
+.color-choice--picker .wp-picker-container .wp-color-result.button .wp-color-result-text {
+  border-radius: 0px 12px 12px 0px;
+}
+
 .color-choice input {
   position: absolute;
   opacity: 0;
@@ -1100,7 +1115,15 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  flex-wrap: wrap;
+  padding: 20px 0 0;
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.pagination-info {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 0 10px;
 }
 
 .usage-pagination__btn {

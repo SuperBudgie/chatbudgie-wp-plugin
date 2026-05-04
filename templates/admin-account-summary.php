@@ -52,6 +52,7 @@ $is_low_balance = $numeric_balance < 50000;
         </div>
 
         <div class="summary-actions">
+            <a href="https://www.paypal.com/ncp/payment/DLERADM7S2H8Q" target="_blank">
             <button type="button" class="cb-btn cb-btn--primary" id="chatbudgie-buy-tokens">
                 <span class="cb-icon cb-icon--sm" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -62,6 +63,7 @@ $is_low_balance = $numeric_balance < 50000;
                 </span>
                 <?php echo esc_html__('Buy Tokens', 'chatbudgie'); ?>
             </button>
+            </a>
         </div>
     </div>
 </section>

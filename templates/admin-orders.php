@@ -9,12 +9,7 @@ if (!defined('ABSPATH')) {
 ?>
 
 <div class="page page--settings">
-    <header class="header header--settings">
-        <div class="brand">
-            <img class="brand__mark" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/logo.png'); ?>" alt="" />
-            <span class="brand__name">Chat<span class="brand__name--accent">Budgie</span></span>
-        </div>
-    </header>
+    <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
 
     <main class="settings" role="main">
         <section class="settings__hero" aria-labelledby="orders-title">

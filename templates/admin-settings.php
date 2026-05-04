@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Template for the ChatBudgie admin settings page
  */
@@ -67,18 +68,15 @@ foreach ($color_options as $color_option) {
 }
 
 ?>
-
+<script
+    src="https://www.paypal.com/sdk/js?client-id=BAAHkTrcvIPFDyIlGzKjawQ8JAH_x8dUc4pcN6Mc9S8wKKZ8EJLydPQneqe6PtQDR3Ik4GYqiGewVF7iP8&components=hosted-buttons&disable-funding=venmo&currency=USD">
+</script>
 <div class="page page--settings">
-    <header class="header header--settings">
-        <div class="brand">
-            <img class="brand__mark" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/logo.png'); ?>" alt="" />
-            <span class="brand__name">Chat<span class="brand__name--accent">Budgie</span></span>
-        </div>
-    </header>
+    <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
 
     <main class="settings" role="main">
         <section class="settings__hero" aria-labelledby="settings-title">
-            <h1 id="settings-title" class="settings__title"><?php echo esc_html__('Dashboard', 'chatbudgie'); ?></h1>
+            <h1 id="settings-title" class="settings__title"><?php echo esc_html__('Settings', 'chatbudgie'); ?></h1>
             <p class="settings__sub"><?php echo esc_html__('Manage your chatbot settings and account.', 'chatbudgie'); ?></p>
         </section>
 
@@ -196,20 +194,18 @@ foreach ($color_options as $color_option) {
                                             name="chatbudgie_avatar_choice"
                                             value="<?php echo esc_attr($avatar_url); ?>"
                                             <?php checked($is_selected); ?>
-                                            class="screen-reader-text"
-                                        />
+                                            class="screen-reader-text" />
                                         <img src="<?php echo esc_url($avatar_url); ?>" alt="" />
                                     </label>
                                 <?php endforeach; ?>
-                                
+
                                 <label class="avatar-choice custom-choice<?php echo (!$is_predefined_avatar && $selected_avatar !== '' ? ' is-active' : ''); ?>" <?php echo ($is_predefined_avatar || $selected_avatar === '' ? 'style="display: none;"' : ''); ?>>
                                     <input
                                         type="radio"
                                         name="chatbudgie_avatar_choice"
                                         value="<?php echo esc_attr($selected_avatar); ?>"
                                         <?php checked(!$is_predefined_avatar && $selected_avatar !== ''); ?>
-                                        class="screen-reader-text"
-                                    />
+                                        class="screen-reader-text" />
                                     <img src="<?php echo esc_url($selected_avatar); ?>" alt="" />
                                 </label>
                                 <button type="button" class="cb-btn cb-btn--ghost cb-btn--icon" id="chatbudgie-change-icon" aria-label="<?php echo esc_attr__('Change Icon', 'chatbudgie'); ?>">
@@ -241,15 +237,15 @@ foreach ($color_options as $color_option) {
                                             name="chatbudgie_primary_color"
                                             value="<?php echo esc_attr($color_option['primary']); ?>"
                                             data-secondary="<?php echo esc_attr($color_option['secondary']); ?>"
-                                            <?php checked($is_selected); ?>
-                                        />
+                                            <?php checked($is_selected); ?> />
                                         <span class="color-choice__swatch" style="--color-choice: <?php echo esc_attr($color_option['primary']); ?>;"></span>
                                         <span class="screen-reader-text"><?php echo esc_html($color_option['label']); ?></span>
                                     </label>
                                 <?php endforeach; ?>
 
                                 <div class="color-choice color-choice--picker<?php echo (!$has_matching_palette ? ' is-active' : ''); ?>">
-                                    <input type="text" id="chatbudgie-custom-color-picker" name="chatbudgie_primary_color" value="<?php echo esc_attr($primary_color); ?>" class="chatbudgie-color-picker" />
+                                    <input type="radio" name="chatbudgie_primary_color" value="<?php echo esc_attr($primary_color); ?>" data-secondary="<?php echo esc_attr($secondary_color); ?>" <?php checked(!$has_matching_palette); ?> class="screen-reader-text" />
+                                    <input type="text" id="chatbudgie-custom-color-picker" value="<?php echo esc_attr($primary_color); ?>" class="chatbudgie-color-picker" />
                                 </div>
                             </div>
                         </div>
@@ -275,9 +271,8 @@ foreach ($color_options as $color_option) {
                                     id="chatbudgie_welcome_message"
                                     class="field__input field__input--textarea"
                                     rows="4"
-                                    maxlength="200"
-                                ><?php echo esc_textarea($welcome_message); ?></textarea>
-                                <span class="field__counter"><span id="chatbudgie-message-count"><?php echo esc_html(strlen($welcome_message)); ?></span> / 200</span>
+                                    maxlength="500"><?php echo esc_textarea($welcome_message); ?></textarea>
+                                <span class="field__counter"><span id="chatbudgie-message-count"><?php echo esc_html(strlen($welcome_message)); ?></span> / 500</span>
                             </label>
                         </div>
                     </div>

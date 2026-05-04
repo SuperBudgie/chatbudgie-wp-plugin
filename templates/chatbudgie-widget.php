@@ -9,7 +9,15 @@ if (!defined('ABSPATH')) {
 }
 
 $avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . '/assets/images/budgie-avatar.png');
+$primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
 ?>
+
+<style>
+    #chatbudgie-widget {
+        --chatbudgie-accent: <?php echo esc_attr($primary_color); ?>;
+        --chatbudgie-accent-strong: <?php echo esc_attr($primary_color); ?>;
+    }
+</style>
 
 <div class="chatbudgie-widget" id="chatbudgie-widget" role="dialog" aria-label="ChatBudgie chat window">
     <div class="chatbudgie-toggle" id="chatbudgie-toggle">
@@ -57,7 +65,7 @@ $avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . '/ass
         <p class="chatbudgie-error-banner__text">I'm having a little trouble thinking right now. Please try again in a moment.</p>
     </div>
     <button class="chatbudgie-retry-btn" id="chatbudgie-retry-btn" type="button" aria-label="Try again">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#3F7CF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10" />
             <polyline points="1 20 1 14 7 14" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10" />
@@ -77,7 +85,7 @@ $avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . '/ass
         placeholder="Ask anything..."
         aria-label="Type your message" />
     <button type="submit" class="chatbudgie-input__send" id="chatbudgie-send-btn" aria-label="Send message">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#3F7CF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 2 11 13" />
             <path d="M22 2 15 22 11 13 2 9 22 2z" />
         </svg>

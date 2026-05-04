@@ -56,6 +56,7 @@ class ChatBudgie {
     public const CHAT_API = CHATBUDGIE_BASE_URL . 'api/rag/chat';
     public const USER_INFO_API = CHATBUDGIE_BASE_URL . 'api/user/info';
     public const REFRESH_APP_KEY_API = CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
+    public const TOKEN_USAGE_API = CHATBUDGIE_BASE_URL . 'api/user/tokenusage';
     public const INDEX_META_TABLE = 'chatbudgie_index_meta';
     public const CHUNK_TABLE = 'chatbudgie_chunk_data';
 
@@ -1039,6 +1040,58 @@ class ChatBudgie {
     }
 
     /**
+     * Get token usage data from the API
+     * 
+     * @param int $page Page number (starts from 1)
+     * @param int $size Items per page
+     * @return array Usage data array on success
+     * @throws Exception If API request fails or returns an error
+     */
+    public function get_token_usage($page = 1, $size = 20) {
+        $app_key = get_option('chatbudgie_app_key', '');
+        
+        if (empty($app_key)) {
+            throw new Exception('Application key is missing', 401);
+        }
+
+        $headers = array(
+            'appKey' => $app_key
+        );
+
+        $api_url = add_query_arg(array(
+            'page' => $page - 1,
+            'size' => $size
+        ), self::TOKEN_USAGE_API);
+
+        $response = wp_remote_get($api_url, array(
+            'headers'   => $headers,
+            'timeout'   => 15,
+            'sslverify' => false
+        ));
+
+        if (is_wp_error($response)) {
+            error_log('ChatBudgie: Token usage API request failed: ' . $response->get_error_message());
+            throw new Exception('API request failed: ' . $response->get_error_message());
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $data = json_decode($response_body, true);
+
+        if ($status_code !== 200) {
+            $message = isset($data['message']) ? $data['message'] : 'API error';
+            error_log('ChatBudgie: Token usage API error: ' . $message . ' (Status: ' . $status_code . ')');
+            throw new Exception($message, $status_code);
+        }
+
+        if (!isset($data['data'])) {
+            throw new Exception('Invalid API response format');
+        }
+
+        return $data['data'];
+    }
+
+    /**
      * Enqueue frontend scripts and styles
      * Loads CSS, JavaScript, and passes PHP variables to the frontend via wp_localize_script
      * 
@@ -1441,6 +1494,13 @@ class ChatBudgie {
     public function render_usage_page() {
         try {
             $user_info = $this->get_user_info();
+            
+            // Get current page and size
+            $page = isset($_GET['paged']) ? max(1, (int)$_GET['paged']) : 1;
+            $size = 20;
+            
+            $usage_data = $this->get_token_usage($page, $size);
+            
             include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-usage.php';
         } catch (Exception $e) {
             if ($e->getCode() === 401) {
