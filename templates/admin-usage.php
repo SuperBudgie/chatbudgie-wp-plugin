@@ -83,24 +83,30 @@ $page_size = isset($size) ? $size : 20;
                 </table>
             </div>
 
-            <?php if (!empty($usage_rows)) : ?>
-                <div class="usage-pagination">
-                    <?php
-                    $paged = isset($_GET['paged']) ? max(1, (int)$_GET['paged']) : 1;
-                    $prev_url = add_query_arg('paged', max(1, $paged - 1));
-                    $next_url = add_query_arg('paged', $paged + 1);
-                    ?>
-                    <?php if ($paged > 1) : ?>
-                        <a href="<?php echo esc_url($prev_url); ?>" class="usage-pagination__btn"><?php echo esc_html__('Prev', 'chatbudgie'); ?></a>
-                    <?php endif; ?>
-                    
-                    <span class="pagination-info"><?php printf(esc_html__('Page %d', 'chatbudgie'), $paged); ?></span>
-                    
-                    <?php if (count($usage_rows) >= $page_size) : ?>
-                        <a href="<?php echo esc_url($next_url); ?>" class="usage-pagination__btn"><?php echo esc_html__('Next', 'chatbudgie'); ?></a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
+            <div class="usage-pagination">
+                <?php
+                $paged = isset($_GET['paged']) ? max(1, (int)$_GET['paged']) : 1;
+                $prev_url = add_query_arg('paged', max(1, $paged - 1));
+                $next_url = add_query_arg('paged', $paged + 1);
+                
+                $has_prev = $paged > 1;
+                $has_next = !empty($usage_rows) && count($usage_rows) >= $page_size;
+                ?>
+                
+                <a href="<?php echo $has_prev ? esc_url($prev_url) : 'javascript:void(0);'; ?>" 
+                   class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_prev ? 'is-disabled' : ''; ?>"
+                   aria-label="<?php echo esc_attr__('Previous Page', 'chatbudgie'); ?>">
+                    <?php echo esc_html__('&laquo; Previous', 'chatbudgie'); ?>
+                </a>
+
+                <span class="pagination-info"><?php printf(esc_html__('Page %d', 'chatbudgie'), $paged); ?></span>
+
+                <a href="<?php echo $has_next ? esc_url($next_url) : 'javascript:void(0);'; ?>" 
+                   class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_next ? 'is-disabled' : ''; ?>"
+                   aria-label="<?php echo esc_attr__('Next Page', 'chatbudgie'); ?>">
+                    <?php echo esc_html__('Next &raquo;', 'chatbudgie'); ?>
+                </a>
+            </div>
         </section>
 
         <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>

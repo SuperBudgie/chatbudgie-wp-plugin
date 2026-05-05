@@ -539,7 +539,8 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 
-.cb-btn:disabled {
+.cb-btn:disabled,
+.cb-btn.is-disabled {
   background: #f1f5f9 !important;
   color: #94a3b8 !important;
   border-color: #e2e8f0 !important;
@@ -547,6 +548,7 @@ a:hover { text-decoration: underline; }
   transform: none;
   box-shadow: none;
   opacity: 1;
+  pointer-events: none;
 }
 
 .cb-btn--primary {
@@ -570,6 +572,13 @@ a:hover { text-decoration: underline; }
 .cb-btn--ghost:hover {
   color: var(--brand);
   border-color: var(--brand);
+}
+
+.cb-btn--sm {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 14px;
+  border-radius: 10px;
 }
 
 .cb-btn--icon {
