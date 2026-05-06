@@ -57,6 +57,8 @@ class ChatBudgie {
     public const USER_INFO_API = CHATBUDGIE_BASE_URL . 'api/user/info';
     public const REFRESH_APP_KEY_API = CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
     public const TOKEN_USAGE_API = CHATBUDGIE_BASE_URL . 'api/user/tokenusage';
+    public const CREATE_PAYPAL_ORDER_API = CHATBUDGIE_BASE_URL . 'api/payment/paypal/create';
+    public const CAPTURE_PAYPAL_ORDER_API = CHATBUDGIE_BASE_URL . 'api/payment/paypal/capture';
     public const INDEX_META_TABLE = 'chatbudgie_index_meta';
     public const CHUNK_TABLE = 'chatbudgie_chunk_data';
 
@@ -104,6 +106,10 @@ class ChatBudgie {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_notices', array($this, 'show_index_status_notice'));
         add_action('admin_post_chatbudgie_rebuild_index', array($this, 'handle_manual_rebuild_index'));
+
+        // PayPal integration handlers
+        add_action('wp_ajax_chatbudgie_create_paypal_order', array($this, 'handle_create_paypal_order'));
+        add_action('wp_ajax_chatbudgie_capture_paypal_order', array($this, 'handle_capture_paypal_order'));
 
         // Add login callback action
         add_action('admin_post_chatbudgie_login_callback', array($this, 'handle_login_callback'));
@@ -1163,6 +1169,8 @@ class ChatBudgie {
         );
 
         wp_localize_script('chatbudgie-admin-script', 'chatbudgie_admin_params', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('chatbudgie_nonce'),
             'confirm_rebuild' => __('Are you sure you want to rebuild the index? This action may take some time, it will delete the existing index data.', 'chatbudgie'),
             'choose_icon' => __('Choose Icon', 'chatbudgie'),
             'select_icon' => __('Select Icon', 'chatbudgie'),
@@ -1518,11 +1526,24 @@ class ChatBudgie {
 
     /**
      * Render the orders page
-     * 
+     *
      * @return void
      */
     public function render_orders_page() {
-        include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
+        try {
+            $user_info = $this->get_user_info();
+            include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
+        } catch (Exception $e) {
+            if ($e->getCode() === 401) {
+                // Key is invalid, clear it and show login page
+                update_option('chatbudgie_app_key', '');
+                $this->render_login_page();
+            } else {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Failed to fetch user info. Please try again later.', 'chatbudgie') . ' (' . esc_html($e->getMessage()) . ')</p></div>';
+                $user_info = null;
+                include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
+            }
+        }
     }
 
     /**
@@ -1631,6 +1652,117 @@ class ChatBudgie {
                 $user_info = null;
                 include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
             }
+        }
+    }
+
+    /**
+     * Handle AJAX request to create a PayPal order
+     * 
+     * @return void
+     */
+    public function handle_create_paypal_order() {
+        check_ajax_referer('chatbudgie_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Unauthorized'), 403);
+        }
+
+        $package = sanitize_text_field($_POST['package'] ?? '');
+        $amount = sanitize_text_field($_POST['amount'] ?? '');
+        $currency = sanitize_text_field($_POST['currency'] ?? '');
+        $show_price = sanitize_text_field($_POST['show_price'] ?? '');
+
+        if (empty($package) || empty($amount)) {
+            wp_send_json_error(array('message' => 'Invalid package information'), 400);
+        }
+
+        try {
+            $extra = json_encode(array(
+                    'package' => $package,
+                    'amount' => $amount . 'M',
+                    'currency' => $currency,
+                    'showPrice' => $show_price,
+                    'appName' => CHATBUDGIE_APP_NAME,
+                    'siteUrl' => get_site_url()
+            ));
+            $response = wp_remote_post(self::CREATE_PAYPAL_ORDER_API, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'appKey' => get_option('chatbudgie_app_key', '')
+                ),
+                'body' => json_encode(array(
+                    'amount' => $amount * 1000000,
+                    'currency' => $currency,
+                    'extra' => $extra
+                )),
+                'timeout' => 30,
+                'sslverify' => false
+            ));
+
+            if (is_wp_error($response)) {
+                throw new Exception($response->get_error_message());
+            }
+
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+            if (isset($body['code']) && $body['code'] != 200) {
+                throw new Exception($body['message'] ?? 'API error');
+            }
+
+            wp_send_json_success($body['data']);
+        } catch (Exception $e) {
+            wp_send_json_error(array('message' => $e->getMessage()), 500);
+        }
+    }
+
+    /**
+     * Handle AJAX request to capture a PayPal order
+     * 
+     * @return void
+     */
+    public function handle_capture_paypal_order() {
+        check_ajax_referer('chatbudgie_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Unauthorized'), 403);
+        }
+
+        $order_id = sanitize_text_field($_POST['order_id'] ?? '');
+
+        if (empty($order_id)) {
+            wp_send_json_error(array('message' => 'Order ID is missing'), 400);
+        }
+
+        try {
+            $extra = json_encode(array(
+                'orderId' => $order_id,
+                'appName' => CHATBUDGIE_APP_NAME,
+                'siteUrl' => get_site_url()
+            ));
+            $response = wp_remote_post(self::CAPTURE_PAYPAL_ORDER_API, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'appKey' => get_option('chatbudgie_app_key', '')
+                ),
+                'body' => json_encode(array(
+                    'orderId' => $order_id,
+                    'extra' => $extra
+                )),
+                'timeout' => 30,
+                'sslverify' => false
+            ));
+
+            if (is_wp_error($response)) {
+                throw new Exception($response->get_error_message());
+            }
+
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+            if (isset($body['code']) && $body['code'] != 200) {
+                throw new Exception($body['message'] ?? 'API error');
+            }
+
+            wp_send_json_success($body['data']);
+        } catch (Exception $e) {
+            wp_send_json_error(array('message' => $e->getMessage()), 500);
         }
     }
 }
