@@ -88,7 +88,7 @@ foreach ($color_options as $color_option) {
         <section class="settings-card" aria-labelledby="index-status-title">
             <div class="settings-card__header">
                 <div>
-                    <h2 id="index-status-title" class="settings-card__title"><?php echo esc_html__('Indexing Status', 'chatbudgie'); ?></h2>
+                    <h2 id="index-status-title" class="settings-card__title"><?php echo esc_html__('knowledge Base Indexing Status', 'chatbudgie'); ?></h2>
                     <p class="settings-card__sub"><?php echo esc_html($status_label); ?></p>
                 </div>
                 <a class="cb-btn cb-btn--ghost" id="chatbudgie-rebuild-index" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=chatbudgie_rebuild_index'), 'chatbudgie_rebuild_index')); ?>">
@@ -157,7 +157,7 @@ foreach ($color_options as $color_option) {
                 <?php if (!empty($index_status['error'])) : ?>
                     <p class="settings-alert settings-alert--error"><?php echo esc_html($index_status['error']); ?></p>
                 <?php else : ?>
-                    <p class="settings-note"><?php echo esc_html__('Indexing runs in the background.', 'chatbudgie'); ?></p>
+                    <p class="settings-note"><?php echo esc_html__("Indexing runs in the background. It builds the knowledge base index on the public content of your website. After the indexing is complete, ChatBudgie will be able to answer questions based on your content.", 'chatbudgie'); ?></p>
                 <?php endif; ?>
             </div>
         </section>

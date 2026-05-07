@@ -8,8 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 // $usage_data is passed from the controller
-$usage_rows = isset($usage_data) && is_array($usage_data) ? $usage_data : [];
-$page_size = isset($size) ? $size : 20;
+$usage_rows = isset($usage_data['content']) ? $usage_data['content'] : [];
 ?>
 <div class="page page--settings page--usage">
     <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
@@ -83,30 +82,36 @@ $page_size = isset($size) ? $size : 20;
                 </table>
             </div>
 
-            <div class="usage-pagination">
-                <?php
-                $paged = isset($_GET['paged']) ? max(1, (int)$_GET['paged']) : 1;
-                $prev_url = add_query_arg('paged', max(1, $paged - 1));
-                $next_url = add_query_arg('paged', $paged + 1);
-                
-                $has_prev = $paged > 1;
-                $has_next = !empty($usage_rows) && count($usage_rows) >= $page_size;
-                ?>
-                
-                <a href="<?php echo $has_prev ? esc_url($prev_url) : 'javascript:void(0);'; ?>" 
-                   class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_prev ? 'is-disabled' : ''; ?>"
-                   aria-label="<?php echo esc_attr__('Previous Page', 'chatbudgie'); ?>">
-                    <?php echo esc_html__('&laquo; Previous', 'chatbudgie'); ?>
-                </a>
+            <?php if (isset($usage_data['page']['totalPages']) && $usage_data['page']['totalPages'] > 1) : ?>
+                <div class="usage-pagination">
+                    <?php
+                    $current_page = $usage_data['page']['number'] + 1;
+                    $total_pages = $usage_data['page']['totalPages'];
+                    
+                    $prev_url = add_query_arg('paged', max(1, $current_page - 1));
+                    $next_url = add_query_arg('paged', min($total_pages, $current_page + 1));
+                    
+                    $has_prev = $current_page > 1;
+                    $has_next = $current_page < $total_pages;
+                    ?>
+                    
+                    <a href="<?php echo $has_prev ? esc_url($prev_url) : 'javascript:void(0);'; ?>" 
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_prev ? 'is-disabled' : ''; ?>"
+                       aria-label="<?php echo esc_attr__('Previous Page', 'chatbudgie'); ?>">
+                        <?php echo esc_html__('&laquo; Previous', 'chatbudgie'); ?>
+                    </a>
 
-                <span class="pagination-info"><?php printf(esc_html__('Page %d', 'chatbudgie'), $paged); ?></span>
+                    <span class="pagination-info">
+                        <?php printf(esc_html__('Page %d of %d', 'chatbudgie'), $current_page, $total_pages); ?>
+                    </span>
 
-                <a href="<?php echo $has_next ? esc_url($next_url) : 'javascript:void(0);'; ?>" 
-                   class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_next ? 'is-disabled' : ''; ?>"
-                   aria-label="<?php echo esc_attr__('Next Page', 'chatbudgie'); ?>">
-                    <?php echo esc_html__('Next &raquo;', 'chatbudgie'); ?>
-                </a>
-            </div>
+                    <a href="<?php echo $has_next ? esc_url($next_url) : 'javascript:void(0);'; ?>" 
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_next ? 'is-disabled' : ''; ?>"
+                       aria-label="<?php echo esc_attr__('Next Page', 'chatbudgie'); ?>">
+                        <?php echo esc_html__('Next &raquo;', 'chatbudgie'); ?>
+                    </a>
+                </div>
+            <?php endif; ?>
         </section>
 
         <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>

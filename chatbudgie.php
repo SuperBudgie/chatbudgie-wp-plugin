@@ -38,6 +38,7 @@ if (file_exists(__DIR__ . '/lib/Vektor/Core/Config.php')) {
 
 define('CHATBUDGIE_VERSION', '1.0.0');
 define('CHATBUDGIE_APP_NAME', 'chatbudgie');
+define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');
 define('CHATBUDGIE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CHATBUDGIE_PLUGIN_URL', plugin_dir_url(__FILE__));
 //define('CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/');
@@ -57,8 +58,11 @@ class ChatBudgie {
     public const USER_INFO_API = CHATBUDGIE_BASE_URL . 'api/user/info';
     public const REFRESH_APP_KEY_API = CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
     public const TOKEN_USAGE_API = CHATBUDGIE_BASE_URL . 'api/user/tokenusage';
+    public const USER_ORDERS_API = CHATBUDGIE_BASE_URL . 'api/user/orders';
     public const CREATE_PAYPAL_ORDER_API = CHATBUDGIE_BASE_URL . 'api/payment/paypal/create';
     public const CAPTURE_PAYPAL_ORDER_API = CHATBUDGIE_BASE_URL . 'api/payment/paypal/capture';
+    public const SSL_VERIFY = false;
+    public const PAYPAL_CLIENT_ID = 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE';
     public const INDEX_META_TABLE = 'chatbudgie_index_meta';
     public const CHUNK_TABLE = 'chatbudgie_chunk_data';
 
@@ -104,7 +108,7 @@ class ChatBudgie {
         add_action('wp_ajax_nopriv_chatbudgie_send_message_sse', array($this, 'handle_send_message_sse'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
-        add_action('admin_notices', array($this, 'show_index_status_notice'));
+        //add_action('admin_notices', array($this, 'show_index_status_notice'));
         add_action('admin_post_chatbudgie_rebuild_index', array($this, 'handle_manual_rebuild_index'));
 
         // PayPal integration handlers
@@ -302,6 +306,12 @@ class ChatBudgie {
      */
     public function schedule_index_build() {
         global $wpdb;
+
+        $app_key = get_option('chatbudgie_app_key', '');
+        if (empty($app_key)) {
+            error_log('ChatBudgie: Cannot schedule index build - You should login ChatBudgie account first.');
+            return;
+        }
 
         // Delete all existing build and single post indexing actions via direct SQL for efficiency
         $table_name = $wpdb->prefix . 'actionscheduler_actions';
@@ -743,14 +753,15 @@ class ChatBudgie {
 
         $headers = array(
             'Content-Type' => 'application/json',
-            'appKey' => get_option('chatbudgie_app_key', '')
+            'appKey' => get_option('chatbudgie_app_key', ''),
+            'Referer' => site_url()
         );
 
         $response = wp_remote_post(self::EMBEDDING_API, array(
             'headers' => $headers,
             'body' => json_encode($body),
             'timeout' => 60,
-            'sslverify' => false
+            'sslverify' => ChatBudgie::SSL_VERIFY
         ));
 
         if (is_wp_error($response)) {
@@ -888,6 +899,9 @@ class ChatBudgie {
         // Clean up cron jobs
         wp_clear_scheduled_hook('chatbudgie_daily_task');
 
+        // Delete app key
+        delete_option('chatbudgie_app_key');
+
         // Delete all index data (vectors + truncate tables)
         $this->delete_all_index_data();
 
@@ -895,7 +909,7 @@ class ChatBudgie {
         $this->drop_index_meta_table();
         $this->drop_chunk_data_table();
 
-        error_log('ChatBudgie plugin deactivated, cron jobs cleaned up, index data deleted');
+        error_log('ChatBudgie plugin deactivated, cron jobs cleaned up, index data deleted, app key removed');
     }
 
     /**
@@ -991,6 +1005,10 @@ class ChatBudgie {
             // Run vektor optimization task
             $optimizer = new Optimizer();
             $optimizer->run();
+
+            // Schedule index build after optimization
+            $this->schedule_index_build();
+            error_log('ChatBudgie: Scheduled daily full index build after optimization.');
             
             // Log task completion
             error_log('ChatBudgie daily task completed at ' . current_time('Y-m-d H:i:s'));
@@ -1001,6 +1019,78 @@ class ChatBudgie {
     }
 
     /**
+     * Get the client IP address
+     * 
+     * @return string
+     */
+    private function get_client_ip() {
+        $ip = '0.0.0.0';
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ip = trim($ips[0]);
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        return $ip;
+    }
+
+    /**
+     * Get the standard API headers
+     * 
+     * @param array $additional_headers Optional additional headers
+     * @return array
+     */
+
+    /**
+     * Get API headers as flat list for cURL
+     * 
+     * @param array $headers Associative array of headers
+     * @return array Flat array of "Header: Value" strings
+     */
+    private function flatten_headers($headers) {
+        $flat = array();
+        foreach ($headers as $key => $value) {
+            $flat[] = "$key: $value";
+        }
+        return $flat;
+    }
+
+    /**
+     * Handle API response and return the data (usually a PagedModel for paginated requests)
+     * 
+     * @param array|WP_Error $response The response from wp_remote_get/post
+     * @param string $error_prefix Prefix for error messages
+     * @return array The processed data
+     * @throws Exception If API request fails or returns an error
+     */
+    private function handle_api_response($response, $error_prefix = 'API request failed') {
+        if (is_wp_error($response)) {
+            $message = $response->get_error_message();
+            error_log("ChatBudgie: $error_prefix: $message");
+            throw new Exception("$error_prefix: $message");
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $data = json_decode($response_body, true);
+
+        if ($status_code < 200 || $status_code >= 300) {
+            $message = isset($data['message']) ? $data['message'] : (isset($data['error']) ? $data['error'] : 'API error');
+            error_log("ChatBudgie: $error_prefix error: $message (Status: $status_code)");
+            throw new Exception($message, $status_code);
+        }
+
+        // If data is wrapped in 'data', unwrap it to get the actual payload (e.g. PagedModel)
+        if (isset($data['data'])) {
+            return $data['data'];
+        }
+
+        return $data;
+    }
+
+    /**
      * Get user account information from the API
      * 
      * @return array User info array on success
@@ -1008,11 +1098,6 @@ class ChatBudgie {
      */
     public function get_user_info() {
         $app_key = get_option('chatbudgie_app_key', '');
-        
-        if (empty($app_key)) {
-            throw new Exception('Application key is missing', 401);
-        }
-
         $headers = array(
             'appKey' => $app_key
         );
@@ -1020,29 +1105,10 @@ class ChatBudgie {
         $response = wp_remote_get(self::USER_INFO_API, array(
             'headers'   => $headers,
             'timeout'   => 15,
-            'sslverify' => false
+            'sslverify' => ChatBudgie::SSL_VERIFY
         ));
 
-        if (is_wp_error($response)) {
-            error_log('ChatBudgie: User info API request failed: ' . $response->get_error_message());
-            throw new Exception('API request failed: ' . $response->get_error_message());
-        }
-
-        $status_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        $data = json_decode($response_body, true);
-
-        if ($status_code !== 200) {
-            $message = isset($data['message']) ? $data['message'] : 'API error';
-            error_log('ChatBudgie: User info API error: ' . $message . ' (Status: ' . $status_code . ')');
-            throw new Exception($message, $status_code);
-        }
-
-        if (!isset($data['data'])) {
-            throw new Exception('Invalid API response format');
-        }
-
-        return $data['data'];
+        return $this->handle_api_response($response, 'User info API request');
     }
 
     /**
@@ -1050,7 +1116,7 @@ class ChatBudgie {
      * 
      * @param int $page Page number (starts from 1)
      * @param int $size Items per page
-     * @return array Usage data array on success
+     * @return array Usage data (PagedModel) on success
      * @throws Exception If API request fails or returns an error
      */
     public function get_token_usage($page = 1, $size = 20) {
@@ -1072,29 +1138,43 @@ class ChatBudgie {
         $response = wp_remote_get($api_url, array(
             'headers'   => $headers,
             'timeout'   => 15,
-            'sslverify' => false
+            'sslverify' => ChatBudgie::SSL_VERIFY
         ));
 
-        if (is_wp_error($response)) {
-            error_log('ChatBudgie: Token usage API request failed: ' . $response->get_error_message());
-            throw new Exception('API request failed: ' . $response->get_error_message());
+        return $this->handle_api_response($response, 'Token usage API request');
+    }
+
+    /**
+     * Get user orders data from the API
+     * 
+     * @param int $page Page number (starts from 1)
+     * @param int $size Items per page
+     * @return array Orders data (PagedModel) on success
+     * @throws Exception If API request fails or returns an error
+     */
+    public function get_user_orders($page = 1, $size = 20) {
+        $app_key = get_option('chatbudgie_app_key', '');
+        
+        if (empty($app_key)) {
+            throw new Exception('Application key is missing', 401);
         }
 
-        $status_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        $data = json_decode($response_body, true);
+        $headers = array(
+            'appKey' => $app_key
+        );
 
-        if ($status_code !== 200) {
-            $message = isset($data['message']) ? $data['message'] : 'API error';
-            error_log('ChatBudgie: Token usage API error: ' . $message . ' (Status: ' . $status_code . ')');
-            throw new Exception($message, $status_code);
-        }
+        $api_url = add_query_arg(array(
+            'page' => $page - 1,
+            'size' => $size
+        ), self::USER_ORDERS_API);
 
-        if (!isset($data['data'])) {
-            throw new Exception('Invalid API response format');
-        }
+        $response = wp_remote_get($api_url, array(
+            'headers'   => $headers,
+            'timeout'   => 15,
+            'sslverify' => ChatBudgie::SSL_VERIFY
+        ));
 
-        return $data['data'];
+        return $this->handle_api_response($response, 'User orders API request');
     }
 
     /**
@@ -1261,6 +1341,8 @@ class ChatBudgie {
         $headers = array(
             'Content-Type: application/json',
             'appKey: ' . get_option('chatbudgie_app_key', ''),
+            'Referer: ' . site_url(),
+            'X-Forwarded-For: ' . $this->get_client_ip(),
         );
 
         $ch = curl_init();
@@ -1532,6 +1614,13 @@ class ChatBudgie {
     public function render_orders_page() {
         try {
             $user_info = $this->get_user_info();
+            
+            // Get current page and size
+            $page = isset($_GET['paged']) ? max(1, (int)$_GET['paged']) : 1;
+            $size = 20;
+            
+            $orders_data = $this->get_user_orders($page, $size);
+            
             include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
         } catch (Exception $e) {
             if ($e->getCode() === 401) {
@@ -1541,6 +1630,7 @@ class ChatBudgie {
             } else {
                 echo '<div class="notice notice-error"><p>' . esc_html__('Failed to fetch user info. Please try again later.', 'chatbudgie') . ' (' . esc_html($e->getMessage()) . ')</p></div>';
                 $user_info = null;
+                $orders_data = null;
                 include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
             }
         }
@@ -1567,7 +1657,7 @@ class ChatBudgie {
                 'siteUrl' => get_site_url(),
             ),
             'timeout' => 30,
-            'sslverify' => false,
+            'sslverify' => ChatBudgie::SSL_VERIFY,
         ));
 
         if (is_wp_error($response)) {
@@ -1590,6 +1680,9 @@ class ChatBudgie {
 
         if ($app_key) {
             update_option('chatbudgie_app_key', $app_key);
+            
+            // Schedule initial index build
+            $this->schedule_index_build();
             
             // Redirect to settings page
             wp_redirect(admin_url('admin.php?page=chatbudgie'));
@@ -1696,7 +1789,7 @@ class ChatBudgie {
                     'extra' => $extra
                 )),
                 'timeout' => 30,
-                'sslverify' => false
+                'sslverify' => ChatBudgie::SSL_VERIFY
             ));
 
             if (is_wp_error($response)) {
@@ -1748,7 +1841,7 @@ class ChatBudgie {
                     'extra' => $extra
                 )),
                 'timeout' => 30,
-                'sslverify' => false
+                'sslverify' => ChatBudgie::SSL_VERIFY
             ));
 
             if (is_wp_error($response)) {

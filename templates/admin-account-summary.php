@@ -52,17 +52,17 @@ $is_low_balance = $numeric_balance < 50000;
         </div>
 
         <div class="summary-actions">
-            <a href="admin.php?page=chatbudgie-orders">
-            <button type="button" class="cb-btn cb-btn--primary" id="chatbudgie-buy-tokens">
-                <span class="cb-icon cb-icon--sm" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <circle cx="9" cy="20" r="1"></circle>
-                        <circle cx="18" cy="20" r="1"></circle>
-                        <path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.7L21 7H7"></path>
-                    </svg>
-                </span>
-                <?php echo esc_html__('Buy Tokens', 'chatbudgie'); ?>
-            </button>
+            <a href="admin.php?page=chatbudgie-orders#recharge-title">
+                <button type="button" class="cb-btn cb-btn--primary" id="chatbudgie-buy-tokens">
+                    <span class="cb-icon cb-icon--sm" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <circle cx="9" cy="20" r="1"></circle>
+                            <circle cx="18" cy="20" r="1"></circle>
+                            <path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.7L21 7H7"></path>
+                        </svg>
+                    </span>
+                    <?php echo esc_html__('Buy Tokens', 'chatbudgie'); ?>
+                </button>
             </a>
         </div>
     </div>
