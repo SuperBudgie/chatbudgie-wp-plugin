@@ -44,7 +44,8 @@ if (file_exists(__DIR__ . '/lib/Vektor/Core/Config.php')) {
 
 define('CHATBUDGIE_VERSION', '1.0.0');
 define('CHATBUDGIE_APP_NAME', 'chatbudgie');
-define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');
+//define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox
+define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64VAAwj_YGTfYAWF3D0cLpmXCtYNxGG9jOvEk2Hv8-M');  // Live
 define('CHATBUDGIE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CHATBUDGIE_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/');
