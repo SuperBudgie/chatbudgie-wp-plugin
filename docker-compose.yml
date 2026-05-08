@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:6.9.4-php8.2-apache
+    container_name: budgie-wordpress
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppassword
+    volumes:
+      - ./:/var/www/html/wp-content/plugins/chatbudgie
+    depends_on:
+      - db
+    restart: unless-stopped
+    extra_hosts:
+      - "docker.internal:host-gateway"
+
+  db:
+    image: mysql:8.0
+    container_name: budgie-mysql
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

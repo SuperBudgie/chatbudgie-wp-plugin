@@ -1,126 +1,78 @@
 # ChatBudgie WordPress Plugin
 
-Display a chat dialog on WordPress pages, allowing users to converse with a RAG-based Agent to get website-related answers.
+ChatBudgie is a powerful, AI-driven chat plugin for WordPress that provides a RAG (Retrieval-Augmented Generation) based agent. It uses a local vector search engine to index your website's content and deliver accurate, context-aware answers to your visitors.
 
-## Features
+## Key Features
 
-- 📱 Responsive chat bubble, optimized for mobile and desktop
-- 🤖 Multiple chat bubble icons (Default, Robot, Customer Service, Message, Custom)
-- 🔌 Configurable custom API endpoints
-- 🔒 API key authentication support
-- 🎨 Modern design style
-- 💬 Continuous contextual conversations
-- ⚡ Background indexing via Action Scheduler
-- 📊 Index status monitoring and manual rebuild
+- 🤖 **RAG-Based Agent**: Provides intelligent answers based on your actual website content.
+- ⚡ **Local Vector Search**: Utilizes a high-performance, local HNSW-based vector search engine (Vektor) for fast information retrieval.
+- 📱 **Responsive Design**: Modern, customizable chat widget optimized for both desktop and mobile users.
+- 🎨 **Deep Customization**: Adjust primary/secondary colors, welcome messages, and choose from multiple chat icons (or upload your own).
+- 🔄 **Real-time Indexing**: Automatically updates the search index when you create, edit, or delete posts and pages.
+- 📊 **Account & Usage Tracking**: Monitor your token usage and manage your account directly from the WordPress admin.
+- 💳 **Seamless Top-ups**: Integrated PayPal support for purchasing additional token packages.
+- ⚡ **Background Processing**: Uses Action Scheduler for efficient, non-blocking background indexing tasks.
 
 ## Installation
 
-1. Download the plugin: `git clone https://github.com/rippleblue/chatbudgie.git`
-2. Copy the `chatbudgie` folder to WordPress `wp-content/plugins/` directory
-3. Activate ChatBudgie from the **Plugins** page in WordPress admin
-4. Navigate to **Settings → ChatBudgie** to configure API URL and other options
+1. **Upload Plugin**: Download the plugin and upload the `chatbudgie-wp-plugin` folder to your `/wp-content/plugins/` directory.
+2. **Activate**: Go to the 'Plugins' menu in WordPress and activate **ChatBudgie**.
+3. **Login**: Navigate to the **ChatBudgie** menu in your admin sidebar. You will be redirected to the SuperBudgie login page to authenticate your site.
+4. **Indexing**: Upon activation and login, ChatBudgie will automatically start indexing your public posts and pages in the background.
 
 ## Configuration
 
-### API Settings
-- **API URL**: Enter the full API URL (e.g., `https://your-api.com/chat`)
-- **API Key**: Optional, enter your API key if authentication is required
-
-### Icon Settings
-- **Default Icon**: Chat bubble SVG icon
-- **Robot**: Robot avatar SVG icon
-- **Customer Service**: Headset customer service SVG icon
-- **Message**: Message bubble SVG icon
-- **Custom Icon URL**: Enter custom image URL (supports SVG, PNG, JPG)
+### Appearance Settings
+Customize the look and feel of your chat widget:
+- **Primary/Secondary Colors**: Match the widget to your site's branding.
+- **Welcome Message**: Set a friendly initial greeting for your users.
+- **Custom Icon**: Choose from built-in icons or upload a custom SVG/PNG/JPG.
 
 ### Index Management
-- **Index Status**: View current background indexing status (idle, scheduled, running, completed, failed)
-- **Rebuild Index**: Manually trigger a full index rebuild (runs in background via Action Scheduler)
-- **Automatic Scheduling**: Index build is automatically scheduled on plugin activation
+- **Manual Rebuild**: Trigger a full re-indexing of your site content if needed.
+- **Real-time Updates**: The index stays in sync automatically as you manage your content.
 
-## Background Indexing
+## Technical Details
 
-ChatBudgie uses Action Scheduler to handle time-consuming indexing tasks in the background, preventing timeouts and keeping your site responsive.
+### RAG & Vector Search
+ChatBudgie implements a local **HNSW (Hierarchical Navigable Small World)** graph for efficient vector similarity search. When a user asks a question, the plugin:
+1. Generates an embedding for the query.
+2. Performs a similarity search against the local vector store.
+3. Retrieves relevant content "chunks" from your WordPress database.
+4. Sends the context and query to the RAG API to generate a precise response.
 
-### How It Works
+### Requirements
+- **PHP**: 7.4 or higher
+- **WordPress**: 5.8 or higher
+- **SSL**: Recommended for API communication
 
-1. **Automatic Trigger**: Index build is scheduled immediately upon plugin activation
-2. **Background Processing**: All posts and pages are indexed asynchronously without blocking
-3. **Status Monitoring**: Real-time status updates in the admin area
-4. **Error Recovery**: Failed index builds are logged with error messages for debugging
-5. **Manual Rebuild**: Click "Rebuild Index" in settings to manually trigger reindexing
+### Tech Stack
+- **Backend**: PHP, WordPress API
+- **Frontend**: Vanilla JavaScript, CSS3, jQuery
+- **Vector Engine**: Custom PHP-based HNSW implementation (Vektor)
+- **Background Tasks**: Action Scheduler
 
-### Index Status Options
-
-- **idle**: No indexing activity
-- **scheduled**: Index build queued and waiting to run
-- **running**: Currently processing posts
-- **completed**: Last index build finished successfully
-- **failed**: Error occurred during indexing (check error message)
-
-## API Specifications
-
-### Request Format
-```json
-{
-  "message": "User message content",
-  "conversation_history": [
-    {"role": "user", "content": "Historical message 1"},
-    {"role": "assistant", "content": "Historical reply 1"}
-  ]
-}
-```
-
-### Response Format
-```json
-{
-  "success": true,
-  "data": {
-    "reply": "AI reply content"
-  }
-}
-```
-
-## Tech Stack
-
-- PHP 8.0+
-- WordPress 6.0+
-- jQuery
-- Vanilla JavaScript
-- CSS3
-
-## Development
-
-### Project Structure
+## Project Structure
 ```
 chatbudgie/
-├── chatbudgie.php          # Main plugin file
+├── chatbudgie.php          # Main plugin entry point
 ├── lib/
-│   ├── action-scheduler/   # Action Scheduler library for background tasks
-│   └── Vektor/             # Vector search library
-├── data/                   # Vector index data storage
-└── assets/
-    ├── css/
-    │   └── chatbudgie.css  # Stylesheet
-    └── js/
-        └── chatbudgie.js   # Frontend script
+│   ├── action-scheduler/   # Background task management
+│   └── Vektor/             # Local vector search engine
+├── templates/              # Admin and widget UI templates
+├── assets/
+│   ├── css/                # Plugin stylesheets
+│   └── js/                 # Frontend and admin scripts
+├── data/                   # Local vector index storage
+└── tests/                  # PHPUnit test suite
 ```
 
-### Local Development
-1. Clone the repository: `git clone https://github.com/yourusername/chatbudgie.git`
-2. Navigate to the project directory: `cd chatbudgie`
-3. Edit the code
-4. Upload to WordPress plugin directory for testing
-
 ## Contributing
-
-Issues and Pull Requests are welcome!
+We welcome contributions! Please feel free to submit Issues or Pull Requests on our [GitHub repository](https://github.com/SuperBudgie/chatbudgie-wp-plugin).
 
 ## License
-
-GPL v2 or later
+GPL v3 or later.
 
 ## Contact
-
-- Author: Budgie Team
-- Project URL: https://github.com/yourusername/chatbudgie
+- **Author**: SuperBudgie Team
+- **Website**: [superbudgie.com](https://chat.superbudgie.com)

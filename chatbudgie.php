@@ -1,13 +1,19 @@
 <?php
+
 /**
  * Plugin Name: ChatBudgie
- * Plugin URI: https://example.com/chatbudgie
+ * Plugin URI: https://github.com/SuperBudgie/chatbudgie-wp-plugin
  * Description: Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers
  * Version: 1.0.0
+ * Requires at least: 5.8
+ * Requires PHP: 7.4
+ * Tested up to: 6.9.4
  * Author: SuperBudgie Team
- * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Author URI: https://chat.superbudgie.com
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: chatbudgie
+ * Domain Path: /languages
  */
 
 if (!defined('ABSPATH')) {
