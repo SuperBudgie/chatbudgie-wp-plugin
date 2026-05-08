@@ -1,0 +1,21 @@
+# Build files
+.github
+.vscode
+tests
+phpunit.xml
+composer.json
+composer.lock
+docker-compose.yml
+.gitignore
+.distignore
+README.md
+
+# Development tools
+bin
+node_modules
+vendor/bin
+
+# Local data
+data
+test-data
+.phpunit.cache
