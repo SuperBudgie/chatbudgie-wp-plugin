@@ -34,9 +34,8 @@ if ($index_status['status'] === 'failed') {
     $eta_seconds = $remaining_files * 12;
     $eta_minutes = floor($eta_seconds / 60);
     $eta_remainder = $eta_seconds % 60;
-    $eta_label = $eta_minutes > 0
-        /* translators: 1: minutes, 2: seconds */
-        ? sprintf(__('%dm %02ds', 'chatbudgie'), $eta_minutes, $eta_remainder) : sprintf(__('%ds', 'chatbudgie'), $eta_remainder);
+    /* translators: 1: minutes, 2: seconds */
+    $eta_label = $eta_minutes > 0 ? sprintf(__('%1$dm %2$02ds', 'chatbudgie'), $eta_minutes, $eta_remainder) : sprintf(__('%ds', 'chatbudgie'), $eta_remainder);
 } else {
     $eta_label = __('Starting', 'chatbudgie');
 }

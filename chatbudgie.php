@@ -1002,16 +1002,29 @@ class ChatBudgie {
      * @return void
      */
     private function rrmdir($dir) {
-        if (!is_dir($dir)) {
+        global $wp_filesystem;
+        if (!isset($wp_filesystem)) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
+        if (!$wp_filesystem->is_dir($dir)) {
             return;
         }
         
-        $files = array_diff(scandir($dir), array('.', '..'));
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            is_dir($path) ? $this->rrmdir($path) : unlink($path);
+        $files = $wp_filesystem->dirlist($dir);
+        if (is_array($files)) {
+            foreach ($files as $file) {
+                $path = $dir . '/' . $file['name'];
+                if ($file['type'] === 'd') {
+                    $this->rrmdir($path);
+                } else {
+                    $wp_filesystem->delete($path);
+                }
+            }
         }
-        rmdir($dir);
+        
+        $wp_filesystem->rmdir($dir);
     }
 
     /**
@@ -1216,7 +1229,7 @@ class ChatBudgie {
 
         wp_enqueue_script(
             'marked-js',
-            'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
+            CHATBUDGIE_PLUGIN_URL . 'assets/js/marked.min.js',
             array(),
             '12.0.0',
             true
@@ -1732,12 +1745,35 @@ class ChatBudgie {
      * @return void
      */
     public function register_settings() {
-        register_setting('chatbudgie_general_settings', 'chatbudgie_app_key');
+        register_setting('chatbudgie_general_settings', 'chatbudgie_app_key', array(
+            'sanitize_callback' => 'sanitize_text_field'
+        ));
 
-        register_setting('chatbudgie_appearance_settings', 'chatbudgie_welcome_message');
-        register_setting('chatbudgie_appearance_settings', 'chatbudgie_custom_icon');
-        register_setting('chatbudgie_appearance_settings', 'chatbudgie_primary_color');
-        register_setting('chatbudgie_appearance_settings', 'chatbudgie_secondary_color');
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_welcome_message', array(
+            'sanitize_callback' => 'sanitize_text_field'
+        ));
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_custom_icon', array(
+            'sanitize_callback' => 'esc_url_raw'
+        ));
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_primary_color', array(
+            'sanitize_callback' => array($this, 'sanitize_hex_color')
+        ));
+        register_setting('chatbudgie_appearance_settings', 'chatbudgie_secondary_color', array(
+            'sanitize_callback' => array($this, 'sanitize_hex_color')
+        ));
+    }
+
+    /**
+     * Sanitize hexadecimal color values
+     * 
+     * @param string $color The color value
+     * @return string The sanitized hex color or default
+     */
+    public function sanitize_hex_color($color) {
+        if (preg_match('/^#[a-f0-9]{6}$/i', $color)) {
+            return $color;
+        }
+        return '#2f7bff'; // Default color
     }
 
     /**

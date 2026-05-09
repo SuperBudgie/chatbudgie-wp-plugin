@@ -2,7 +2,7 @@
 Contributors: superbudgie
 Tags: chat, ai, rag, vector-search, chatbot, customer-service, artificial-intelligence, machine-learning
 Requires at least: 5.8
-Tested up to: 6.5
+Tested up to: 6.9.4
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv3 or later
