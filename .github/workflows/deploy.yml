@@ -17,16 +17,27 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
+          tools: wp-cli
+
+      - name: Install latest version of dist-archive-command
+        run: wp package install wp-cli/dist-archive-command:@stable
 
       - name: Install dependencies
         run: composer install --no-dev --optimize-autoloader
 
+      - name: WordPress Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          exclude-directories: 'vendor,lib'
+    
       - name: Build WordPress Plugin (Pre-release)
         if: contains(github.ref, '-')
         id: build
-        uses: 10up/action-wordpress-plugin-build-zip@stable
-        env:
-          SLUG: chatbudgie
+        run: |
+          ZIP_FILENAME="chatbudgie.zip"
+          wp dist-archive . --filename-format="${ZIP_FILENAME}"
+          echo "zip-path=${ZIP_FILENAME}" >> $GITHUB_OUTPUT
 
       - name: WordPress Plugin Deploy (Release)
         if: "!contains(github.ref, '-')"
