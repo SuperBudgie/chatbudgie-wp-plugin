@@ -801,8 +801,8 @@ class ChatBudgie {
         if (isset($data['data']) && isset($data['data']['embeddingDimension'])) {
             $embeddingDimension = $data['data']['embeddingDimension'];
             if ($embeddingDimension !== self::EMBEDDING_DIMENSION) {
-                $errorMsg = sprintf(
-                    'Embedding dimension mismatch: API returned %d dimensions, but configured %d dimensions',
+                /* translators: 1: API returned embedding dimension, 2: configured embedding dimension */
+                $errorMsg = sprintf('Embedding dimension mismatch: API returned %d dimensions, but configured %d dimensions',
                     $embeddingDimension,
                     self::EMBEDDING_DIMENSION
                 );

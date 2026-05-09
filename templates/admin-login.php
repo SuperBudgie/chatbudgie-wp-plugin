@@ -141,6 +141,6 @@ function get_chatbudgie_login_url(string $provider) {
 
     <!-- Footer -->
     <footer class="footer">
-        <p class="footer__copy">© <?php echo date('Y'); ?> ChatBudgie. All rights reserved.</p>
+        <p class="footer__copy">© <?php echo esc_html(gmdate('Y')); ?> ChatBudgie. All rights reserved.</p>
     </footer>
 </div>

@@ -36,7 +36,7 @@ jobs:
         id: build
         run: |
           ZIP_FILENAME="chatbudgie.zip"
-          wp dist-archive . --filename-format="${ZIP_FILENAME}"
+          wp dist-archive . --plugin-dirname=chatbudgie --filename-format="${ZIP_FILENAME}"
           echo "zip-path=${ZIP_FILENAME}" >> $GITHUB_OUTPUT
 
       - name: WordPress Plugin Deploy (Release)

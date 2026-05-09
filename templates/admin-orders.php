@@ -168,8 +168,7 @@ $currency = 'USD';
                     <span class="pagination-info">
                         <?php 
                         /* translators: 1: current page number, 2: total number of pages */
-                        printf(
-                            esc_html__('Page %1$d of %2$d', 'chatbudgie'), 
+                        printf(esc_html__('Page %1$d of %2$d', 'chatbudgie'), 
                             absint($current_page), 
                             absint($total_pages)
                         ); 
