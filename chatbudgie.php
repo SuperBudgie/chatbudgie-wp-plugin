@@ -1561,7 +1561,7 @@ class ChatBudgie {
         // Schedule fresh index build
         $this->schedule_index_build();
 
-        wp_redirect(wp_get_referer() ? wp_get_referer() : admin_url('options-general.php?page=chatbudgie'));
+        wp_safe_redirect(wp_get_referer() ? wp_get_referer() : admin_url('options-general.php?page=chatbudgie'));
         exit;
     }
 
@@ -1721,7 +1721,7 @@ class ChatBudgie {
             $this->schedule_index_build();
             
             // Redirect to settings page
-            wp_redirect(admin_url('admin.php?page=chatbudgie'));
+            wp_safe_redirect(admin_url('admin.php?page=chatbudgie'));
             exit;
         }
 
