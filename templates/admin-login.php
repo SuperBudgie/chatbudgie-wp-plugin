@@ -18,7 +18,7 @@ function get_chatbudgie_login_url(string $provider) {
     <!-- Header -->
     <header class="header">
         <div class="brand">
-            <img class="brand__mark" src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/logo.png'; ?>" alt="" />
+            <img class="brand__mark" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/logo.png'); ?>" alt="" />
             <span class="brand__name">Chat<span class="brand__name--accent">Budgie</span></span>
         </div>
     </header>
@@ -39,21 +39,21 @@ function get_chatbudgie_login_url(string $provider) {
                 <div class="providers">
                     <a href="<?php echo esc_url(get_chatbudgie_login_url('google')); ?>" class="provider">
                         <span class="provider__icon">
-                            <img src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/google.svg'; ?>" alt="" />
+                            <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/google.svg'); ?>" alt="" />
                         </span>
                         <span class="provider__label">Sign in with Google</span>
                     </a>
 
                     <a href="<?php echo esc_url(get_chatbudgie_login_url('microsoft')); ?>" class="provider">
                         <span class="provider__icon">
-                            <img src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/microsoft.svg'; ?>" alt="" />
+                            <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/microsoft.svg'); ?>" alt="" />
                         </span>
                         <span class="provider__label">Sign in with Microsoft</span>
                     </a>
 
                     <a href="<?php echo esc_url(get_chatbudgie_login_url('github')); ?>" class="provider">
                         <span class="provider__icon">
-                            <img src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/github.svg'; ?>" alt="" />
+                            <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/github.svg'); ?>" alt="" />
                         </span>
                         <span class="provider__label">Sign in with GitHub</span>
                     </a>
@@ -63,7 +63,7 @@ function get_chatbudgie_login_url(string $provider) {
                     </div>
 
                     <p class="legal">
-                        <img class="legal__icon" src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/lock.svg'; ?>" alt="" />
+                        <img class="legal__icon" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/lock.svg'); ?>" alt="" />
                         <span>
                             By continuing, you agree to our
                             Terms of Service
@@ -102,7 +102,7 @@ function get_chatbudgie_login_url(string $provider) {
                 <ul class="features">
                     <li class="feature">
                         <span class="feature__icon">
-                            <img src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/f-chat.svg'; ?>" alt="" />
+                            <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/f-chat.svg'); ?>" alt="" />
                         </span>
                         <div class="feature__body">
                             <h3 class="feature__title">Smart Chat</h3>
@@ -112,7 +112,7 @@ function get_chatbudgie_login_url(string $provider) {
 
                     <li class="feature">
                         <span class="feature__icon">
-                            <img src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/f-bolt.svg'; ?>" alt="" />
+                            <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/f-bolt.svg'); ?>" alt="" />
                         </span>
                         <div class="feature__body">
                             <h3 class="feature__title">Easy to Setup</h3>
@@ -122,7 +122,7 @@ function get_chatbudgie_login_url(string $provider) {
 
                     <li class="feature">
                         <span class="feature__icon">
-                            <img src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/f-gear.svg'; ?>" alt="" />
+                            <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/f-gear.svg'); ?>" alt="" />
                         </span>
                         <div class="feature__body">
                             <h3 class="feature__title">Zero Maintenance</h3>
@@ -132,8 +132,8 @@ function get_chatbudgie_login_url(string $provider) {
                 </ul>
 
                 <div class="mascot">
-                    <img class="mascot__bubble" src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/bubble.svg'; ?>" alt="" />
-                    <img class="mascot__img" src="<?php echo CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie.png'; ?>" alt="ChatBudgie mascot" />
+                    <img class="mascot__bubble" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/bubble.svg'); ?>" alt="" />
+                    <img class="mascot__img" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie.png'); ?>" alt="ChatBudgie mascot" />
                 </div>
             </div>
         </section>

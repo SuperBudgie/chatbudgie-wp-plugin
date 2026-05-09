@@ -96,17 +96,24 @@ $usage_rows = isset($usage_data['content']) ? $usage_data['content'] : [];
                     ?>
                     
                     <a href="<?php echo $has_prev ? esc_url($prev_url) : 'javascript:void(0);'; ?>" 
-                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_prev ? 'is-disabled' : ''; ?>"
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($has_prev ? '' : 'is-disabled'); ?>"
                        aria-label="<?php echo esc_attr__('Previous Page', 'chatbudgie'); ?>">
                         <?php echo esc_html__('&laquo; Previous', 'chatbudgie'); ?>
                     </a>
 
                     <span class="pagination-info">
-                        <?php printf(esc_html__('Page %d of %d', 'chatbudgie'), $current_page, $total_pages); ?>
+                        <?php 
+                        /* translators: 1: current page number, 2: total number of pages */
+                        printf(
+                            esc_html__('Page %1$d of %2$d', 'chatbudgie'), 
+                            absint($current_page), 
+                            absint($total_pages)
+                        ); 
+                        ?>
                     </span>
 
                     <a href="<?php echo $has_next ? esc_url($next_url) : 'javascript:void(0);'; ?>" 
-                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo !$has_next ? 'is-disabled' : ''; ?>"
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($has_next ? '' : 'is-disabled'); ?>"
                        aria-label="<?php echo esc_attr__('Next Page', 'chatbudgie'); ?>">
                         <?php echo esc_html__('Next &raquo;', 'chatbudgie'); ?>
                     </a>

@@ -24,9 +24,7 @@ jobs:
       - name: Build WordPress Plugin (Pre-release)
         if: contains(github.ref, '-')
         id: build
-        uses: 10up/action-wordpress-plugin-build@stable
-        with:
-          generate-zip: true
+        uses: 10up/action-wordpress-plugin-build-zip@stable
         env:
           SLUG: chatbudgie
 

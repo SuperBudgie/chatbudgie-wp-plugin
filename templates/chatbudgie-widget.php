@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . '/assets/images/budgie-avatar.png');
+$avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png');
 $primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
 ?>
 
@@ -19,17 +19,17 @@ $primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
     }
 </style>
 
-<div class="chatbudgie-widget" id="chatbudgie-widget" role="dialog" aria-label="ChatBudgie chat window">
+<div class="chatbudgie-widget" id="chatbudgie-widget" role="dialog" aria-label="<?php echo esc_attr__('ChatBudgie chat window', 'chatbudgie'); ?>">
     <div class="chatbudgie-toggle" id="chatbudgie-toggle">
-        <img src="<?php echo $avatar_url; ?>" alt="ChatBudgie avatar">
+        <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>">
     </div>
     <!-- Header -->
     <header class="chatbudgie-header" id="chatbudgie-header">
         <div class="chatbudgie-header__brand">
-            <img src="<?php echo $avatar_url; ?>" alt="ChatBudgie avatar" class="chatbudgie-header__avatar" aria-hidden="true">
+            <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>" class="chatbudgie-header__avatar" aria-hidden="true">
             <h1 class="chatbudgie-header__title">ChatBudgie</h1>
         </div>
-        <button class="chatbudgie-header__close" id="chatbudgie-close-btn" aria-label="Close chat">
+        <button class="chatbudgie-header__close" id="chatbudgie-close-btn" aria-label="<?php echo esc_attr__('Close chat', 'chatbudgie'); ?>">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
                 <path d="M6 6 L18 18 M18 6 L6 18" />
             </svg>
@@ -39,16 +39,16 @@ $primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
     <!-- Messages -->
     <main class="chatbudgie-messages" id="chatbudgie-messages">
         <div class="chatbudgie-msg chatbudgie-msg--user">
-            <div class="chatbudgie-bubble chatbudgie-bubble--user">What services do you offer?</div>
+            <div class="chatbudgie-bubble chatbudgie-bubble--user"><?php echo esc_html__('What services do you offer?', 'chatbudgie'); ?></div>
         </div>
 
         <div class="chatbudgie-msg chatbudgie-msg--bot">
-        <img src="<?php echo $avatar_url; ?>" alt="ChatBudgie avatar" class="chatbudgie-bot-avatar" aria-hidden="true" />
-        <div class="chatbudgie-bubble chatbudgie-bubble--bot">We offer AI chatbot solutions that help you automate support and engage your visitors.</div>
+        <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>" class="chatbudgie-bot-avatar" aria-hidden="true" />
+        <div class="chatbudgie-bubble chatbudgie-bubble--bot"><?php echo esc_html__('We offer AI chatbot solutions that help you automate support and engage your visitors.', 'chatbudgie'); ?></div>
 </div>
 
 <div class="chatbudgie-msg chatbudgie-msg--user">
-    <div class="chatbudgie-bubble chatbudgie-bubble--user">Is my data safe?</div>
+    <div class="chatbudgie-bubble chatbudgie-bubble--user"><?php echo esc_html__('Is my data safe?', 'chatbudgie'); ?></div>
 </div>
 
 <!-- Error banner -->
@@ -61,17 +61,17 @@ $primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
         </svg>
     </div>
     <div class="chatbudgie-error-banner__content">
-        <p class="chatbudgie-error-banner__title">Oops! Something went wrong.</p>
-        <p class="chatbudgie-error-banner__text">I'm having a little trouble thinking right now. Please try again in a moment.</p>
+        <p class="chatbudgie-error-banner__title"><?php echo esc_html__('Oops! Something went wrong.', 'chatbudgie'); ?></p>
+        <p class="chatbudgie-error-banner__text"><?php echo esc_html__("I'm having a little trouble thinking right now. Please try again in a moment.", 'chatbudgie'); ?></p>
     </div>
-    <button class="chatbudgie-retry-btn" id="chatbudgie-retry-btn" type="button" aria-label="Try again">
+    <button class="chatbudgie-retry-btn" id="chatbudgie-retry-btn" type="button" aria-label="<?php echo esc_attr__('Try again', 'chatbudgie'); ?>">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10" />
             <polyline points="1 20 1 14 7 14" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10" />
             <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14" />
         </svg>
-        <span>Try Again</span>
+        <span><?php echo esc_html__('Try Again', 'chatbudgie'); ?></span>
     </button>
 </div>
 </main>
@@ -82,15 +82,15 @@ $primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
         type="text"
         id="chatbudgie-input-field"
         class="chatbudgie-input__field"
-        placeholder="Ask anything..."
-        aria-label="Type your message" />
-    <button type="submit" class="chatbudgie-input__send" id="chatbudgie-send-btn" aria-label="Send message">
+        placeholder="<?php echo esc_attr__('Ask anything...', 'chatbudgie'); ?>"
+        aria-label="<?php echo esc_attr__('Type your message', 'chatbudgie'); ?>" />
+    <button type="submit" class="chatbudgie-input__send" id="chatbudgie-send-btn" aria-label="<?php echo esc_attr__('Send message', 'chatbudgie'); ?>">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 2 11 13" />
             <path d="M22 2 15 22 11 13 2 9 22 2z" />
         </svg>
     </button>
-    <button type="button" class="chatbudgie-input__stop" id="chatbudgie-stop-btn" aria-label="Stop response" hidden>
+    <button type="button" class="chatbudgie-input__stop" id="chatbudgie-stop-btn" aria-label="<?php echo esc_attr__('Stop response', 'chatbudgie'); ?>" hidden>
         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
             <rect x="7" y="7" width="10" height="10" rx="2" ry="2"></rect>
         </svg>

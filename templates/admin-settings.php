@@ -188,7 +188,7 @@ foreach ($color_options as $color_option) {
                             <div class="avatar-options" role="radiogroup" aria-label="<?php echo esc_attr__('Avatar options', 'chatbudgie'); ?>">
                                 <?php foreach ($avatar_options as $avatar_url) : ?>
                                     <?php $is_selected = ($avatar_url === $selected_avatar); ?>
-                                    <label class="avatar-choice<?php echo $is_selected ? ' is-active' : ''; ?>">
+                                    <label class="avatar-choice<?php echo esc_attr($is_selected ? ' is-active' : ''); ?>">
                                         <input
                                             type="radio"
                                             name="chatbudgie_avatar_choice"
@@ -199,7 +199,7 @@ foreach ($color_options as $color_option) {
                                     </label>
                                 <?php endforeach; ?>
 
-                                <label class="avatar-choice custom-choice<?php echo (!$is_predefined_avatar && $selected_avatar !== '' ? ' is-active' : ''); ?>" <?php echo ($is_predefined_avatar || $selected_avatar === '' ? 'style="display: none;"' : ''); ?>>
+                                <label class="avatar-choice custom-choice<?php echo esc_attr(!$is_predefined_avatar && $selected_avatar !== '' ? ' is-active' : ''); ?>" <?php echo (!$is_predefined_avatar && $selected_avatar !== '' ? '' : 'style="display: none;"'); ?>>
                                     <input
                                         type="radio"
                                         name="chatbudgie_avatar_choice"
@@ -231,7 +231,7 @@ foreach ($color_options as $color_option) {
                             <div class="color-options" role="radiogroup" aria-label="<?php echo esc_attr__('Primary color options', 'chatbudgie'); ?>">
                                 <?php foreach ($color_options as $color_option) : ?>
                                     <?php $is_selected = strcasecmp($color_option['primary'], $primary_color) === 0; ?>
-                                    <label class="color-choice<?php echo $is_selected ? ' is-active' : ''; ?>" title="<?php echo esc_attr($color_option['label']); ?>">
+                                    <label class="color-choice<?php echo esc_attr($is_selected ? ' is-active' : ''); ?>" title="<?php echo esc_attr($color_option['label']); ?>">
                                         <input
                                             type="radio"
                                             name="chatbudgie_primary_color"
@@ -243,7 +243,7 @@ foreach ($color_options as $color_option) {
                                     </label>
                                 <?php endforeach; ?>
 
-                                <div class="color-choice color-choice--picker<?php echo (!$has_matching_palette ? ' is-active' : ''); ?>">
+                                <div class="color-choice color-choice--picker<?php echo esc_attr(!$has_matching_palette ? ' is-active' : ''); ?>">
                                     <input type="radio" name="chatbudgie_primary_color" value="<?php echo esc_attr($primary_color); ?>" data-secondary="<?php echo esc_attr($secondary_color); ?>" <?php checked(!$has_matching_palette); ?> class="screen-reader-text" />
                                     <input type="text" id="chatbudgie-custom-color-picker" value="<?php echo esc_attr($primary_color); ?>" class="chatbudgie-color-picker" />
                                 </div>

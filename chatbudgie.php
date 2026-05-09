@@ -1497,7 +1497,8 @@ class ChatBudgie {
                     <strong><?php echo esc_html__('ChatBudgie:', 'chatbudgie'); ?></strong>
                     <?php
                     printf(
-                        esc_html__('Indexing progress: %d of %d posts completed (%d%%)', 'chatbudgie'),
+                        /* translators: 1: number of completed posts, 2: total number of scheduled posts, 3: progress percentage */
+                        esc_html__('Indexing progress: %1$d of %2$d posts completed (%3$d%%)', 'chatbudgie'),
                         intval($completed),
                         intval($scheduled),
                         intval($progress)
