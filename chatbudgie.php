@@ -72,7 +72,7 @@ class ChatBudgie {
     public const INDEX_META_TABLE = 'chatbudgie_index_meta';
     public const CHUNK_TABLE = 'chatbudgie_chunk_data';
 
-    private static $instance = null;
+    private static ?ChatBudgie $instance = null;
     private Indexer $indexer;
     private Searcher $searcher;
 
@@ -168,7 +168,9 @@ class ChatBudgie {
             KEY last_indexed (last_indexed)
         ) {$charset_collate};";
 
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        if (defined('ABSPATH')) {
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        }
         dbDelta($sql);
 
         if ($wpdb->last_error) {
@@ -201,7 +203,9 @@ class ChatBudgie {
             KEY post_id (post_id)
         ) {$charset_collate};";
 
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        if (defined('ABSPATH')) {
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        }
         dbDelta($sql);
 
         if ($wpdb->last_error) {
@@ -293,11 +297,21 @@ class ChatBudgie {
         // Create chunk data table
         $this->create_chunk_data_table();
 
-        // Clear existing cron jobs
+        // Clear existing cron jobs (legacy WP-Cron and Action Scheduler)
         wp_clear_scheduled_hook('chatbudgie_daily_task');
+        if (function_exists('as_unschedule_all_actions')) {
+            as_unschedule_all_actions('chatbudgie_daily_task', array(), 'chatbudgie');
+        }
 
-        // Schedule daily task at 3:00 AM local time
-        wp_schedule_event(strtotime('03:00:00'), 'daily', 'chatbudgie_daily_task');
+        // Schedule daily task at 3:00 AM local time using Action Scheduler
+        if (function_exists('as_schedule_recurring_action')) {
+            $timestamp = strtotime('03:00:00');
+            // If 3:00 AM has already passed today, schedule for tomorrow
+            if ($timestamp <= time()) {
+                $timestamp += 86400; // 24 hours in seconds
+            }
+            as_schedule_recurring_action($timestamp, 86400, 'chatbudgie_daily_task', array(), 'chatbudgie');
+        }
 
         // Schedule immediate index build via Action Scheduler
         $this->schedule_index_build();
@@ -902,8 +916,11 @@ class ChatBudgie {
      * @return void
      */
     public function deactivate() {
-        // Clean up cron jobs
+        // Clean up cron jobs (legacy WP-Cron and Action Scheduler)
         wp_clear_scheduled_hook('chatbudgie_daily_task');
+        if (function_exists('as_unschedule_all_actions')) {
+            as_unschedule_all_actions('chatbudgie_daily_task', array(), 'chatbudgie');
+        }
 
         // Delete app key
         delete_option('chatbudgie_app_key');

@@ -21,7 +21,17 @@ jobs:
       - name: Install dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      - name: WordPress Plugin Deploy
+      - name: Build WordPress Plugin (Pre-release)
+        if: contains(github.ref, '-')
+        id: build
+        uses: 10up/action-wordpress-plugin-build@stable
+        with:
+          generate-zip: true
+        env:
+          SLUG: chatbudgie
+
+      - name: WordPress Plugin Deploy (Release)
+        if: "!contains(github.ref, '-')"
         id: deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
         with:
@@ -30,12 +40,12 @@ jobs:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SLUG: chatbudgie
-          DRY_RUN: true
 
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ steps.deploy.outputs.zip-path }}
+          files: ${{ steps.build.outputs.zip-path || steps.deploy.outputs.zip-path }}
+          prerelease: ${{ contains(github.ref, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
