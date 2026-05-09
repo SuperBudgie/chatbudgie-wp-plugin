@@ -58,7 +58,7 @@ class TestableChatBudgie
             $query_vector = $embedding_data[0]['embedding'];
 
             // Initialize Searcher
-            $searcher = new \ChatBudgie\Vektor\Services\Searcher();
+            $searcher = new \Vektor\Services\Searcher();
 
             // Search for top K results (oversample to handle threshold filtering)
             $results = $searcher->search($query_vector, $k * 2, false);

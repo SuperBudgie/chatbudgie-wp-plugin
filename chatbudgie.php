@@ -51,10 +51,10 @@ define('CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/');
 //define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');
 //define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');
 
-use ChatBudgie\Vektor\Core\Config;
-use ChatBudgie\Vektor\Services\Indexer;
-use ChatBudgie\Vektor\Services\Searcher;
-use ChatBudgie\Vektor\Services\Optimizer;
+use Vektor\Core\Config;
+use Vektor\Services\Indexer;
+use Vektor\Services\Searcher;
+use Vektor\Services\Optimizer;
 
 class ChatBudgie {
     public const DATA_DIR = CHATBUDGIE_PLUGIN_DIR . '/data';

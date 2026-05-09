@@ -31,8 +31,8 @@ if (!file_exists(CHATBUDGIE_TEST_DATA_DIR)) {
 }
 
 // Initialize the vector index dimension for testing
-\ChatBudgie\Vektor\Core\Config::setDimensions(1536);
-\ChatBudgie\Vektor\Core\Config::setDataDir(CHATBUDGIE_TEST_DATA_DIR);
+\Vektor\Core\Config::setDimensions(1536);
+\Vektor\Core\Config::setDataDir(CHATBUDGIE_TEST_DATA_DIR);
 
 // Create empty binary files for Vektor library
 $vectorFile = CHATBUDGIE_TEST_DATA_DIR . '/vector.bin';

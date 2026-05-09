@@ -1,6 +1,6 @@
 <?php
 
-namespace ChatBudgie\Vektor\Core;
+namespace Vektor\Core;
 
 final class Config
 {

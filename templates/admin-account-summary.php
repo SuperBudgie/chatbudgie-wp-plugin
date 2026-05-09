@@ -15,11 +15,11 @@ $chatbudgie_account_email = !empty($user_info['email']) ? $user_info['email'] : 
 $chatbudgie_balance = isset($user_info['tokenBalance']) ? $user_info['tokenBalance'] : 0;
 
 // Parse balance: remove 'k' and convert to number
-$numeric_balance = (float) str_replace(['k', 'K'], '', $chatbudgie_balance);
+$chatbudgie_numeric_balance = (float) str_replace(['k', 'K'], '', $chatbudgie_balance);
 if (stripos($chatbudgie_balance, 'k') !== false) {
-    $numeric_balance *= 1000;
+    $chatbudgie_numeric_balance *= 1000;
 }
-$is_low_balance = $numeric_balance < 50000;
+$chatbudgie_is_low_balance = $chatbudgie_numeric_balance < 50000;
 ?>
 
 <section class="settings-card settings-card--summary" aria-labelledby="account-summary-title">
@@ -41,7 +41,7 @@ $is_low_balance = $numeric_balance < 50000;
             <p class="summary-balance__label"><?php echo esc_html__('Remaining Tokens', 'chatbudgie'); ?></p>
             <p class="summary-balance__value" id="chatbudgie-token-display"><?php echo esc_html($chatbudgie_balance); ?></p>
             <p class="summary-balance__note">
-                <?php if ($is_low_balance) : ?>
+                <?php if ($chatbudgie_is_low_balance) : ?>
                     <span class="status-dot status-dot--warning" title="<?php echo esc_attr__('Low balance: please recharge.', 'chatbudgie'); ?>"></span>
                     <?php echo esc_html__('Low balance: please recharge.', 'chatbudgie'); ?>
                 <?php else : ?>

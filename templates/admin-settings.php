@@ -8,17 +8,17 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$index_status = $this->get_index_status();
-$welcome_message = get_option('chatbudgie_welcome_message', __("I'm ChatBudgie, your AI assistant. How can I help you today?", 'chatbudgie'));
-$primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
-$secondary_color = get_option('chatbudgie_secondary_color', '#dbe9ff');
-$selected_avatar = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png');
-$progress = max(0, min(100, (int) $index_status['progress']));
-$total_files = max(0, (int) $index_status['scheduled_posts_count']);
-$indexed_files = max(0, (int) $index_status['completed_posts_count']);
-$remaining_files = max(0, $total_files - $indexed_files);
+$chatbudgie_index_status = $this->get_index_status();
+$chatbudgie_welcome_message = get_option('chatbudgie_welcome_message', __("I'm ChatBudgie, your AI assistant. How can I help you today?", 'chatbudgie'));
+$chatbudgie_primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
+$chatbudgie_secondary_color = get_option('chatbudgie_secondary_color', '#dbe9ff');
+$chatbudgie_selected_avatar = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png');
+$chatbudgie_progress = max(0, min(100, (int) $chatbudgie_index_status['progress']));
+$chatbudgie_total_files = max(0, (int) $chatbudgie_index_status['scheduled_posts_count']);
+$chatbudgie_indexed_files = max(0, (int) $chatbudgie_index_status['completed_posts_count']);
+$chatbudgie_remaining_files = max(0, $chatbudgie_total_files - $chatbudgie_indexed_files);
 
-$status_labels = array(
+$chatbudgie_status_labels = array(
     'pending' => __('Preparing index', 'chatbudgie'),
     'running' => __('Indexing content', 'chatbudgie'),
     'completed' => __('Index is ready', 'chatbudgie'),
@@ -41,7 +41,7 @@ if ($chatbudgie_index_status['status'] === 'failed') {
 }
 
 
-$color_options = array(
+$chatbudgie_color_options = array(
     array('primary' => '#2f7bff', 'secondary' => '#dbe9ff', 'label' => __('Ocean Blue', 'chatbudgie')),
     array('primary' => '#7c3aed', 'secondary' => '#ede9fe', 'label' => __('Violet', 'chatbudgie')),
     array('primary' => '#14b8a6', 'secondary' => '#ccfbf1', 'label' => __('Teal', 'chatbudgie')),
@@ -49,7 +49,7 @@ $color_options = array(
     array('primary' => '#f43f5e', 'secondary' => '#ffe4e6', 'label' => __('Rose', 'chatbudgie')),
 );
 
-$avatar_options = array(
+$chatbudgie_avatar_options = array(
     CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png',
     CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar-2.png',
     CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar.png',
@@ -57,12 +57,12 @@ $avatar_options = array(
     CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar2.png'
 );
 
-$is_predefined_avatar = in_array($selected_avatar, $avatar_options);
+$chatbudgie_is_predefined_avatar = in_array($chatbudgie_selected_avatar, $chatbudgie_avatar_options);
 
-$has_matching_palette = false;
-foreach ($color_options as $color_option) {
-    if (strcasecmp($color_option['primary'], $primary_color) === 0) {
-        $has_matching_palette = true;
+$chatbudgie_has_matching_palette = false;
+foreach ($chatbudgie_color_options as $chatbudgie_color_option) {
+    if (strcasecmp($chatbudgie_color_option['primary'], $chatbudgie_primary_color) === 0) {
+        $chatbudgie_has_matching_palette = true;
         break;
     }
 }
@@ -89,7 +89,7 @@ foreach ($color_options as $color_option) {
             <div class="settings-card__header">
                 <div>
                     <h2 id="index-status-title" class="settings-card__title"><?php echo esc_html__('knowledge Base Indexing Status', 'chatbudgie'); ?></h2>
-                    <p class="settings-card__sub"><?php echo esc_html($status_label); ?></p>
+                    <p class="settings-card__sub"><?php echo esc_html($chatbudgie_status_label); ?></p>
                 </div>
                 <a class="cb-btn cb-btn--ghost" id="chatbudgie-rebuild-index" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=chatbudgie_rebuild_index'), 'chatbudgie_rebuild_index')); ?>">
                     <span class="cb-icon cb-icon--sm" aria-hidden="true">

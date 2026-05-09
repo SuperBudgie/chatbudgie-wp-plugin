@@ -1,13 +1,13 @@
 <?php
 
-namespace ChatBudgie\Vektor\Services;
+namespace Vektor\Services;
 
-use ChatBudgie\Vektor\Core\Config;
-use ChatBudgie\Vektor\Core\HnswLogic;
-use ChatBudgie\Vektor\Core\Math;
-use ChatBudgie\Vektor\Storage\Binary\GraphFile;
-use ChatBudgie\Vektor\Storage\Binary\MetaFile;
-use ChatBudgie\Vektor\Storage\Binary\VectorFile;
+use Vektor\Core\Config;
+use Vektor\Core\HnswLogic;
+use Vektor\Core\Math;
+use Vektor\Storage\Binary\GraphFile;
+use Vektor\Storage\Binary\MetaFile;
+use Vektor\Storage\Binary\VectorFile;
 use RuntimeException;
 
 class Indexer

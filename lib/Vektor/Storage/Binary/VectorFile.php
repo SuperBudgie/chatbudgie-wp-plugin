@@ -1,8 +1,8 @@
 <?php
 
-namespace ChatBudgie\Vektor\Storage\Binary;
+namespace Vektor\Storage\Binary;
 
-use ChatBudgie\Vektor\Core\Config;
+use Vektor\Core\Config;
 use RuntimeException;
 use InvalidArgumentException;
 

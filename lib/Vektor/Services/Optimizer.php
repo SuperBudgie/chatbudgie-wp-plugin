@@ -1,11 +1,11 @@
 <?php
 
-namespace ChatBudgie\Vektor\Services;
+namespace Vektor\Services;
 
-use ChatBudgie\Vektor\Core\Config;
-use ChatBudgie\Vektor\Storage\Binary\VectorFile;
-use ChatBudgie\Vektor\Storage\Binary\GraphFile;
-use ChatBudgie\Vektor\Storage\Binary\MetaFile;
+use Vektor\Core\Config;
+use Vektor\Storage\Binary\VectorFile;
+use Vektor\Storage\Binary\GraphFile;
+use Vektor\Storage\Binary\MetaFile;
 use RuntimeException;
 
 class Optimizer
