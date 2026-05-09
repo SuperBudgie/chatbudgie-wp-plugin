@@ -13,7 +13,6 @@
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: chatbudgie
- * Domain Path: /languages
  */
 
 if (!defined('ABSPATH')) {
@@ -945,7 +944,7 @@ class ChatBudgie {
 
         $table_name = $wpdb->prefix . self::INDEX_META_TABLE;
 
-        $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
+        $wpdb->query("DROP TABLE IF EXISTS " . esc_sql($table_name));
 
         if ($wpdb->last_error) {
             error_log('ChatBudgie: Failed to drop index meta table: ' . $wpdb->last_error);
@@ -964,7 +963,7 @@ class ChatBudgie {
 
         $table_name = $wpdb->prefix . self::CHUNK_TABLE;
 
-        $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
+        $wpdb->query("DROP TABLE IF EXISTS " . esc_sql($table_name));
 
         if ($wpdb->last_error) {
             error_log('ChatBudgie: Failed to drop chunk data table: ' . $wpdb->last_error);

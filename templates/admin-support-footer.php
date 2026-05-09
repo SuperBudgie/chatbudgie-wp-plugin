@@ -7,9 +7,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$support_title = isset($support_title) ? $support_title : __('Need help or have a question?', 'chatbudgie');
-$support_subtitle = isset($support_subtitle) ? $support_subtitle : __('SuperBudgie team is here to assist you.', 'chatbudgie');
-$support_email = isset($support_email) ? $support_email : 'support@superbudgie.com';
+$chatbudgie_support_title = isset($chatbudgie_support_title) ? $chatbudgie_support_title : __('Need help or have a question?', 'chatbudgie');
+$chatbudgie_support_subtitle = isset($chatbudgie_support_subtitle) ? $chatbudgie_support_subtitle : __('SuperBudgie team is here to assist you.', 'chatbudgie');
+$chatbudgie_support_email = isset($chatbudgie_support_email) ? $chatbudgie_support_email : 'support@superbudgie.com';
 ?>
 
 <section class="settings-card usage-support" aria-labelledby="usage-support-title">
@@ -21,18 +21,18 @@ $support_email = isset($support_email) ? $support_email : 'support@superbudgie.c
             </svg>
         </span>
         <div>
-            <h2 id="usage-support-title" class="settings-card__title"><?php echo esc_html($support_title); ?></h2>
-            <p class="settings-card__sub"><?php echo esc_html($support_subtitle); ?></p>
+            <h2 id="usage-support-title" class="settings-card__title"><?php echo esc_html($chatbudgie_support_title); ?></h2>
+            <p class="settings-card__sub"><?php echo esc_html($chatbudgie_support_subtitle); ?></p>
         </div>
     </div>
 
-    <a class="cb-btn cb-btn--ghost" href="mailto:<?php echo esc_attr($support_email); ?>">
+    <a class="cb-btn cb-btn--ghost" href="mailto:<?php echo esc_attr($chatbudgie_support_email); ?>">
         <span class="cb-icon cb-icon--sm" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <rect x="3" y="5" width="18" height="14" rx="2"></rect>
                 <path d="m4 7 8 6 8-6"></path>
             </svg>
         </span>
-        <?php echo esc_html($support_email); ?>
+        <?php echo esc_html($chatbudgie_support_email); ?>
     </a>
 </section>

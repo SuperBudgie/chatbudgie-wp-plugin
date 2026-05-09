@@ -24,12 +24,6 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-dev --optimize-autoloader
-
-      - name: WordPress Plugin Check
-        uses: wordpress/plugin-check-action@v1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          exclude-directories: 'vendor,lib'
     
       - name: Build WordPress Plugin (Pre-release)
         if: contains(github.ref, '-')

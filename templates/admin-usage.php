@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 // $usage_data is passed from the controller
-$usage_rows = isset($usage_data['content']) ? $usage_data['content'] : [];
+$chatbudgie_usage_rows = isset($usage_data['content']) ? $usage_data['content'] : [];
 ?>
 <div class="page page--settings page--usage">
     <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
@@ -53,28 +53,28 @@ $usage_rows = isset($usage_data['content']) ? $usage_data['content'] : [];
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($usage_rows)) : ?>
+                        <?php if (empty($chatbudgie_usage_rows)) : ?>
                             <tr>
                                 <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
                                     <?php echo esc_html__('No request logs found.', 'chatbudgie'); ?>
                                 </td>
                             </tr>
                         <?php else : ?>
-                            <?php foreach ($usage_rows as $row) : ?>
+                            <?php foreach ($chatbudgie_usage_rows as $chatbudgie_row) : ?>
                                 <?php
-                                $create_time = wp_date(
+                                $chatbudgie_create_time = wp_date(
                                     get_option('date_format') . ' ' . get_option('time_format'),
-                                    strtotime($row['createTime'])
+                                    strtotime($chatbudgie_row['createTime'])
                                 );
-                                $time_cost = isset($row['timeCost']) ? number_format($row['timeCost'] / 1000, 2) . 's' : '-';
+                                $chatbudgie_time_cost = isset($chatbudgie_row['timeCost']) ? number_format($chatbudgie_row['timeCost'] / 1000, 2) . 's' : '-';
                                 ?>
                                 <tr>
-                                    <td><?php echo esc_html($create_time); ?></td>
-                                    <td><?php echo esc_html($row['appName'] ?: '-'); ?></td>
-                                    <td><?php echo esc_html($row['referer'] ?: '-'); ?></td>
-                                    <td><?php echo esc_html($row['type'] ?: '-'); ?></td>
-                                    <td><?php echo esc_html($row['tokenCost'] ?: '-'); ?></td>
-                                    <td><?php echo esc_html($time_cost); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_create_time); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_row['appName'] ?: '-'); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_row['referer'] ?: '-'); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_row['type'] ?: '-'); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_row['tokenCost'] ?: '-'); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_time_cost); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -85,18 +85,18 @@ $usage_rows = isset($usage_data['content']) ? $usage_data['content'] : [];
             <?php if (isset($usage_data['page']['totalPages']) && $usage_data['page']['totalPages'] > 1) : ?>
                 <div class="usage-pagination">
                     <?php
-                    $current_page = $usage_data['page']['number'] + 1;
-                    $total_pages = $usage_data['page']['totalPages'];
+                    $chatbudgie_current_page = $usage_data['page']['number'] + 1;
+                    $chatbudgie_total_pages = $usage_data['page']['totalPages'];
                     
-                    $prev_url = add_query_arg('paged', max(1, $current_page - 1));
-                    $next_url = add_query_arg('paged', min($total_pages, $current_page + 1));
+                    $chatbudgie_prev_url = add_query_arg('paged', max(1, $chatbudgie_current_page - 1));
+                    $chatbudgie_next_url = add_query_arg('paged', min($chatbudgie_total_pages, $chatbudgie_current_page + 1));
                     
-                    $has_prev = $current_page > 1;
-                    $has_next = $current_page < $total_pages;
+                    $chatbudgie_has_prev = $chatbudgie_current_page > 1;
+                    $chatbudgie_has_next = $chatbudgie_current_page < $chatbudgie_total_pages;
                     ?>
                     
-                    <a href="<?php echo $has_prev ? esc_url($prev_url) : 'javascript:void(0);'; ?>" 
-                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($has_prev ? '' : 'is-disabled'); ?>"
+                    <a href="<?php echo $chatbudgie_has_prev ? esc_url($chatbudgie_prev_url) : 'javascript:void(0);'; ?>" 
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($chatbudgie_has_prev ? '' : 'is-disabled'); ?>"
                        aria-label="<?php echo esc_attr__('Previous Page', 'chatbudgie'); ?>">
                         <?php echo esc_html__('&laquo; Previous', 'chatbudgie'); ?>
                     </a>
@@ -105,14 +105,14 @@ $usage_rows = isset($usage_data['content']) ? $usage_data['content'] : [];
                         <?php 
                         /* translators: 1: current page number, 2: total number of pages */
                         printf(esc_html__('Page %1$d of %2$d', 'chatbudgie'), 
-                            absint($current_page), 
-                            absint($total_pages)
+                            absint($chatbudgie_current_page), 
+                            absint($chatbudgie_total_pages)
                         ); 
                         ?>
                     </span>
 
-                    <a href="<?php echo $has_next ? esc_url($next_url) : 'javascript:void(0);'; ?>" 
-                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($has_next ? '' : 'is-disabled'); ?>"
+                    <a href="<?php echo $chatbudgie_has_next ? esc_url($chatbudgie_next_url) : 'javascript:void(0);'; ?>" 
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($chatbudgie_has_next ? '' : 'is-disabled'); ?>"
                        aria-label="<?php echo esc_attr__('Next Page', 'chatbudgie'); ?>">
                         <?php echo esc_html__('Next &raquo;', 'chatbudgie'); ?>
                     </a>

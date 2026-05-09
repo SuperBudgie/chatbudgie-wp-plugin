@@ -8,25 +8,25 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png');
-$primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
+$chatbudgie_avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png');
+$chatbudgie_primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
 ?>
 
 <style>
     #chatbudgie-widget {
-        --chatbudgie-accent: <?php echo esc_attr($primary_color); ?>;
-        --chatbudgie-accent-strong: <?php echo esc_attr($primary_color); ?>;
+        --chatbudgie-accent: <?php echo esc_attr($chatbudgie_primary_color); ?>;
+        --chatbudgie-accent-strong: <?php echo esc_attr($chatbudgie_primary_color); ?>;
     }
 </style>
 
 <div class="chatbudgie-widget" id="chatbudgie-widget" role="dialog" aria-label="<?php echo esc_attr__('ChatBudgie chat window', 'chatbudgie'); ?>">
     <div class="chatbudgie-toggle" id="chatbudgie-toggle">
-        <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>">
+        <img src="<?php echo esc_url($chatbudgie_avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>">
     </div>
     <!-- Header -->
     <header class="chatbudgie-header" id="chatbudgie-header">
         <div class="chatbudgie-header__brand">
-            <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>" class="chatbudgie-header__avatar" aria-hidden="true">
+            <img src="<?php echo esc_url($chatbudgie_avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>" class="chatbudgie-header__avatar" aria-hidden="true">
             <h1 class="chatbudgie-header__title">ChatBudgie</h1>
         </div>
         <button class="chatbudgie-header__close" id="chatbudgie-close-btn" aria-label="<?php echo esc_attr__('Close chat', 'chatbudgie'); ?>">
@@ -43,7 +43,7 @@ $primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
         </div>
 
         <div class="chatbudgie-msg chatbudgie-msg--bot">
-        <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>" class="chatbudgie-bot-avatar" aria-hidden="true" />
+        <img src="<?php echo esc_url($chatbudgie_avatar_url); ?>" alt="<?php echo esc_attr__('ChatBudgie avatar', 'chatbudgie'); ?>" class="chatbudgie-bot-avatar" aria-hidden="true" />
         <div class="chatbudgie-bubble chatbudgie-bubble--bot"><?php echo esc_html__('We offer AI chatbot solutions that help you automate support and engage your visitors.', 'chatbudgie'); ?></div>
 </div>
 

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function get_chatbudgie_login_url(string $provider) {
+function chatbudgie_get_login_url(string $provider) {
     $callback_url = admin_url('admin-post.php?action=chatbudgie_login_callback');
     return CHATBUDGIE_BASE_URL . "oauth2/authorization/" . $provider . '?appname='. CHATBUDGIE_APP_NAME . '&callback=' . urlencode($callback_url);
 }
@@ -37,21 +37,21 @@ function get_chatbudgie_login_url(string $provider) {
                 </div>
 
                 <div class="providers">
-                    <a href="<?php echo esc_url(get_chatbudgie_login_url('google')); ?>" class="provider">
+                    <a href="<?php echo esc_url(chatbudgie_get_login_url('google')); ?>" class="provider">
                         <span class="provider__icon">
                             <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/google.svg'); ?>" alt="" />
                         </span>
                         <span class="provider__label">Sign in with Google</span>
                     </a>
 
-                    <a href="<?php echo esc_url(get_chatbudgie_login_url('microsoft')); ?>" class="provider">
+                    <a href="<?php echo esc_url(chatbudgie_get_login_url('microsoft')); ?>" class="provider">
                         <span class="provider__icon">
                             <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/microsoft.svg'); ?>" alt="" />
                         </span>
                         <span class="provider__label">Sign in with Microsoft</span>
                     </a>
 
-                    <a href="<?php echo esc_url(get_chatbudgie_login_url('github')); ?>" class="provider">
+                    <a href="<?php echo esc_url(chatbudgie_get_login_url('github')); ?>" class="provider">
                         <span class="provider__icon">
                             <img src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/github.svg'); ?>" alt="" />
                         </span>

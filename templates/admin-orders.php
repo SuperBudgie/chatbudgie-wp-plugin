@@ -9,11 +9,11 @@ if (!defined('ABSPATH')) {
 }
 
 // $user_info is passed from the controller (ChatBudgie class)
-$currency = 'USD';
+$chatbudgie_currency = 'USD';
 ?>
 
 <script
-    src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(CHATBUDGIE_PAYPAL_CLIENT_ID); ?>&currency=<?php echo esc_attr($currency); ?>&components=buttons&disable-funding=venmo">
+    src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(CHATBUDGIE_PAYPAL_CLIENT_ID); ?>&currency=<?php echo esc_attr($chatbudgie_currency); ?>&components=buttons&disable-funding=venmo">
 </script>
 
 <div class="page page--settings">
@@ -26,11 +26,11 @@ $currency = 'USD';
             
             <?php if (!empty($user_info)) : ?>
                 <?php
-                $summary_balance = isset($user_info['tokenBalance']) ? $user_info['tokenBalance'] : 0;
+                $chatbudgie_balance = isset($user_info['tokenBalance']) ? $user_info['tokenBalance'] : 0;
                 ?>
                 <div class="account-balance-box" style="margin-top: 15px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; display: inline-block;">
                     <span style="font-size: 14px; color: #666;"><?php echo esc_html__('Remaining Tokens:', 'chatbudgie'); ?></span>
-                    <strong style="font-size: 16px; margin-left: 5px;"><?php echo esc_html($summary_balance); ?></strong>
+                    <strong style="font-size: 16px; margin-left: 5px;"><?php echo esc_html($chatbudgie_balance); ?></strong>
                 </div>
             <?php endif; ?>
         </section>
@@ -110,8 +110,8 @@ $currency = 'USD';
                     </thead>
                     <tbody>
                         <?php 
-                        $orders = isset($orders_data['content']) ? $orders_data['content'] : [];
-                        if (empty($orders)) : 
+                        $chatbudgie_orders = isset($orders_data['content']) ? $orders_data['content'] : [];
+                        if (empty($chatbudgie_orders)) : 
                         ?>
                             <tr>
                                 <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
@@ -119,24 +119,24 @@ $currency = 'USD';
                                 </td>
                             </tr>
                         <?php else : ?>
-                            <?php foreach ($orders as $order) : ?>
+                            <?php foreach ($chatbudgie_orders as $chatbudgie_order) : ?>
                                 <?php
-                                $create_time = wp_date(
+                                $chatbudgie_create_time = wp_date(
                                     get_option('date_format') . ' ' . get_option('time_format'),
-                                    strtotime($order['createTime'])
+                                    strtotime($chatbudgie_order['createTime'])
                                 );
-                                $amount_display = number_format($order['amount'] / 1000000, 1) . 'M';
-                                $price_display = $order['currency'] . ' ' . number_format($order['price'], 2);
+                                $chatbudgie_amount_display = number_format($chatbudgie_order['amount'] / 1000000, 1) . 'M';
+                                $chatbudgie_price_display = $chatbudgie_order['currency'] . ' ' . number_format($chatbudgie_order['price'], 2);
                                 ?>
                                 <tr>
-                                    <td><?php echo esc_html($create_time); ?></td>
-                                    <td><code class="order-id"><?php echo esc_html($order['id']); ?></code></td>
-                                    <td><?php echo esc_html($amount_display); ?></td>
-                                    <td><?php echo esc_html($price_display); ?></td>
-                                    <td><?php echo esc_html($order['paymentChannel'] ?: '-'); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_create_time); ?></td>
+                                    <td><code class="order-id"><?php echo esc_html($chatbudgie_order['id']); ?></code></td>
+                                    <td><?php echo esc_html($chatbudgie_amount_display); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_price_display); ?></td>
+                                    <td><?php echo esc_html($chatbudgie_order['paymentChannel'] ?: '-'); ?></td>
                                     <td>
-                                        <span class="status-badge status-badge--<?php echo esc_attr(strtolower($order['status'])); ?>">
-                                            <?php echo esc_html(ucfirst($order['status'])); ?>
+                                        <span class="status-badge status-badge--<?php echo esc_attr(strtolower($chatbudgie_order['status'])); ?>">
+                                            <?php echo esc_html(ucfirst($chatbudgie_order['status'])); ?>
                                         </span>
                                     </td>
                                 </tr>
@@ -149,18 +149,18 @@ $currency = 'USD';
             <?php if (isset($orders_data['page']['totalPages']) && $orders_data['page']['totalPages'] > 1) : ?>
                 <div class="usage-pagination">
                     <?php
-                    $current_page = $orders_data['page']['number'] + 1;
-                    $total_pages = $orders_data['page']['totalPages'];
+                    $chatbudgie_current_page = $orders_data['page']['number'] + 1;
+                    $chatbudgie_total_pages = $orders_data['page']['totalPages'];
                     
-                    $prev_url = add_query_arg('paged', max(1, $current_page - 1));
-                    $next_url = add_query_arg('paged', min($total_pages, $current_page + 1));
+                    $chatbudgie_prev_url = add_query_arg('paged', max(1, $chatbudgie_current_page - 1));
+                    $chatbudgie_next_url = add_query_arg('paged', min($chatbudgie_total_pages, $chatbudgie_current_page + 1));
                     
-                    $has_prev = $current_page > 1;
-                    $has_next = $current_page < $total_pages;
+                    $chatbudgie_has_prev = $chatbudgie_current_page > 1;
+                    $chatbudgie_has_next = $chatbudgie_current_page < $chatbudgie_total_pages;
                     ?>
                     
-                    <a href="<?php echo $has_prev ? esc_url($prev_url) : 'javascript:void(0);'; ?>" 
-                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($has_prev ? '' : 'is-disabled'); ?>"
+                    <a href="<?php echo $chatbudgie_has_prev ? esc_url($chatbudgie_prev_url) : 'javascript:void(0);'; ?>" 
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($chatbudgie_has_prev ? '' : 'is-disabled'); ?>"
                        aria-label="<?php echo esc_attr__('Previous Page', 'chatbudgie'); ?>">
                         <?php echo esc_html__('&laquo; Previous', 'chatbudgie'); ?>
                     </a>
@@ -169,14 +169,14 @@ $currency = 'USD';
                         <?php 
                         /* translators: 1: current page number, 2: total number of pages */
                         printf(esc_html__('Page %1$d of %2$d', 'chatbudgie'), 
-                            absint($current_page), 
-                            absint($total_pages)
+                            absint($chatbudgie_current_page), 
+                            absint($chatbudgie_total_pages)
                         ); 
                         ?>
                     </span>
 
-                    <a href="<?php echo $has_next ? esc_url($next_url) : 'javascript:void(0);'; ?>" 
-                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($has_next ? '' : 'is-disabled'); ?>"
+                    <a href="<?php echo $chatbudgie_has_next ? esc_url($chatbudgie_next_url) : 'javascript:void(0);'; ?>" 
+                       class="cb-btn cb-btn--ghost cb-btn--sm <?php echo esc_attr($chatbudgie_has_next ? '' : 'is-disabled'); ?>"
                        aria-label="<?php echo esc_attr__('Next Page', 'chatbudgie'); ?>">
                         <?php echo esc_html__('Next &raquo;', 'chatbudgie'); ?>
                     </a>
@@ -380,7 +380,7 @@ $currency = 'USD';
                                 _ajax_nonce: nonce,
                                 package: pkg.id,
                                 amount: pkg.amount,
-                                currency: "<?php echo esc_js($currency); ?>",
+                                currency: "<?php echo esc_js($chatbudgie_currency); ?>",
                                 show_price: pkg.showPrice
                             })
                         })
@@ -444,3 +444,4 @@ $currency = 'USD';
         }
     });
 </script>
+

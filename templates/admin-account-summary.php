@@ -9,14 +9,14 @@ if (!defined('ABSPATH')) {
 }
 
 // $user_info is passed from the controller (ChatBudgie class)
-$summary_avatar_url = !empty($user_info['avatarUrl']) ? $user_info['avatarUrl'] : CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png';
-$summary_account_name = !empty($user_info['name']) ? $user_info['name'] : __('ChatBudgie Workspace', 'chatbudgie');
-$summary_account_email = !empty($user_info['email']) ? $user_info['email'] : __('Connected via your WordPress admin account', 'chatbudgie');
-$summary_balance = isset($user_info['tokenBalance']) ? $user_info['tokenBalance'] : 0;
+$chatbudgie_avatar_url = !empty($user_info['avatarUrl']) ? $user_info['avatarUrl'] : CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png';
+$chatbudgie_account_name = !empty($user_info['name']) ? $user_info['name'] : __('ChatBudgie Workspace', 'chatbudgie');
+$chatbudgie_account_email = !empty($user_info['email']) ? $user_info['email'] : __('Connected via your WordPress admin account', 'chatbudgie');
+$chatbudgie_balance = isset($user_info['tokenBalance']) ? $user_info['tokenBalance'] : 0;
 
 // Parse balance: remove 'k' and convert to number
-$numeric_balance = (float) str_replace(['k', 'K'], '', $summary_balance);
-if (stripos($summary_balance, 'k') !== false) {
+$numeric_balance = (float) str_replace(['k', 'K'], '', $chatbudgie_balance);
+if (stripos($chatbudgie_balance, 'k') !== false) {
     $numeric_balance *= 1000;
 }
 $is_low_balance = $numeric_balance < 50000;
@@ -29,17 +29,17 @@ $is_low_balance = $numeric_balance < 50000;
     <div class="summary-grid">
         <div class="summary-profile">
             <div class="summary-profile__avatar">
-                <img src="<?php echo esc_url($summary_avatar_url); ?>" alt="<?php echo esc_attr($summary_account_name); ?>" />
+                <img src="<?php echo esc_url($chatbudgie_avatar_url); ?>" alt="<?php echo esc_attr($chatbudgie_account_name); ?>" />
             </div>
             <div class="summary-profile__body">
-                <h3 class="summary-profile__name"><?php echo esc_html($summary_account_name); ?></h3>
-                <p class="summary-profile__meta"><?php echo esc_html($summary_account_email); ?></p>
+                <h3 class="summary-profile__name"><?php echo esc_html($chatbudgie_account_name); ?></h3>
+                <p class="summary-profile__meta"><?php echo esc_html($chatbudgie_account_email); ?></p>
             </div>
         </div>
 
         <div class="summary-balance">
             <p class="summary-balance__label"><?php echo esc_html__('Remaining Tokens', 'chatbudgie'); ?></p>
-            <p class="summary-balance__value" id="chatbudgie-token-display"><?php echo esc_html($summary_balance); ?></p>
+            <p class="summary-balance__value" id="chatbudgie-token-display"><?php echo esc_html($chatbudgie_balance); ?></p>
             <p class="summary-balance__note">
                 <?php if ($is_low_balance) : ?>
                     <span class="status-dot status-dot--warning" title="<?php echo esc_attr__('Low balance: please recharge.', 'chatbudgie'); ?>"></span>
