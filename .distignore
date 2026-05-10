@@ -1,3 +1,7 @@
+# Version control
+.git
+.DS_Store
+
 # Build files
 .github
 .vscode
