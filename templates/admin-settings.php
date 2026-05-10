@@ -68,9 +68,6 @@ foreach ($chatbudgie_color_options as $chatbudgie_color_option) {
 }
 
 ?>
-<script
-    src="https://www.paypal.com/sdk/js?client-id=BAAHkTrcvIPFDyIlGzKjawQ8JAH_x8dUc4pcN6Mc9S8wKKZ8EJLydPQneqe6PtQDR3Ik4GYqiGewVF7iP8&components=hosted-buttons&disable-funding=venmo&currency=USD">
-</script>
 <div class="page page--settings">
     <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
 

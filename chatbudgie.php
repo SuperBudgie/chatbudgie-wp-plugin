@@ -1310,7 +1310,7 @@ class ChatBudgie {
         wp_localize_script('chatbudgie-admin-script', 'chatbudgie_admin_params', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('chatbudgie_nonce'),
-            'confirm_rebuild' => __('Are you sure you want to rebuild the index? This action may take some time, it will delete the existing index data.', 'chatbudgie'),
+            'confirm_rebuild' => __('Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens.', 'chatbudgie'),
             'choose_icon' => __('Choose Icon', 'chatbudgie'),
             'select_icon' => __('Select Icon', 'chatbudgie'),
         ));
