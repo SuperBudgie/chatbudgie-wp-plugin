@@ -14,10 +14,12 @@ $chatbudgie_account_name = !empty($user_info['name']) ? $user_info['name'] : __(
 $chatbudgie_account_email = !empty($user_info['email']) ? $user_info['email'] : __('Connected via your WordPress admin account', 'chatbudgie');
 $chatbudgie_balance = isset($user_info['tokenBalance']) ? $user_info['tokenBalance'] : 0;
 
-// Parse balance: remove 'k' and convert to number
-$chatbudgie_numeric_balance = (float) str_replace(['k', 'K'], '', $chatbudgie_balance);
+// Parse balance: remove 'k'/'M' and convert to number
+$chatbudgie_numeric_balance = (float) str_replace(['k', 'K', 'm', 'M'], '', $chatbudgie_balance);
 if (stripos($chatbudgie_balance, 'k') !== false) {
     $chatbudgie_numeric_balance *= 1000;
+} elseif (stripos($chatbudgie_balance, 'm') !== false) {
+    $chatbudgie_numeric_balance *= 1000000;
 }
 $chatbudgie_is_low_balance = $chatbudgie_numeric_balance < 50000;
 ?>

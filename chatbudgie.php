@@ -304,12 +304,18 @@ class ChatBudgie {
 
         // Schedule daily task at 3:00 AM local time using Action Scheduler
         if (function_exists('as_schedule_recurring_action')) {
-            $timestamp = strtotime('03:00:00');
-            // If 3:00 AM has already passed today, schedule for tomorrow
-            if ($timestamp <= time()) {
-                $timestamp += 86400; // 24 hours in seconds
+            try {
+                $date = new DateTime('03:00:00', wp_timezone());
+                $timestamp = $date->getTimestamp();
+                
+                // If 3:00 AM has already passed today, schedule for tomorrow
+                if ($timestamp <= time()) {
+                    $timestamp += 86400; // 24 hours in seconds
+                }
+                as_schedule_recurring_action($timestamp, 86400, 'chatbudgie_daily_task', array(), 'chatbudgie');
+            } catch (Exception $e) {
+                error_log('ChatBudgie: Failed to schedule daily task: ' . $e->getMessage());
             }
-            as_schedule_recurring_action($timestamp, 86400, 'chatbudgie_daily_task', array(), 'chatbudgie');
         }
 
         // Schedule immediate index build via Action Scheduler
@@ -1003,6 +1009,9 @@ class ChatBudgie {
     private function rrmdir($dir) {
         global $wp_filesystem;
         if (!isset($wp_filesystem)) {
+            if (!defined('ABSPATH')) {
+                return;
+            }
             require_once ABSPATH . 'wp-admin/includes/file.php';
             WP_Filesystem();
         }
