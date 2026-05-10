@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+
 jobs:
   tag:
     name: New Tag
@@ -29,9 +32,9 @@ jobs:
         if: contains(github.ref, '-')
         id: build
         run: |
-          ZIP_FILENAME="chatbudgie.zip"
-          wp dist-archive . "$ZIP_FILENAME" --plugin-dirname=chatbudgie
-          echo "zip-path=${ZIP_FILENAME}" >> $GITHUB_OUTPUT
+          ZIP_PATH="${GITHUB_WORKSPACE}/chatbudgie.zip"
+          wp dist-archive . "$ZIP_PATH" --plugin-dirname=chatbudgie
+          echo "zip-path=${ZIP_PATH}" >> $GITHUB_OUTPUT
 
       - name: WordPress Plugin Deploy (Release)
         if: "!contains(github.ref, '-')"
