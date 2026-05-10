@@ -22,6 +22,11 @@ class Optimizer
      */
     public function run(): void
     {
+        // Prevent PHP from timing out during optimization
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(0);
+        }
+
         // 1. Acquire Global Lock to block all access
         $this->acquireLock();
 
@@ -51,6 +56,11 @@ class Optimizer
             // 4. Iterate and Re-Index
             // scan() yields only active (non-deleted) vectors
             foreach ($sourceVectorFile->scan() as $record) {
+                // Reset time limit on each iteration for safety
+                if (function_exists('set_time_limit')) {
+                    @set_time_limit(30);
+                }
+
                 // Insert into new DB
                 // We rely on Indexer to build Graph and Meta from scratch
                 // This effectively "balances" the HNSW graph as we insert into a fresh structure

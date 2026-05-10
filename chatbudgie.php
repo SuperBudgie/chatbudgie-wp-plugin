@@ -573,6 +573,11 @@ class ChatBudgie {
      * @throws Exception If scheduling fails
      */
     public function execute_build_index() {
+        // Prevent PHP from timing out
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(0);
+        }
+
         error_log('ChatBudgie: Action Scheduler executing build_wordpress_index');
 
         try {
@@ -631,6 +636,11 @@ class ChatBudgie {
      * @throws Exception If indexing fails
      */
     public function execute_index_single_post($post_id) {
+        // Prevent PHP from timing out
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(0);
+        }
+
         error_log('ChatBudgie: Action Scheduler executing index_post for post ' . $post_id);
 
         // Get post data
@@ -1042,6 +1052,11 @@ class ChatBudgie {
      * @return void
      */
     public function daily_task() {
+        // Prevent PHP from timing out during optimization
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(0);
+        }
+
         try {
             // Log task start
             error_log('ChatBudgie daily task started at ' . current_time('Y-m-d H:i:s'));
