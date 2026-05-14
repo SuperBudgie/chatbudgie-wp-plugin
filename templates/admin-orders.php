@@ -8,13 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// $user_info is passed from the controller (ChatBudgie class)
-$chatbudgie_currency = 'USD';
 ?>
-
-<script
-    src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(CHATBUDGIE_PAYPAL_CLIENT_ID); ?>&currency=<?php echo esc_attr($chatbudgie_currency); ?>&components=buttons&disable-funding=venmo">
-</script>
 
 <div class="page page--settings">
     <?php include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
@@ -28,9 +22,9 @@ $chatbudgie_currency = 'USD';
                 <?php
                 $chatbudgie_balance = isset($user_info['tokenBalance']) ? $user_info['tokenBalance'] : 0;
                 ?>
-                <div class="account-balance-box" style="margin-top: 15px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; display: inline-block;">
-                    <span style="font-size: 14px; color: #666;"><?php echo esc_html__('Remaining Tokens:', 'chatbudgie'); ?></span>
-                    <strong style="font-size: 16px; margin-left: 5px;"><?php echo esc_html($chatbudgie_balance); ?></strong>
+                <div class="account-balance-box">
+                    <span class="account-balance-box__label"><?php echo esc_html__('Remaining Tokens:', 'chatbudgie'); ?></span>
+                    <strong class="account-balance-box__value"><?php echo esc_html($chatbudgie_balance); ?></strong>
                 </div>
             <?php endif; ?>
         </section>
@@ -85,7 +79,7 @@ $chatbudgie_currency = 'USD';
                     <h2 id="order-history-title" class="settings-card__title"><?php echo esc_html__('Order History', 'chatbudgie'); ?></h2>
                     <p class="settings-card__sub"><?php echo esc_html__('Track your past recharges and billing status.', 'chatbudgie'); ?></p>
                 </div>
-                <button type="button" class="cb-btn cb-btn--ghost usage-toolbar__refresh" onclick="window.location.reload();">
+                <button type="button" class="cb-btn cb-btn--ghost usage-toolbar__refresh js-chatbudgie-orders-refresh">
                     <span class="cb-icon cb-icon--sm" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
@@ -114,7 +108,7 @@ $chatbudgie_currency = 'USD';
                         if (empty($chatbudgie_orders)) : 
                         ?>
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                <td colspan="6" class="usage-table__empty">
                                     <?php echo esc_html__('No order history found.', 'chatbudgie'); ?>
                                 </td>
                             </tr>
@@ -189,7 +183,7 @@ $chatbudgie_currency = 'USD';
 </div>
 
 <!-- Payment Success Dialog -->
-<div id="chatbudgie-payment-dialog" class="chatbudgie-payment-dialog" style="display: none;">
+<div id="chatbudgie-payment-dialog" class="chatbudgie-payment-dialog" hidden>
     <div class="chatbudgie-payment-dialog__overlay"></div>
     <div class="chatbudgie-payment-dialog__content">
         <button type="button" class="chatbudgie-payment-dialog__close" aria-label="<?php echo esc_attr__('Close', 'chatbudgie'); ?>">
@@ -210,238 +204,3 @@ $chatbudgie_currency = 'USD';
         </button>
     </div>
 </div>
-
-<style>
-    .chatbudgie-payment-dialog {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 100000;
-    }
-    
-    .chatbudgie-payment-dialog__overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        animation: fadeIn 0.3s ease-in-out;
-    }
-    
-    .chatbudgie-payment-dialog__content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        padding: 40px;
-        text-align: center;
-        max-width: 400px;
-        width: 90%;
-        animation: slideUp 0.3s ease-in-out;
-    }
-    
-    .chatbudgie-payment-dialog__close {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: none;
-        border: none;
-        width: 32px;
-        height: 32px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-        transition: color 0.2s;
-    }
-    
-    .chatbudgie-payment-dialog__close:hover {
-        color: #333;
-    }
-    
-    .chatbudgie-payment-dialog__close svg {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .chatbudgie-payment-dialog__icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 24px;
-        background: linear-gradient(135deg, #5fb878, #4da361);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        animation: scaleIn 0.4s ease-out;
-    }
-    
-    .chatbudgie-payment-dialog__icon svg {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .chatbudgie-payment-dialog__title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #333;
-        margin: 0 0 12px 0;
-    }
-    
-    .chatbudgie-payment-dialog__message {
-        font-size: 14px;
-        color: #666;
-        line-height: 1.6;
-        margin: 0 0 24px 0;
-    }
-    
-    .chatbudgie-payment-dialog__button {
-        min-width: 200px;
-    }
-    
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translate(-50%, -45%);
-        }
-        to {
-            opacity: 1;
-            transform: translate(-50%, -50%);
-        }
-    }
-    
-    @keyframes scaleIn {
-        from {
-            transform: scale(0);
-        }
-        to {
-            transform: scale(1);
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ajaxUrl = chatbudgie_admin_params.ajax_url;
-        const nonce = chatbudgie_admin_params.nonce;
-
-        const packages = [{
-                id: '5m',
-                amount: 5,
-                showPrice: '$4.99'
-            },
-            {
-                id: '20m',
-                amount: 20,
-                showPrice: '$19.50'
-            },
-            {
-                id: '100m',
-                amount: 100,
-                showPrice: '$95.00'
-            }
-        ];
-
-        packages.forEach(pkg => {
-            paypal.Buttons({
-                style: {
-                    layout: 'vertical',
-                    color: pkg.id === '20m' ? 'gold' : 'blue',
-                    shape: 'pill',
-                    borderRadius: 14,
-                    height: 50,
-                    label: 'buynow'
-                },
-                createOrder: function(data, actions) {
-                    return fetch(ajaxUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                action: 'chatbudgie_create_paypal_order',
-                                _ajax_nonce: nonce,
-                                package: pkg.id,
-                                amount: pkg.amount,
-                                currency: "<?php echo esc_js($chatbudgie_currency); ?>",
-                                show_price: pkg.showPrice
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(res => {
-                            if (res.success) {
-                                return res.data.id;
-                            } else {
-                                throw new Error(res.data.message || 'Failed to create order');
-                            }
-                        });
-                },
-                onApprove: function(data, actions) {
-                    return fetch(ajaxUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                action: 'chatbudgie_capture_paypal_order',
-                                _ajax_nonce: nonce,
-                                order_id: data.orderID
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(res => {
-                            if (res.success) {
-                                showPaymentSuccessDialog();
-                            } else {
-                                throw new Error(res.data.message || 'Failed to capture payment');
-                            }
-                        });
-                },
-                onError: function(err) {
-                    console.error('PayPal Error:', err);
-                    alert('An error occurred during the transaction: ' + err.message);
-                }
-            }).render('#paypal-button-' + pkg.id);
-        });
-
-        // Payment dialog handlers
-        function showPaymentSuccessDialog() {
-            const dialog = document.getElementById('chatbudgie-payment-dialog');
-            const closeBtn = dialog.querySelector('.chatbudgie-payment-dialog__close');
-            const continueBtn = dialog.querySelector('.chatbudgie-payment-dialog__button');
-            const overlay = dialog.querySelector('.chatbudgie-payment-dialog__overlay');
-            
-            dialog.style.display = 'block';
-            
-            function closeDialog() {
-                dialog.style.display = 'none';
-                window.location.href = 'admin.php?page=chatbudgie';
-            }
-            
-            closeBtn.addEventListener('click', closeDialog);
-            continueBtn.addEventListener('click', closeDialog);
-            overlay.addEventListener('click', closeDialog);
-            
-            // Auto-redirect after 10 seconds
-            setTimeout(closeDialog, 10000);
-        }
-    });
-</script>
-

@@ -1,0 +1,149 @@
+.account-balance-box {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.account-balance-box__label {
+    font-size: 14px;
+    color: #666;
+}
+
+.account-balance-box__value {
+    margin-left: 5px;
+    font-size: 16px;
+}
+
+.usage-table__empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.chatbudgie-payment-dialog[hidden] {
+    display: none;
+}
+
+.chatbudgie-payment-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+}
+
+.chatbudgie-payment-dialog__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: chatbudgie-payment-fade-in 0.3s ease-in-out;
+}
+
+.chatbudgie-payment-dialog__content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90%;
+    max-width: 400px;
+    padding: 40px;
+    text-align: center;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%);
+    animation: chatbudgie-payment-slide-up 0.3s ease-in-out;
+}
+
+.chatbudgie-payment-dialog__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    color: #666;
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: color 0.2s;
+}
+
+.chatbudgie-payment-dialog__close:hover {
+    color: #333;
+}
+
+.chatbudgie-payment-dialog__close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.chatbudgie-payment-dialog__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    color: #fff;
+    background: linear-gradient(135deg, #5fb878, #4da361);
+    border-radius: 50%;
+    animation: chatbudgie-payment-scale-in 0.4s ease-out;
+}
+
+.chatbudgie-payment-dialog__icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.chatbudgie-payment-dialog__title {
+    margin: 0 0 12px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+}
+
+.chatbudgie-payment-dialog__message {
+    margin: 0 0 24px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+}
+
+.chatbudgie-payment-dialog__button {
+    min-width: 200px;
+}
+
+@keyframes chatbudgie-payment-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes chatbudgie-payment-slide-up {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes chatbudgie-payment-scale-in {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}

@@ -1250,6 +1250,18 @@ class ChatBudgie {
             CHATBUDGIE_VERSION
         );
 
+        $chatbudgie_primary_color = $this->sanitize_hex_color(
+            get_option('chatbudgie_primary_color', '#2f7bff')
+        );
+
+        wp_add_inline_style(
+            'chatbudgie-style',
+            sprintf(
+                '#chatbudgie-widget{--chatbudgie-accent:%1$s;--chatbudgie-accent-strong:%1$s;}',
+                esc_html($chatbudgie_primary_color)
+            )
+        );
+
         wp_enqueue_script(
             'marked-js',
             CHATBUDGIE_PLUGIN_URL . 'assets/js/marked.min.js',
@@ -1317,6 +1329,64 @@ class ChatBudgie {
 
         // Enqueue WordPress media scripts
         wp_enqueue_media();
+
+        if ($hook !== 'chatbudgie_page_chatbudgie-orders') {
+            return;
+        }
+
+        $orders_currency = 'USD';
+
+        wp_enqueue_style(
+            'chatbudgie-admin-orders-style',
+            CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie-admin-orders.css',
+            array('chatbudgie-admin-style'),
+            CHATBUDGIE_VERSION
+        );
+
+        wp_enqueue_script(
+            'chatbudgie-paypal-sdk',
+            'https://www.paypal.com/sdk/js?client-id=' . rawurlencode(CHATBUDGIE_PAYPAL_CLIENT_ID) . '&currency=' . rawurlencode($orders_currency) . '&components=buttons&disable-funding=venmo',
+            array(),
+            null,
+            true
+        );
+
+        wp_enqueue_script(
+            'chatbudgie-admin-orders-script',
+            CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie-admin-orders.js',
+            array('chatbudgie-admin-script', 'chatbudgie-paypal-sdk'),
+            CHATBUDGIE_VERSION,
+            true
+        );
+
+        wp_localize_script('chatbudgie-admin-orders-script', 'chatbudgie_orders_params', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('chatbudgie_nonce'),
+            'currency' => $orders_currency,
+            'redirect_url' => admin_url('admin.php?page=chatbudgie'),
+            'strings' => array(
+                'create_order_error' => __('Failed to create order', 'chatbudgie'),
+                'capture_order_error' => __('Failed to capture payment', 'chatbudgie'),
+                'transaction_error' => __('An error occurred during the transaction:', 'chatbudgie'),
+            ),
+            'packages' => array(
+                array(
+                    'id' => '5m',
+                    'amount' => 5,
+                    'showPrice' => '$4.99',
+                ),
+                array(
+                    'id' => '20m',
+                    'amount' => 20,
+                    'showPrice' => '$19.50',
+                ),
+                array(
+                    'id' => '100m',
+                    'amount' => 100,
+                    'showPrice' => '$95.00',
+                ),
+            ),
+        ));
     }
 
     /**

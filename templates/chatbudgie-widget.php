@@ -9,15 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 $chatbudgie_avatar_url = get_option('chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png');
-$chatbudgie_primary_color = get_option('chatbudgie_primary_color', '#2f7bff');
 ?>
-
-<style>
-    #chatbudgie-widget {
-        --chatbudgie-accent: <?php echo esc_attr($chatbudgie_primary_color); ?>;
-        --chatbudgie-accent-strong: <?php echo esc_attr($chatbudgie_primary_color); ?>;
-    }
-</style>
 
 <div class="chatbudgie-widget" id="chatbudgie-widget" role="dialog" aria-label="<?php echo esc_attr__('ChatBudgie chat window', 'chatbudgie'); ?>">
     <div class="chatbudgie-toggle" id="chatbudgie-toggle">
