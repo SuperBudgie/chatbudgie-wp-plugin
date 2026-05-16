@@ -1545,8 +1545,8 @@ class ChatBudgie {
                 return 0;
             }
 
-            // Forward data directly to client
-            echo $data;
+            // Preserve the SSE payload while stripping unsafe HTML from streamed content.
+            echo wp_kses_post($data);
             if (ob_get_level()) {
                 ob_flush();
             }
@@ -1616,7 +1616,7 @@ class ChatBudgie {
         if (!$message) {
             $message = 'An unknown error occurred';
         }
-        echo $message . "\n\n";
+        echo esc_html($message) . "\n\n";
         if (ob_get_level()) {
             ob_flush();
         }
@@ -1858,7 +1858,7 @@ class ChatBudgie {
         ));
 
         if (is_wp_error($response)) {
-            wp_die($response->get_error_message(), __('API Error', 'chatbudgie'), array('response' => 500));
+            wp_die(esc_html($response->get_error_message()), __('API Error', 'chatbudgie'), array('response' => 500));
         }
 
         $body = json_decode(wp_remote_retrieve_body($response), true);
