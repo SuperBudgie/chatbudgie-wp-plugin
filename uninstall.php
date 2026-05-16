@@ -13,6 +13,8 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
+require_once __DIR__ . '/chatbudgie.php';
+
 global $wpdb;
 
 // 1. Clear scheduled tasks from Action Scheduler and WP-Cron
@@ -68,3 +70,6 @@ $options = array(
 foreach ($options as $option) {
     delete_option($option);
 }
+
+// 4. Delete vector index files from the shared data directory
+ChatBudgie::delete_index_data();

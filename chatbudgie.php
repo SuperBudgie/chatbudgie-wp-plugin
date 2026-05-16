@@ -82,7 +82,6 @@ use Vektor\Services\Searcher;
 use Vektor\Services\Optimizer;
 
 class ChatBudgie {
-    public const DATA_DIR = CHATBUDGIE_PLUGIN_DIR . '/data';
     public const EMBEDDING_DIMENSION = 1536;
     public const EMBEDDING_API = CHATBUDGIE_BASE_URL . 'api/rag/embedding/v1';
     public const CHAT_API = CHATBUDGIE_BASE_URL . 'api/rag/chat';
@@ -119,13 +118,14 @@ class ChatBudgie {
     private function __construct() {
         // Initialize the vector index dimension and data directory
         Config::setDimensions(self::EMBEDDING_DIMENSION);
+        $data_dir = self::get_data_dir();
 
-        if (!file_exists(self::DATA_DIR)) {
-            if (!wp_mkdir_p(self::DATA_DIR)) {
-                error_log('ChatBudgie: Failed to create data directory at ' . self::DATA_DIR);
+        if (!file_exists($data_dir)) {
+            if (!wp_mkdir_p($data_dir)) {
+                error_log('ChatBudgie: Failed to create data directory at ' . $data_dir);
             }
         }
-        Config::setDataDir(self::DATA_DIR);
+        Config::setDataDir($data_dir);
 
         // Initialize Indexer and Searcher
         $this->indexer = new Indexer();
@@ -167,6 +167,25 @@ class ChatBudgie {
 
         // Clean up cron job on plugin deactivation
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+    }
+
+    /**
+     * Get the writable storage directory for vector index files.
+     *
+     * @return string
+     */
+    public static function get_data_dir() {
+        $upload_dir = wp_upload_dir();
+
+        if (!empty($upload_dir['basedir'])) {
+            return trailingslashit($upload_dir['basedir']) . CHATBUDGIE_APP_NAME;
+        }
+
+        $content_dir = defined('WP_CONTENT_DIR')
+            ? WP_CONTENT_DIR
+            : (defined('ABSPATH') ? trailingslashit(ABSPATH) . 'wp-content' : '');
+
+        return trailingslashit($content_dir) . 'uploads/' . CHATBUDGIE_APP_NAME;
     }
 
     /**
@@ -752,7 +771,7 @@ class ChatBudgie {
         error_log('ChatBudgie: Deleting all index data');
 
         // Delete vector index data (files)
-        $this->delete_index_data();
+        self::delete_index_data();
 
         // Truncate index meta table
         $index_meta_table = $wpdb->prefix . self::INDEX_META_TABLE;
@@ -1018,15 +1037,15 @@ class ChatBudgie {
      * 
      * @return void
      */
-    private function delete_index_data() {
-        $dataDir = Config::getDataDir();
+    public static function delete_index_data() {
+        $dataDir = self::get_data_dir();
         
         if (!is_dir($dataDir)) {
             return;
         }
         
         // Recursively remove directory using PHP functions
-        $this->rrmdir($dataDir);
+        self::rrmdir($dataDir);
         
         if (!is_dir($dataDir)) {
             error_log('ChatBudgie: Deleted index data directory: ' . $dataDir);
@@ -1041,7 +1060,7 @@ class ChatBudgie {
      * @param string $dir Directory path to remove
      * @return void
      */
-    private function rrmdir($dir) {
+    private static function rrmdir($dir) {
         global $wp_filesystem;
         if (!isset($wp_filesystem)) {
             if (!defined('ABSPATH')) {
@@ -1060,7 +1079,7 @@ class ChatBudgie {
             foreach ($files as $file) {
                 $path = $dir . '/' . $file['name'];
                 if ($file['type'] === 'd') {
-                    $this->rrmdir($path);
+                    self::rrmdir($path);
                 } else {
                     $wp_filesystem->delete($path);
                 }
@@ -2119,4 +2138,6 @@ function ChatBudgie() {
 }
 
 // Initialize the plugin
-ChatBudgie();
+if (!defined('WP_UNINSTALL_PLUGIN')) {
+    ChatBudgie();
+}

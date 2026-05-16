@@ -65,6 +65,37 @@ Yes, whenever you publish or update a post, ChatBudgie automatically updates its
 = Why should I buy tokens? =
 Tokens are the fuel for ChatBudgie's AI capabilities. They are consumed when indexing your content (creating AI embeddings) and when answering user questions (generating LLM responses). By purchasing tokens from ChatBudgie, you get access to leading models like OpenAI ChatGPT and Claude without needing to manage separate API accounts or complex billing with multiple AI providers—we handle all that for you.
 
+== External services ==
+
+This plugin relies on the following external services:
+
+= SuperBudgie platform =
+
+ChatBudgie connects to the SuperBudgie platform (`https://chat.superbudgie.com/`) to authenticate the site, generate embeddings for indexed content, generate chat responses, show account and billing information, and create/capture token purchase orders.
+
+Data sent to SuperBudgie depends on the feature being used:
+
+* When an administrator connects the plugin to a SuperBudgie account, the plugin sends the OAuth callback code, the plugin app name, and the site URL to the SuperBudgie authentication service.
+* When content is indexed, the plugin sends the post or page title, excerpt, content, content type, site URL, plugin app name, and the site's ChatBudgie app key to the SuperBudgie embedding service.
+* When a visitor sends a chat message, the plugin sends the visitor's message, recent conversation history, the relevant content snippets retrieved from the local index, the site URL, the site's ChatBudgie app key, and the visitor IP address to the SuperBudgie chat service so it can generate a response.
+* When an administrator opens the ChatBudgie account, usage, or orders screens, the plugin sends the site's ChatBudgie app key, plus pagination parameters for usage/orders requests, to the SuperBudgie account service.
+* When an administrator buys tokens, the plugin sends the selected package, amount, currency, display price, site URL, order ID, the plugin app name, and the site's ChatBudgie app key to the SuperBudgie payment service.
+
+SuperBudgie terms of service: https://chat.superbudgie.com/terms-of-service
+SuperBudgie privacy policy: https://chat.superbudgie.com/privacy-policy
+
+= PayPal =
+
+ChatBudgie loads the PayPal JavaScript SDK in the plugin's admin orders screen and uses PayPal to let administrators complete token purchases.
+
+Data sent to PayPal depends on the purchase flow:
+
+* When the admin orders page is loaded, the administrator's browser connects to `https://www.paypal.com/sdk/js` to load the PayPal checkout script.
+* When an administrator completes checkout, PayPal receives the payment/order information needed to process the transaction. Payment details are handled by PayPal, not stored by this plugin.
+
+PayPal user agreement: https://www.paypal.com/us/legalhub/paypal/useragreement-full
+PayPal privacy policy: https://www.paypal.com/us/legalhub/privacy-full
+
 == Credits ==
 
 ChatBudgie is built upon several high-quality open-source libraries:
