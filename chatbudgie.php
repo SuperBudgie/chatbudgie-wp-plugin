@@ -1085,14 +1085,60 @@ class ChatBudgie {
     private function get_client_ip() {
         $ip = '0.0.0.0';
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
+            $ip = wp_unslash($_SERVER['HTTP_CLIENT_IP']);
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-            $ip = trim($ips[0]);
+            $ips = explode(',', wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
+            foreach ($ips as $forwarded_ip) {
+                $candidate_ip = trim($forwarded_ip);
+                if (filter_var($candidate_ip, FILTER_VALIDATE_IP)) {
+                    $ip = $candidate_ip;
+                    break;
+                }
+            }
         } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+            $ip = wp_unslash($_SERVER['REMOTE_ADDR']);
         }
+
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return '0.0.0.0';
+        }
+
         return $ip;
+    }
+
+    /**
+     * Sanitize client-supplied conversation history for the chat API.
+     *
+     * @param mixed $conversation_history Raw decoded conversation history.
+     * @return array Sanitized conversation history.
+     */
+    private function sanitize_conversation_history($conversation_history) {
+        if (!is_array($conversation_history)) {
+            return array();
+        }
+
+        $allowed_roles = array('user', 'assistant', 'system');
+        $sanitized_history = array();
+
+        foreach ($conversation_history as $message) {
+            if (!is_array($message)) {
+                continue;
+            }
+
+            $role = isset($message['role']) ? sanitize_key($message['role']) : '';
+            $content = isset($message['content']) ? sanitize_textarea_field($message['content']) : '';
+
+            if (!in_array($role, $allowed_roles, true) || '' === $content) {
+                continue;
+            }
+
+            $sanitized_history[] = array(
+                'role' => $role,
+                'content' => $content,
+            );
+        }
+
+        return $sanitized_history;
     }
 
     /**
@@ -1409,9 +1455,11 @@ class ChatBudgie {
     public function handle_send_message_sse() {
         check_ajax_referer('chatbudgie_nonce', 'nonce');
 
-        $message = sanitize_text_field($_POST['message'] ?? '');
-        $conversation_history_raw = $_POST['conversation_history'] ?? '[]';
-        $conversation_history = json_decode(stripslashes($conversation_history_raw), true) ?: array();
+        $message = sanitize_text_field(wp_unslash($_POST['message'] ?? ''));
+        $conversation_history_raw = wp_unslash($_POST['conversation_history'] ?? '[]');
+        $conversation_history = $this->sanitize_conversation_history(
+            json_decode($conversation_history_raw, true)
+        );
 
         // Set headers for SSE
         $this->sse_set_headers();
@@ -1722,7 +1770,7 @@ class ChatBudgie {
             $user_info = $this->get_user_info();
             
             // Get current page and size
-            $page = isset($_GET['paged']) ? max(1, (int)$_GET['paged']) : 1;
+            $page = isset($_GET['paged']) ? max(1, absint(wp_unslash($_GET['paged']))) : 1;
             $size = 20;
             
             $usage_data = $this->get_token_usage($page, $size);
@@ -1756,7 +1804,7 @@ class ChatBudgie {
             $user_info = $this->get_user_info();
             
             // Get current page and size
-            $page = isset($_GET['paged']) ? max(1, (int)$_GET['paged']) : 1;
+            $page = isset($_GET['paged']) ? max(1, absint(wp_unslash($_GET['paged']))) : 1;
             $size = 20;
             
             $orders_data = $this->get_user_orders($page, $size);
@@ -1936,10 +1984,10 @@ class ChatBudgie {
             wp_send_json_error(array('message' => 'Unauthorized'), 403);
         }
 
-        $package = sanitize_text_field($_POST['package'] ?? '');
-        $amount = sanitize_text_field($_POST['amount'] ?? '');
-        $currency = sanitize_text_field($_POST['currency'] ?? '');
-        $show_price = sanitize_text_field($_POST['show_price'] ?? '');
+        $package = sanitize_key(wp_unslash($_POST['package'] ?? ''));
+        $amount = absint(wp_unslash($_POST['amount'] ?? 0));
+        $currency = sanitize_key(wp_unslash($_POST['currency'] ?? ''));
+        $show_price = sanitize_text_field(wp_unslash($_POST['show_price'] ?? ''));
 
         if (empty($package) || empty($amount)) {
             wp_send_json_error(array('message' => 'Invalid package information'), 400);
@@ -1995,7 +2043,7 @@ class ChatBudgie {
             wp_send_json_error(array('message' => 'Unauthorized'), 403);
         }
 
-        $order_id = sanitize_text_field($_POST['order_id'] ?? '');
+        $order_id = sanitize_text_field(wp_unslash($_POST['order_id'] ?? ''));
 
         if (empty($order_id)) {
             wp_send_json_error(array('message' => 'Order ID is missing'), 400);
