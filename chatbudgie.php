@@ -23,9 +23,34 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
 
-// Load Action Scheduler library
-if (file_exists(__DIR__ . '/lib/action-scheduler/action-scheduler.php')) {
-    require_once __DIR__ . '/lib/action-scheduler/action-scheduler.php';
+/**
+ * Register the bundled Action Scheduler library only when WordPress has not
+ * already loaded a compatible copy.
+ *
+ * Loading it through plugins_loaded gives Action Scheduler's version registry a
+ * chance to arbitrate between multiple bundled copies across plugins.
+ *
+ * @return void
+ */
+function chatbudgie_maybe_load_action_scheduler() {
+    if (
+        function_exists('as_enqueue_async_action') ||
+        class_exists('ActionScheduler', false) ||
+        class_exists('ActionScheduler_Versions', false)
+    ) {
+        return;
+    }
+
+    $action_scheduler_path = __DIR__ . '/lib/action-scheduler/action-scheduler.php';
+    if (file_exists($action_scheduler_path)) {
+        require_once $action_scheduler_path;
+    }
+}
+
+if (did_action('plugins_loaded')) {
+    chatbudgie_maybe_load_action_scheduler();
+} else {
+    add_action('plugins_loaded', 'chatbudgie_maybe_load_action_scheduler', 0);
 }
 
 // Load local Vektor library
