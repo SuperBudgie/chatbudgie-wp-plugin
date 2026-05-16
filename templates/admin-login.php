@@ -9,8 +9,16 @@ if (!defined('ABSPATH')) {
 }
 
 function chatbudgie_get_login_url(string $provider) {
-    $callback_url = admin_url('admin-post.php?action=chatbudgie_login_callback');
-    return CHATBUDGIE_BASE_URL . "oauth2/authorization/" . $provider . '?appname='. CHATBUDGIE_APP_NAME . '&callback=' . urlencode($callback_url);
+    $state = wp_create_nonce('chatbudgie_login_callback');
+    $callback_url = add_query_arg(
+        array(
+            'action' => 'chatbudgie_login_callback',
+            'state'  => $state,
+        ),
+        admin_url('admin-post.php')
+    );
+
+    return CHATBUDGIE_BASE_URL . "oauth2/authorization/" . $provider . '?appname=' . rawurlencode(CHATBUDGIE_APP_NAME) . '&callback=' . rawurlencode($callback_url);
 }
 
 ?>

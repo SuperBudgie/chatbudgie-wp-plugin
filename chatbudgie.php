@@ -1649,6 +1649,8 @@ class ChatBudgie {
             wp_die('Unauthorized');
         }
 
+        check_admin_referer('chatbudgie_rebuild_index');
+
         // Clear all existing index data
         $this->delete_all_index_data();
 
@@ -1712,6 +1714,10 @@ class ChatBudgie {
      * @return void
      */
     public function render_usage_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have permission to access this page.', 'chatbudgie'), __('Unauthorized', 'chatbudgie'), array('response' => 403));
+        }
+
         try {
             $user_info = $this->get_user_info();
             
@@ -1742,6 +1748,10 @@ class ChatBudgie {
      * @return void
      */
     public function render_orders_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have permission to access this page.', 'chatbudgie'), __('Unauthorized', 'chatbudgie'), array('response' => 403));
+        }
+
         try {
             $user_info = $this->get_user_info();
             
@@ -1772,7 +1782,16 @@ class ChatBudgie {
      * @return void
      */
     public function handle_login_callback() {
-        $code = sanitize_text_field($_GET['code'] ?? '');
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_die(__('You do not have permission to complete this action.', 'chatbudgie'), __('Unauthorized', 'chatbudgie'), array('response' => 403));
+        }
+
+        $state = sanitize_text_field(wp_unslash($_GET['state'] ?? ''));
+        if (empty($state) || !wp_verify_nonce($state, 'chatbudgie_login_callback')) {
+            wp_die(__('Invalid login callback request.', 'chatbudgie'), __('Login Error', 'chatbudgie'), array('response' => 403));
+        }
+
+        $code = sanitize_text_field(wp_unslash($_GET['code'] ?? ''));
 
         if (empty($code)) {
             wp_die(__('Authorization code is missing', 'chatbudgie'), __('Login Error', 'chatbudgie'), array('response' => 400));
@@ -1876,6 +1895,10 @@ class ChatBudgie {
      * @return void
      */
     public function render_settings_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have permission to access this page.', 'chatbudgie'), __('Unauthorized', 'chatbudgie'), array('response' => 403));
+        }
+
         // Check if appKey is set
         $app_key = get_option('chatbudgie_app_key', '');
         
