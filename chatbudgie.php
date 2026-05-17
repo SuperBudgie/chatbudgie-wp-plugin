@@ -26,10 +26,10 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 // Load Action Scheduler during plugin bootstrap so its own plugins_loaded hooks
 // can register before WordPress fires that lifecycle event.
 if (!class_exists('ActionScheduler_Versions')) {
-    $as_path = plugin_dir_path(__FILE__) . 'lib/action-scheduler/action-scheduler.php';
+    $chatbudgie_as_path = plugin_dir_path(__FILE__) . 'lib/action-scheduler/action-scheduler.php';
 
-    if (file_exists($as_path)) {
-        require_once $as_path;
+    if (file_exists($chatbudgie_as_path)) {
+        require_once $chatbudgie_as_path;
     }
 }
 
@@ -1746,8 +1746,7 @@ class ChatBudgie {
             'manage_options',
             'chatbudgie',
             array($this, 'render_settings_page'),
-            'dashicons-format-chat',
-            71
+            'dashicons-format-chat'
         );
 
         add_submenu_page(
@@ -2008,7 +2007,7 @@ class ChatBudgie {
 
         $package = sanitize_key(wp_unslash($_POST['package'] ?? ''));
         $amount = absint(wp_unslash($_POST['amount'] ?? 0));
-        $currency = sanitize_key(wp_unslash($_POST['currency'] ?? ''));
+        $currency = strtoupper(sanitize_key(wp_unslash($_POST['currency'] ?? '')));
         $show_price = sanitize_text_field(wp_unslash($_POST['show_price'] ?? ''));
 
         if (empty($package) || empty($amount)) {
