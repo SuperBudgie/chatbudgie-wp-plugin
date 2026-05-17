@@ -1747,7 +1747,7 @@ class ChatBudgie {
             'chatbudgie',
             array($this, 'render_settings_page'),
             'dashicons-format-chat',
-            65
+            71
         );
 
         add_submenu_page(

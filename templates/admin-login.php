@@ -74,8 +74,8 @@ function chatbudgie_get_login_url(string $provider) {
                         <img class="legal__icon" src="<?php echo esc_url(CHATBUDGIE_PLUGIN_URL . 'assets/images/lock.svg'); ?>" alt="" />
                         <span>
                             By continuing, you agree to our
-                            Terms of Service
-                            and Privacy Policy.
+                            <a href="<?php echo esc_url('https://chat.superbudgie.com/terms-of-service'); ?>" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+                            and <a href="<?php echo esc_url('https://chat.superbudgie.com/privacy-policy'); ?>" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
                         </span>
                     </p>
                 </div>

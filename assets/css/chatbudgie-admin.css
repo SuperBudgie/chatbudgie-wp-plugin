@@ -196,6 +196,14 @@ a:hover { text-decoration: underline; }
   margin-top: 3px;
   opacity: 0.7;
 }
+.legal a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal a:hover {
+  color: var(--accent);
+}
 
 /* Promo panel */
 .promo__bg {
