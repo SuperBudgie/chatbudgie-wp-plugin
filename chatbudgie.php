@@ -1755,12 +1755,11 @@ class ChatBudgie {
 
     /**
      * Add admin menu page for plugin settings
-     * Registers the settings page under WordPress Settings menu
-     * 
+     * Registers the plugin admin menu and submenus.
+     *
      * @return void
      */
     public function add_admin_menu() {
-        // Main Menu
         add_menu_page(
             __('ChatBudgie', 'chatbudgie'),
             __('ChatBudgie', 'chatbudgie'),
@@ -1768,10 +1767,9 @@ class ChatBudgie {
             'chatbudgie',
             array($this, 'render_settings_page'),
             'dashicons-format-chat',
-            25
+            65
         );
 
-        // Subpages
         add_submenu_page(
             'chatbudgie',
             __('Settings', 'chatbudgie'),
