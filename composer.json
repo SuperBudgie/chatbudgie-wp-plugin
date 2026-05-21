@@ -1,10 +1,23 @@
 {
+    "name": "superbudgie/chatbudgie-wp-plugin",
+    "description": "ChatBudgie WordPress plugin.",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": ">=7.4"
     },
     "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
         "php-stubs/wordpress-stubs": "^6.9",
+        "squizlabs/php_codesniffer": "^3.10",
+        "wp-coding-standards/wpcs": "^3.1",
         "phpunit/phpunit": "^10.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
     "autoload": {
         "psr-4": {
@@ -12,6 +25,9 @@
         }
     },
     "scripts": {
+        "lint:php": "phpcs --report=summary",
+        "lint:php:full": "phpcs",
+        "lint:php:fix": "phpcbf",
         "test": "phpunit"
     }
 }
