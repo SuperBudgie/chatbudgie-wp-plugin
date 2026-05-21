@@ -18,6 +18,21 @@ bin
 node_modules
 vendor/bin
 
+# Bundled library development and documentation files
+lib/action-scheduler/.editorconfig
+lib/action-scheduler/.gitattributes
+lib/action-scheduler/.github
+lib/action-scheduler/.gitignore
+lib/action-scheduler/Gruntfile.js
+lib/action-scheduler/codecov.yml
+lib/action-scheduler/composer.json
+lib/action-scheduler/composer.lock
+lib/action-scheduler/docs
+lib/action-scheduler/package-lock.json
+lib/action-scheduler/package.json
+lib/action-scheduler/phpcs.xml
+lib/action-scheduler/tests
+
 # Local data
 data
 test-data
