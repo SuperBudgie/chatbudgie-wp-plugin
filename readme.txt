@@ -53,7 +53,7 @@ ChatBudgie bridges the gap between your website content and AI through a sophist
 ChatBudgie uses Action Scheduler to process your posts and pages in the background. It breaks the text into chunks and generates vector embeddings for each chunk.
 
 = Is my data safe? =
-The vector index of knowledge base is stored locally in the `/wp-content/plugins/chatbudgie/data/` directory.
+The vector index of the knowledge base is stored locally in this site's WordPress uploads directory.
 Only public data of your website will be indexed.
 
 = Can I customize the chat bubble icon? =

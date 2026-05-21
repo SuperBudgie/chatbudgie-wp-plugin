@@ -160,11 +160,7 @@ class ChatBudgie {
             return trailingslashit($upload_dir['basedir']) . CHATBUDGIE_APP_NAME;
         }
 
-        $content_dir = defined('WP_CONTENT_DIR')
-            ? WP_CONTENT_DIR
-            : (defined('ABSPATH') ? trailingslashit(ABSPATH) . 'wp-content' : '');
-
-        return trailingslashit($content_dir) . 'uploads/' . CHATBUDGIE_APP_NAME;
+        return '';
     }
 
     /**
