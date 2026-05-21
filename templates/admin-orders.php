@@ -1,7 +1,8 @@
 <?php
-
 /**
  * Template for the ChatBudgie admin orders page
+ *
+ * @package ChatBudgie
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -127,7 +128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<td><code class="order-id"><?php echo esc_html( $chatbudgie_order['id'] ); ?></code></td>
 									<td><?php echo esc_html( $chatbudgie_amount_display ); ?></td>
 									<td><?php echo esc_html( $chatbudgie_price_display ); ?></td>
-									<td><?php echo esc_html( $chatbudgie_order['paymentChannel'] ?: '-' ); ?></td>
+									<td><?php echo esc_html( $chatbudgie_order['paymentChannel'] ? $chatbudgie_order['paymentChannel'] : '-' ); ?></td>
 									<td>
 										<span class="status-badge status-badge--<?php echo esc_attr( strtolower( $chatbudgie_order['status'] ) ); ?>">
 											<?php echo esc_html( ucfirst( $chatbudgie_order['status'] ) ); ?>
@@ -161,8 +162,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<span class="pagination-info">
 						<?php
-						/* translators: 1: current page number, 2: total number of pages */
 						printf(
+							/* translators: 1: current page number, 2: total number of pages */
 							esc_html__( 'Page %1$d of %2$d', 'chatbudgie' ),
 							absint( $chatbudgie_current_page ),
 							absint( $chatbudgie_total_pages )

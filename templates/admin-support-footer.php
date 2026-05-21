@@ -1,6 +1,8 @@
 <?php
 /**
  * Shared support footer for ChatBudgie admin pages
+ *
+ * @package ChatBudgie
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

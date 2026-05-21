@@ -1,13 +1,20 @@
 <?php
-
 /**
  * Template for the ChatBudgie admin login page
+ *
+ * @package ChatBudgie
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Generates the OAuth2 login URL for a specific provider.
+ *
+ * @param string $provider The OAuth2 provider (e.g., google, microsoft, github).
+ * @return string The formatted authorization URL.
+ */
 function chatbudgie_get_login_url( string $provider ) {
 	$state        = wp_create_nonce( 'chatbudgie_login_callback' );
 	$callback_url = add_query_arg(

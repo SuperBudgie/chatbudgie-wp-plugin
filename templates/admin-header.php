@@ -1,4 +1,10 @@
 <?php
+/**
+ * Admin header template.
+ *
+ * @package ChatBudgie
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

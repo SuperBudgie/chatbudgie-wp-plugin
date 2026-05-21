@@ -1,7 +1,8 @@
 <?php
-
 /**
  * Shared account summary component for ChatBudgie admin pages
+ *
+ * @package ChatBudgie
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +15,7 @@ $chatbudgie_account_name  = ! empty( $user_info['name'] ) ? $user_info['name'] :
 $chatbudgie_account_email = ! empty( $user_info['email'] ) ? $user_info['email'] : __( 'Connected via your WordPress admin account', 'chatbudgie' );
 $chatbudgie_balance       = isset( $user_info['tokenBalance'] ) ? $user_info['tokenBalance'] : 0;
 
-// Parse balance: remove 'k'/'M' and convert to number
+// Parse balance: remove 'k'/'M' and convert to number.
 $chatbudgie_numeric_balance = (float) str_replace( array( 'k', 'K', 'm', 'M' ), '', $chatbudgie_balance );
 if ( stripos( $chatbudgie_balance, 'k' ) !== false ) {
 	$chatbudgie_numeric_balance *= 1000;

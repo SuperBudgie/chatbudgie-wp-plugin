@@ -1,14 +1,15 @@
 <?php
-
 /**
  * Uninstall ChatBudgie
  *
  * This file is called when the plugin is uninstalled via the WordPress dashboard.
  * It cleans up all data created by the plugin, including database tables,
  * options, and scheduled tasks.
+ *
+ * @package ChatBudgie
  */
 
-// If uninstall not called from WordPress, die
+// If uninstall not called from WordPress, die.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
@@ -23,11 +24,12 @@ wp_clear_scheduled_hook( 'chatbudgie_daily_task' );
 if ( function_exists( 'as_unschedule_all_actions' ) ) {
 	as_unschedule_all_actions( null, array(), 'chatbudgie' );
 } else {
-	$actions_table = $wpdb->prefix . 'actionscheduler_actions';
-	$groups_table  = $wpdb->prefix . 'actionscheduler_groups';
+	$actions_table = esc_sql( $wpdb->prefix . 'actionscheduler_actions' );
+	$groups_table  = esc_sql( $wpdb->prefix . 'actionscheduler_groups' );
 
 	$group_id = $wpdb->get_var(
 		$wpdb->prepare(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is generated from $wpdb->prefix and escaped above.
 			"SELECT group_id FROM {$groups_table} WHERE slug = %s",
 			'chatbudgie'
 		)
@@ -55,6 +57,8 @@ $tables = array(
 );
 
 foreach ( $tables as $table ) {
+	$table = esc_sql( $table );
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Table name is generated from $wpdb->prefix and escaped above.
 	$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
 }
 

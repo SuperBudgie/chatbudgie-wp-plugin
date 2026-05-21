@@ -1,6 +1,8 @@
 <?php
 /**
  * Template for the ChatBudgie admin usage page
+ *
+ * @package ChatBudgie
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -70,10 +72,10 @@ $chatbudgie_usage_rows = isset( $usage_data['content'] ) ? $usage_data['content'
 								?>
 								<tr>
 									<td><?php echo esc_html( $chatbudgie_create_time ); ?></td>
-									<td><?php echo esc_html( $chatbudgie_row['appName'] ?: '-' ); ?></td>
-									<td><?php echo esc_html( $chatbudgie_row['referer'] ?: '-' ); ?></td>
-									<td><?php echo esc_html( $chatbudgie_row['type'] ?: '-' ); ?></td>
-									<td><?php echo esc_html( $chatbudgie_row['tokenCost'] ?: '-' ); ?></td>
+									<td><?php echo esc_html( $chatbudgie_row['appName'] ? $chatbudgie_row['appName'] : '-' ); ?></td>
+									<td><?php echo esc_html( $chatbudgie_row['referer'] ? $chatbudgie_row['referer'] : '-' ); ?></td>
+									<td><?php echo esc_html( $chatbudgie_row['type'] ? $chatbudgie_row['type'] : '-' ); ?></td>
+									<td><?php echo esc_html( $chatbudgie_row['tokenCost'] ? $chatbudgie_row['tokenCost'] : '-' ); ?></td>
 									<td><?php echo esc_html( $chatbudgie_time_cost ); ?></td>
 								</tr>
 							<?php endforeach; ?>
@@ -103,8 +105,8 @@ $chatbudgie_usage_rows = isset( $usage_data['content'] ) ? $usage_data['content'
 
 					<span class="pagination-info">
 						<?php
-						/* translators: 1: current page number, 2: total number of pages */
 						printf(
+							/* translators: 1: current page number, 2: total number of pages */
 							esc_html__( 'Page %1$d of %2$d', 'chatbudgie' ),
 							absint( $chatbudgie_current_page ),
 							absint( $chatbudgie_total_pages )

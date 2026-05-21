@@ -1,7 +1,8 @@
 <?php
-
 /**
  * Template for the ChatBudgie admin settings page
+ *
+ * @package ChatBudgie
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -26,9 +27,9 @@ $chatbudgie_status_labels = array(
 );
 $chatbudgie_status_label  = isset( $chatbudgie_status_labels[ $chatbudgie_index_status['status'] ] ) ? $chatbudgie_status_labels[ $chatbudgie_index_status['status'] ] : __( 'Status unavailable', 'chatbudgie' );
 
-if ( $chatbudgie_index_status['status'] === 'failed' ) {
+if ( 'failed' === $chatbudgie_index_status['status'] ) {
 	$chatbudgie_eta_label = __( 'Check logs', 'chatbudgie' );
-} elseif ( $chatbudgie_index_status['status'] === 'completed' ) {
+} elseif ( 'completed' === $chatbudgie_index_status['status'] ) {
 	$chatbudgie_eta_label = __( 'Ready now', 'chatbudgie' );
 } elseif ( $chatbudgie_remaining_files > 0 ) {
 	$chatbudgie_eta_seconds   = $chatbudgie_remaining_files * 12;
@@ -77,7 +78,7 @@ $chatbudgie_avatar_options = array(
 	CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar2.png',
 );
 
-$chatbudgie_is_predefined_avatar = in_array( $chatbudgie_selected_avatar, $chatbudgie_avatar_options );
+$chatbudgie_is_predefined_avatar = in_array( $chatbudgie_selected_avatar, $chatbudgie_avatar_options, true );
 
 $chatbudgie_has_matching_palette = false;
 foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
@@ -216,12 +217,12 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 									</label>
 								<?php endforeach; ?>
 
-								<label class="avatar-choice custom-choice<?php echo esc_attr( ! $chatbudgie_is_predefined_avatar && $chatbudgie_selected_avatar !== '' ? ' is-active' : '' ); ?>" <?php echo ( ! $chatbudgie_is_predefined_avatar && $chatbudgie_selected_avatar !== '' ? '' : 'style="display: none;"' ); ?>>
+								<label class="avatar-choice custom-choice<?php echo esc_attr( ! $chatbudgie_is_predefined_avatar && '' !== $chatbudgie_selected_avatar ? ' is-active' : '' ); ?>" <?php echo ( ! $chatbudgie_is_predefined_avatar && '' !== $chatbudgie_selected_avatar ? '' : 'style="display: none;"' ); ?>>
 									<input
 										type="radio"
 										name="chatbudgie_avatar_choice"
 										value="<?php echo esc_attr( $chatbudgie_selected_avatar ); ?>"
-										<?php checked( ! $chatbudgie_is_predefined_avatar && $chatbudgie_selected_avatar !== '' ); ?>
+										<?php checked( ! $chatbudgie_is_predefined_avatar && '' !== $chatbudgie_selected_avatar ); ?>
 										class="screen-reader-text" />
 									<img src="<?php echo esc_url( $chatbudgie_selected_avatar ); ?>" alt="" />
 								</label>

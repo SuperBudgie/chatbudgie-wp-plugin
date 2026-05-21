@@ -1,7 +1,8 @@
 <?php
-
 /**
  * Template for the ChatBudgie frontend chat widget
+ *
+ * @package ChatBudgie
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
