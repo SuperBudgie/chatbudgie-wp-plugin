@@ -49,13 +49,13 @@ if ( file_exists( __DIR__ . '/lib/Vektor/Core/Config.php' ) ) {
 
 define( 'CHATBUDGIE_VERSION', '1.0.0' );
 define( 'CHATBUDGIE_APP_NAME', 'chatbudgie' );
-// define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox
-define( 'CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64VAAwj_YGTfYAWF3D0cLpmXCtYNxGG9jOvEk2Hv8-M' );  // Live
+// define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox.
+define( 'CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64VAAwj_YGTfYAWF3D0cLpmXCtYNxGG9jOvEk2Hv8-M' );  // Live.
 define( 'CHATBUDGIE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHATBUDGIE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/' );
-// define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');
-// define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');
+// define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');  // Docker test.
+// define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');    // Local test.
 
 use Vektor\Core\Config;
 use Vektor\Services\Indexer;
@@ -126,7 +126,7 @@ class ChatBudgie {
 
 		if ( ! file_exists( $data_dir ) ) {
 			if ( ! wp_mkdir_p( $data_dir ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'ChatBudgie: Failed to create data directory at ' . $data_dir );
 			}
 		}
@@ -218,10 +218,10 @@ class ChatBudgie {
 		dbDelta( $sql );
 
 		if ( $wpdb->last_error ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Failed to create index meta table: ' . $wpdb->last_error );
 		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Index meta table created successfully' );
 		}
 	}
@@ -255,10 +255,10 @@ class ChatBudgie {
 		dbDelta( $sql );
 
 		if ( $wpdb->last_error ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Failed to create chunk data table: ' . $wpdb->last_error );
 		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Chunk data table created successfully' );
 		}
 	}
@@ -276,6 +276,7 @@ class ChatBudgie {
 		$table_name   = $wpdb->prefix . self::INDEX_META_TABLE;
 		$current_time = current_time( 'mysql' );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$result = $wpdb->replace(
 			$table_name,
 			array(
@@ -286,7 +287,7 @@ class ChatBudgie {
 		);
 
 		if ( false === $result ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Failed to update index time for post ' . $post_id );
 			return false;
 		}
@@ -305,6 +306,7 @@ class ChatBudgie {
 
 		$table_name = esc_sql( $wpdb->prefix . self::INDEX_META_TABLE );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->get_var(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
@@ -365,7 +367,7 @@ class ChatBudgie {
 				}
 				as_schedule_recurring_action( $timestamp, 86400, 'chatbudgie_daily_task', array(), 'chatbudgie' );
 			} catch ( Exception $e ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'ChatBudgie: Failed to schedule daily task: ' . $e->getMessage() );
 			}
 		}
@@ -386,7 +388,7 @@ class ChatBudgie {
 
 		$app_key = get_option( 'chatbudgie_app_key', '' );
 		if ( empty( $app_key ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Cannot schedule index build - You should login ChatBudgie account first.' );
 			return;
 		}
@@ -408,13 +410,13 @@ class ChatBudgie {
 		);
 		// phpcs:enable
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Deleted existing indexing actions from database before scheduling new build' );
 
 		// Schedule fresh action.
 		$action_id = as_enqueue_async_action( 'chatbudgie_build_index', array(), 'chatbudgie' );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Scheduled fresh index build with action ID: ' . $action_id );
 
 		return $action_id;
@@ -516,7 +518,7 @@ class ChatBudgie {
 		// Check if post needs indexing.
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Post not found for scheduling: ' . $post_id );
 			return null;
 		}
@@ -534,14 +536,14 @@ class ChatBudgie {
 
 		// Skip if post hasn't been modified since last index.
 		if ( $last_indexed && strtotime( $post_modified ) <= strtotime( $last_indexed ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Skipping scheduling post ' . $post_id . ' - not modified since last index' );
 			return null;
 		}
 
 		$action_id = as_enqueue_async_action( 'chatbudgie_index_single_post', array( $post_id ), 'chatbudgie' );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Scheduled post ' . $post_id . ' index with action ID: ' . $action_id );
 
 		return $action_id;
@@ -574,7 +576,7 @@ class ChatBudgie {
 		if ( 'publish' === $post->post_status ) {
 			$this->schedule_post_index( $post_id );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Post saved, scheduling index ' . $post_id );
 		} else {
 			// Post is not published - remove index if exists.
@@ -582,7 +584,7 @@ class ChatBudgie {
 			$this->delete_post_chunks( $post_id );
 			$this->delete_post_index_time( $post_id );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Deleted index for unpublished post ' . $post_id . ' (status: ' . $post->post_status . ')' );
 		}
 	}
@@ -603,7 +605,7 @@ class ChatBudgie {
 		// Delete index time record.
 		$this->delete_post_index_time( $post_id );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Deleted index for deleted post ' . $post_id );
 	}
 
@@ -619,7 +621,7 @@ class ChatBudgie {
 		try {
 			// Get chunk IDs from the chunk table for this post.
 			$chunk_table = esc_sql( $wpdb->prefix . self::CHUNK_TABLE );
-			$chunk_ids   = $wpdb->get_col(
+			$chunk_ids   = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
 					"SELECT chunk_id FROM {$chunk_table} WHERE post_id = %d",
@@ -633,11 +635,11 @@ class ChatBudgie {
 					$vector_id = $post_id . '_' . $chunk_id;
 					$this->indexer->delete( $vector_id );
 				}
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'ChatBudgie: Deleted ' . count( $chunk_ids ) . ' vectors for post ' . $post_id );
 			}
 		} catch ( Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Error deleting vectors for post ' . $post_id . ': ' . $e->getMessage() );
 		}
 	}
@@ -655,7 +657,7 @@ class ChatBudgie {
 			@set_time_limit( 0 );
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Action Scheduler executing build_wordpress_index' );
 
 		try {
@@ -697,11 +699,11 @@ class ChatBudgie {
 
 			} while ( $query->have_posts() );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie full index schedule task is completed. Post index tasks have been scheduled, indexing summary: ' . $scheduled_count . ' posts scheduled, ' . $skipped_count . ' posts skipped (already indexed)' );
 		} catch ( Exception $e ) {
 			$error_message = esc_html( $e->getMessage() );
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie full index schedule task failed: ' . $error_message );
 			// Re-throw exception so Action Scheduler knows this task failed.
 			throw new Exception( esc_html( 'Full index schedule task failed: ' . $e->getMessage() ) );
@@ -722,20 +724,21 @@ class ChatBudgie {
 			@set_time_limit( 0 );
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Action Scheduler executing index_post for post ' . $post_id );
 
 		// Get post data.
 		$post = get_post( $post_id );
 		if ( ! $post ) {
 			$safe_post_id = absint( $post_id );
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Post not found: ' . $safe_post_id );
 			throw new Exception( esc_html( 'Post not found: ' . $safe_post_id ) );
 		}
 
 		// Skip if post is not published.
 		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Skipping post ' . $post_id . ' - not published or wrong post type' );
 			return;
 		}
@@ -748,7 +751,7 @@ class ChatBudgie {
 
 		// Skip if post hasn't been modified since last index.
 		if ( $last_indexed && strtotime( $post_modified ) <= strtotime( $last_indexed ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Skipping post ' . $post_id . ' - not modified since last index' );
 			return;
 		}
@@ -767,12 +770,12 @@ class ChatBudgie {
 
 				// Check if vector_id exists in index, delete first if it does.
 				if ( $this->indexer->delete( $vector_id ) ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log( 'Deleted existing vector: ' . $vector_id . ' before re-indexing' );
 				}
 
 				$this->indexer->insert( $vector_id, $chunk['embedding'] );
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'Indexed chunk: ' . $vector_id . ' (' . strlen( $chunk['chunkText'] ) . ' chars)' );
 			}
 
@@ -781,12 +784,12 @@ class ChatBudgie {
 
 			// Update index time for this post.
 			$this->update_post_index_time( $post_id );
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Indexed post ' . $post_id . ' - ' . $title . ' (' . count( $chunks ) . ' chunks)' );
 		} catch ( Exception $e ) {
 			$safe_post_id       = absint( $post_id );
 			$safe_error_message = esc_html( $e->getMessage() );
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Failed to index post ' . $safe_post_id . ': ' . $safe_error_message );
 			// Re-throw exception so Action Scheduler knows this task failed.
 			throw new Exception( esc_html( 'Failed to index post ' . $safe_post_id . ': ' . $safe_error_message ) );
@@ -815,7 +818,7 @@ class ChatBudgie {
 	private function delete_all_index_data() {
 		global $wpdb;
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Deleting all index data' );
 
 		// Delete vector index data (files).
@@ -823,15 +826,15 @@ class ChatBudgie {
 
 		// Truncate index meta table.
 		$index_meta_table = esc_sql( $wpdb->prefix . self::INDEX_META_TABLE );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
 		$wpdb->query( "TRUNCATE TABLE {$index_meta_table}" );
 
 		// Truncate chunk data table.
 		$chunk_table = esc_sql( $wpdb->prefix . self::CHUNK_TABLE );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
 		$wpdb->query( "TRUNCATE TABLE {$chunk_table}" );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: All index data deleted' );
 	}
 
@@ -891,7 +894,7 @@ class ChatBudgie {
 			self::EMBEDDING_API,
 			array(
 				'headers'   => $headers,
-				'body'      => json_encode( $body ),
+				'body'      => wp_json_encode( $body ),
 				'timeout'   => 60,
 				'sslverify' => self::SSL_VERIFY,
 			)
@@ -905,7 +908,7 @@ class ChatBudgie {
 		$response_body = wp_remote_retrieve_body( $response );
 		$data          = json_decode( $response_body, true );
 
-		if ( isset( $data['code'] ) && 200 != $data['code'] ) {
+		if ( isset( $data['code'] ) && 200 !== (int) $data['code'] ) {
 			$error_msg = isset( $data['message'] ) ? $data['message'] : 'Unknown API error';
 			throw new Exception( esc_html( 'API error: ' . $error_msg ) );
 		}
@@ -920,12 +923,12 @@ class ChatBudgie {
 					$embedding_dimension,
 					self::EMBEDDING_DIMENSION
 				);
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'ChatBudgie: ' . $error_msg );
 				throw new Exception( esc_html( $error_msg ) );
 			}
 		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Warning - embedding dimension not returned by API, expected ' . self::EMBEDDING_DIMENSION );
 		}
 
@@ -957,7 +960,7 @@ class ChatBudgie {
 
 			// Get the first chunk's embedding as the query vector.
 			if ( empty( $embedding_data ) || ! isset( $embedding_data[0]['embedding'] ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'ChatBudgie search_index error: Failed to generate query embedding' );
 				return array();
 			}
@@ -989,7 +992,7 @@ class ChatBudgie {
 			return $filtered_results;
 
 		} catch ( Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie search_index error: ' . $e->getMessage() );
 			// Return empty array instead of throwing exception.
 			return array();
@@ -1017,7 +1020,7 @@ class ChatBudgie {
 		$chunk_id = (int) $parts[1];
 
 		$result = $wpdb->get_var(
-			$wpdb->prepare(
+			$wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
 				"SELECT chunk_text FROM {$chunk_table} WHERE post_id = %d AND chunk_id = %d",
 				$post_id,
@@ -1051,7 +1054,7 @@ class ChatBudgie {
 		$this->drop_index_meta_table();
 		$this->drop_chunk_data_table();
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie plugin deactivated, cron jobs cleaned up, index data deleted, app key removed' );
 	}
 
@@ -1065,13 +1068,13 @@ class ChatBudgie {
 
 		$table_name = $wpdb->prefix . self::INDEX_META_TABLE;
 
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( $table_name ) );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( $table_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		if ( $wpdb->last_error ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Failed to drop index meta table: ' . $wpdb->last_error );
 		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Index meta table dropped successfully' );
 		}
 	}
@@ -1086,13 +1089,13 @@ class ChatBudgie {
 
 		$table_name = $wpdb->prefix . self::CHUNK_TABLE;
 
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( $table_name ) );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( $table_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		if ( $wpdb->last_error ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Failed to drop chunk data table: ' . $wpdb->last_error );
 		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Chunk data table dropped successfully' );
 		}
 	}
@@ -1113,10 +1116,10 @@ class ChatBudgie {
 		self::rrmdir( $data_dir );
 
 		if ( ! is_dir( $data_dir ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Deleted index data directory: ' . $data_dir );
 		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Failed to delete index data directory: ' . $data_dir );
 		}
 	}
@@ -1170,7 +1173,7 @@ class ChatBudgie {
 
 		try {
 			// Log task start.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie daily task started at ' . current_time( 'Y-m-d H:i:s' ) );
 
 			// Run vektor optimization task.
@@ -1179,15 +1182,15 @@ class ChatBudgie {
 
 			// Schedule index build after optimization.
 			$this->schedule_index_build();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Scheduled daily full index build after optimization.' );
 
 			// Log task completion.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie daily task completed at ' . current_time( 'Y-m-d H:i:s' ) );
 		} catch ( \Exception $e ) {
 			// Log task failure.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie daily task failed: ' . $e->getMessage() . ' at ' . current_time( 'Y-m-d H:i:s' ) );
 		}
 	}
@@ -1267,7 +1270,7 @@ class ChatBudgie {
 	private function handle_api_response( $response, $error_prefix = 'API request failed' ) {
 		if ( is_wp_error( $response ) ) {
 			$message = $response->get_error_message();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( "ChatBudgie: $error_prefix: $message" );
 			throw new Exception( esc_html( "$error_prefix: $message" ) );
 		}
@@ -1278,7 +1281,7 @@ class ChatBudgie {
 
 		if ( $status_code < 200 || $status_code >= 300 ) {
 			$message = isset( $data['message'] ) ? $data['message'] : ( isset( $data['error'] ) ? $data['error'] : 'API error' );
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( "ChatBudgie: $error_prefix error: $message (Status: $status_code)" );
 			throw new Exception( esc_html( $message ), absint( $status_code ) );
 		}
@@ -1619,7 +1622,7 @@ class ChatBudgie {
 			$this->stream_api_response( self::CHAT_API, $chat_request );
 
 		} catch ( Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie handle_send_message_sse error: ' . $e->getMessage() );
 			$status_code = $e->getCode();
 			if ( ! is_int( $status_code ) || $status_code < 400 || $status_code > 599 ) {
@@ -1698,7 +1701,7 @@ class ChatBudgie {
 
 		if ( is_wp_error( $response ) ) {
 			$error_message = 'API stream error: ' . $response->get_error_message();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( sanitize_text_field( $error_message ) );
 			throw new Exception( esc_html( $error_message ), 502 );
 		}
@@ -1717,10 +1720,10 @@ class ChatBudgie {
 				$error_message .= ' - Your token has been used up. Please go to ChatBudgie settings page to recharge.';
 			}
 			$safe_error_body = sanitize_textarea_field( wp_strip_all_tags( $response_body ) );
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( sanitize_text_field( $error_message ) );
 			if ( '' !== $safe_error_body ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log.error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( $safe_error_body );
 			}
 			throw new Exception( esc_html( $error_message ), absint( $http_code ) );
@@ -2172,7 +2175,7 @@ class ChatBudgie {
 		}
 
 		try {
-			$extra    = json_encode(
+			$extra    = wp_json_encode(
 				array(
 					'package'   => $package,
 					'amount'    => $amount . 'M',
@@ -2189,7 +2192,7 @@ class ChatBudgie {
 						'Content-Type' => 'application/json',
 						'appKey'       => get_option( 'chatbudgie_app_key', '' ),
 					),
-					'body'      => json_encode(
+					'body'      => wp_json_encode(
 						array(
 							'amount'   => $amount * 1000000,
 							'currency' => $currency,
@@ -2236,7 +2239,7 @@ class ChatBudgie {
 		}
 
 		try {
-			$extra    = json_encode(
+			$extra    = wp_json_encode(
 				array(
 					'orderId' => $order_id,
 					'appName' => CHATBUDGIE_APP_NAME,
@@ -2250,7 +2253,7 @@ class ChatBudgie {
 						'Content-Type' => 'application/json',
 						'appKey'       => get_option( 'chatbudgie_app_key', '' ),
 					),
-					'body'      => json_encode(
+					'body'      => wp_json_encode(
 						array(
 							'orderId' => $order_id,
 							'extra'   => $extra,
@@ -2277,15 +2280,6 @@ class ChatBudgie {
 	}
 }
 
-/**
- * Helper function to get the ChatBudgie singleton instance
- *
- * @return ChatBudgie The singleton instance
- */
-function ChatBudgie() {
-	return ChatBudgie::get_instance();
-}
-
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	return ChatBudgie::get_instance();
+	ChatBudgie::get_instance();
 }

@@ -18,7 +18,7 @@ require_once __DIR__ . '/chatbudgie.php';
 
 global $wpdb;
 
-// 1. Clear scheduled tasks from Action Scheduler and WP-Cron
+// 1. Clear scheduled tasks from Action Scheduler and WP-Cron.
 wp_clear_scheduled_hook( 'chatbudgie_daily_task' );
 
 if ( function_exists( 'as_unschedule_all_actions' ) ) {
@@ -28,7 +28,7 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
 	$groups_table  = esc_sql( $wpdb->prefix . 'actionscheduler_groups' );
 
 	$group_id = $wpdb->get_var(
-		$wpdb->prepare(
+		$wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is generated from $wpdb->prefix and escaped above.
 			"SELECT group_id FROM {$groups_table} WHERE slug = %s",
 			'chatbudgie'
@@ -50,7 +50,7 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
 	}
 }
 
-// 2. Drop custom database tables
+// 2. Drop custom database tables.
 $tables = array(
 	$wpdb->prefix . 'chatbudgie_index_meta',
 	$wpdb->prefix . 'chatbudgie_chunk_data',
@@ -58,11 +58,11 @@ $tables = array(
 
 foreach ( $tables as $table ) {
 	$table = esc_sql( $table );
-	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Table name is generated from $wpdb->prefix and escaped above.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Table name is generated from $wpdb->prefix and escaped above.
 	$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
 }
 
-// 3. Delete plugin options
+// 3. Delete plugin options.
 $options = array(
 	'chatbudgie_app_key',
 	'chatbudgie_welcome_message',
@@ -75,5 +75,5 @@ foreach ( $options as $option ) {
 	delete_option( $option );
 }
 
-// 4. Delete vector index files from the shared data directory
+// 4. Delete vector index files from the shared data directory.
 ChatBudgie::delete_index_data();
