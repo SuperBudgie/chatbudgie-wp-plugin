@@ -1535,48 +1535,67 @@ class ChatBudgie {
      */
     private function stream_api_response($url, $body) {
         $headers = array(
-            'Content-Type: application/json',
-            'appKey: ' . get_option('chatbudgie_app_key', ''),
-            'Referer: ' . site_url(),
-            'X-Forwarded-For: ' . $this->get_client_ip(),
+            'Content-Type' => 'application/json',
+            'Accept' => 'text/event-stream',
+            'appKey' => get_option('chatbudgie_app_key', ''),
+            'Referer' => site_url(),
+            'X-Forwarded-For' => $this->get_client_ip(),
         );
+        $body['stream'] = true;
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        //curl_setopt($ch, CURLOPT_VERBOSE, true);
-        
-        // Enable streaming
-        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
-            // Check the response status code before forwarding data
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($http_code !== 200) {
-                http_response_code($http_code);
-                error_log('API stream error: Received HTTP code from upstream ' . $http_code);
-                error_log($data);
-                return 0;
+        $streamed = false;
+        $stream_error_body = '';
+
+        $stream_response = function($handle, $parsed_args, $request_url) use ($url, &$streamed, &$stream_error_body) {
+            if ($request_url !== $url) {
+                return;
             }
 
-            // Preserve the SSE payload while stripping unsafe HTML from streamed content.
-            echo wp_kses_post($data);
-            if (ob_get_level()) {
-                ob_flush();
-            }
-            flush();
-            
-            return strlen($data);
-        });
-        
-        $response = curl_exec($ch);
+            curl_setopt($handle, CURLOPT_WRITEFUNCTION, function($handle, $data) use (&$streamed, &$stream_error_body) {
+                $http_code = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+                if ($http_code !== 200) {
+                    $stream_error_body .= $data;
+                    return strlen($data);
+                }
 
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                // Preserve the SSE payload while stripping unsafe HTML from streamed content.
+                $safe_data = wp_kses_post($data);
+                echo $safe_data;
+                if (ob_get_level()) {
+                    ob_flush();
+                }
+                flush();
+
+                $streamed = true;
+                return strlen($data);
+            });
+        };
+
+        add_action('http_api_curl', $stream_response, 10, 3);
+
+        try {
+            $response = wp_remote_post($url, array(
+                'headers' => $headers,
+                'body' => wp_json_encode($body),
+                'timeout' => 300,
+                'sslverify' => self::SSL_VERIFY,
+            ));
+        } finally {
+            remove_action('http_api_curl', $stream_response, 10);
+        }
+
+        if (is_wp_error($response)) {
+            $error_message = 'API stream error: ' . $response->get_error_message();
+            error_log(sanitize_text_field($error_message));
+            throw new Exception($error_message, 502);
+        }
+
+        $http_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        if ($response_body === '' && $stream_error_body !== '') {
+            $response_body = $stream_error_body;
+        }
+
         if ($http_code !== 200) {
             $error_message = 'API response error: ' . $http_code;
             if ($http_code === 401) {
@@ -1584,19 +1603,23 @@ class ChatBudgie {
             } elseif ($http_code === 402) {
                 $error_message .= ' - Your token has been used up. Please go to ChatBudgie settings page to recharge.';
             }
-            error_log($error_message);
-            curl_close($ch);
+            $safe_error_body = sanitize_textarea_field(wp_strip_all_tags($response_body));
+            error_log(sanitize_text_field($error_message));
+            if ($safe_error_body !== '') {
+                error_log($safe_error_body);
+            }
             throw new Exception($error_message, $http_code);
         }
-        
-        if (curl_errno($ch)) {
-            $error_message = 'API stream error: ' . curl_error($ch);
-            error_log($error_message);
-            curl_close($ch);
-            throw new Exception($error_message, 502);
-        }
 
-        curl_close($ch);
+        if (!$streamed) {
+            // Preserve the SSE payload while stripping unsafe HTML from streamed content.
+            $safe_response_body = wp_kses_post($response_body);
+            echo $safe_response_body;
+            if (ob_get_level()) {
+                ob_flush();
+            }
+            flush();
+        }
     }
 
     /**
