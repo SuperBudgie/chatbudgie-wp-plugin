@@ -23,14 +23,13 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
 
-// Load Action Scheduler during plugin bootstrap so its own plugins_loaded hooks
-// can register before WordPress fires that lifecycle event.
-if (!class_exists('ActionScheduler_Versions')) {
-    $chatbudgie_as_path = plugin_dir_path(__FILE__) . 'lib/action-scheduler/action-scheduler.php';
-
-    if (file_exists($chatbudgie_as_path)) {
-        require_once $chatbudgie_as_path;
-    }
+// Register ChatBudgie's bundled Action Scheduler copy during plugin bootstrap.
+// Action Scheduler's loader is version-aware: if another plugin has already
+// loaded it, this file only registers this version and lets the newest
+// available copy initialize on plugins_loaded.
+$chatbudgie_as_path = __DIR__ . '/lib/action-scheduler/action-scheduler.php';
+if (file_exists($chatbudgie_as_path)) {
+    require_once $chatbudgie_as_path;
 }
 
 // Load local Vektor library
