@@ -143,6 +143,7 @@ class ChatBudgie {
 		add_action( 'wp_ajax_nopriv_chatbudgie_send_message_sse', array( $this, 'handle_send_message_sse' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_plugin_action_links' ) );
 		// add_action('admin_notices', array($this, 'show_index_status_notice'));.
 		add_action( 'admin_post_chatbudgie_rebuild_index', array( $this, 'handle_manual_rebuild_index' ) );
 
@@ -1911,6 +1912,24 @@ class ChatBudgie {
 			'chatbudgie-orders',
 			array( $this, 'render_orders_page' )
 		);
+	}
+
+	/**
+	 * Add action links shown on the WordPress plugins page.
+	 *
+	 * @param array<string,string> $links Existing plugin action links.
+	 * @return array<string,string>
+	 */
+	public function add_plugin_action_links( $links ) {
+		$settings_link = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( admin_url( 'admin.php?page=chatbudgie' ) ),
+			esc_html__( 'Settings', 'chatbudgie' )
+		);
+
+		array_unshift( $links, $settings_link );
+
+		return $links;
 	}
 
 	/**
