@@ -78,6 +78,7 @@ class ChatBudgie {
 	public const USER_ORDERS_API          = CHATBUDGIE_BASE_URL . 'api/user/orders';
 	public const CREATE_PAYPAL_ORDER_API  = CHATBUDGIE_BASE_URL . 'api/payment/paypal/create';
 	public const CAPTURE_PAYPAL_ORDER_API = CHATBUDGIE_BASE_URL . 'api/payment/paypal/capture';
+	public const QUERY_EMBEDDING_API      = CHATBUDGIE_BASE_URL . 'api/rag/embedding/query/v1';
 	public const SSL_VERIFY               = false;
 	public const INDEX_META_TABLE         = 'chatbudgie_index_meta';
 	public const CHUNK_TABLE              = 'chatbudgie_chunk_data';
@@ -141,6 +142,8 @@ class ChatBudgie {
 		add_action( 'wp_footer', array( $this, 'render_chat_widget' ) );
 		add_action( 'wp_ajax_chatbudgie_send_message_sse', array( $this, 'handle_send_message_sse' ) );
 		add_action( 'wp_ajax_nopriv_chatbudgie_send_message_sse', array( $this, 'handle_send_message_sse' ) );
+		add_action( 'wp_ajax_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
+		add_action( 'wp_ajax_nopriv_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_plugin_action_links' ) );
@@ -1439,16 +1442,26 @@ class ChatBudgie {
 			true
 		);
 
+		$app_key = get_option( 'chatbudgie_app_key', '' );
+		if ( empty( $app_key ) ) {
+			$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account.", 'chatbudgie' );
+		} else {
+			$welcome = get_option( 'chatbudgie_welcome_message' );
+			if ( empty( $welcome ) ) {
+				$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?", 'chatbudgie' );
+			}
+		}
+
 		wp_localize_script(
 			'chatbudgie-script',
 			'chatbudgie_params',
 			array(
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'sse_url'  => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'chatbudgie_nonce' ),
-				'strings'  => array(
+				'ajax_url'     => admin_url( 'admin-ajax.php' ),
+				'chat_api_url' => self::CHAT_API,
+				'nonce'        => wp_create_nonce( 'chatbudgie_nonce' ),
+				'strings'      => array(
 					'placeholder' => __( 'Please enter your question...', 'chatbudgie' ),
-					'welcome'     => get_option( 'chatbudgie_welcome_message', __( "Hi, I'm ChatBudgie, assistant of the website. If this is the first time you open ChatBudgie, please ensure you have connected to ChatBudgie account in the settings page.", 'chatbudgie' ) ),
+					'welcome'     => $welcome,
 					'sending'     => __( 'Sending...', 'chatbudgie' ),
 					'error'       => __( 'Failed to send, please try again', 'chatbudgie' ),
 					'api_error'   => __( 'API call failed', 'chatbudgie' ),
@@ -1580,7 +1593,11 @@ class ChatBudgie {
 	 * @return void Outputs SSE stream and exits
 	 */
 	public function handle_send_message_sse() {
-		check_ajax_referer( 'chatbudgie_nonce', 'nonce' );
+		if ( ! check_ajax_referer( 'chatbudgie_nonce', 'nonce', false ) ) {
+			$this->sse_set_headers();
+			$this->sse_send_error( __( 'Your session has expired. Please refresh the page and try again.', 'chatbudgie' ), 403 );
+			exit;
+		}
 
 		$message                  = sanitize_text_field( wp_unslash( $_POST['message'] ?? '' ) );
 		$conversation_history_raw = sanitize_textarea_field( wp_unslash( $_POST['conversation_history'] ?? '[]' ) );
@@ -1633,6 +1650,104 @@ class ChatBudgie {
 		}
 
 		exit;
+	}
+
+	/**
+	 * Handle AJAX request to search the vector index using chat history
+	 * Calls remote embedding API with chat history, then performs local vector search
+	 *
+	 * @return void Outputs JSON response and exits
+	 */
+	public function handle_search_index() {
+		if ( ! check_ajax_referer( 'chatbudgie_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Your session has expired. Please refresh the page and try again.', 'chatbudgie' ) ), 403 );
+		}
+
+		$conversation_history_raw = sanitize_textarea_field( wp_unslash( $_POST['conversation_history'] ?? '[]' ) );
+		$conversation_history     = $this->sanitize_conversation_history(
+			json_decode( $conversation_history_raw, true )
+		);
+
+		try {
+			$headers = array(
+				'Content-Type' => 'application/json',
+				'appKey'       => get_option( 'chatbudgie_app_key', '' ),
+			);
+
+			$response = wp_remote_post(
+				self::QUERY_EMBEDDING_API,
+				array(
+					'headers'   => $headers,
+					'body'      => wp_json_encode( $conversation_history ),
+					'timeout'   => 60,
+					'sslverify' => self::SSL_VERIFY,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				throw new Exception( $response->get_error_message() );
+			}
+
+			$response_body = wp_remote_retrieve_body( $response );
+			$data          = json_decode( $response_body, true );
+
+			if ( isset( $data['code'] ) && 200 !== (int) $data['code'] ) {
+				throw new Exception( $data['message'] ?? 'API error' );
+			}
+
+			$result_data = $data['data'] ?? array();
+			$embedding   = $result_data['embedding'] ?? array();
+
+			$grouped_results = array();
+
+			if ( empty( $embedding ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'ChatBudgie handle_search_index: Failed to get query embedding from API' );
+			} else {
+				// Perform local vector search.
+				$k         = 5;
+				$threshold = 0.2;
+				$results   = $this->searcher->search( $embedding, $k, false );
+
+				foreach ( $results as $result ) {
+					if ( $result['score'] >= $threshold ) {
+						$chunk_text = $this->get_chunk_text( $result['id'] );
+
+						// Extract post_id from vector_id (format: post_id_chunk_id).
+						$parts   = explode( '_', $result['id'] );
+						$post_id = (int) $parts[0];
+
+						if ( ! isset( $grouped_results[ $post_id ] ) ) {
+							$post = get_post( $post_id );
+							$grouped_results[ $post_id ] = array(
+								'url'    => $post ? get_permalink( $post ) : '',
+								'title'  => $post ? get_the_title( $post ) : '',
+								'chunks' => array(),
+							);
+						}
+						$grouped_results[ $post_id ]['chunks'][] = array(
+							'content' => $chunk_text,
+							'score'   => $result['score'],
+						);
+					}
+				}
+			}
+
+			wp_send_json_success(
+				array(
+					'query'          => $result_data['query'] ?? '',
+					'appConfigId'    => $result_data['appConfigId'] ?? '',
+					'timestamp'      => $result_data['timestamp'] ?? '',
+					'signature'      => $result_data['signature'] ?? '',
+					'search_results' => array_values( $grouped_results ),
+				)
+			);
+
+		} catch ( Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'ChatBudgie handle_search_index error: ' . $e->getMessage() );
+			wp_send_json_error( array( 'message' => $e->getMessage() ), 500 );
+		}
 	}
 
 	/**

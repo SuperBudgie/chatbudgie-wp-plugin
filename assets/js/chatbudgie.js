@@ -55,9 +55,9 @@
         $input.attr('placeholder', chatbudgie_params.strings.placeholder);
         clearMessages();
         hideErrorBanner();
-        
+
         loadHistory();
-        
+
         if (conversationHistory.length === 0) {
             addBotMessage(chatbudgie_params.strings.welcome);
         } else {
@@ -231,12 +231,47 @@
         currentRequestController = new AbortController();
 
         try {
-            const response = await fetch(chatbudgie_params.sse_url, {
+            // 1. Get search results first via WordPress AJAX
+            const searchResponse = await $.ajax({
+                url: chatbudgie_params.ajax_url,
+                method: 'POST',
+                data: {
+                    action: 'chatbudgie_search_index',
+                    nonce: chatbudgie_params.nonce,
+                    conversation_history: JSON.stringify(conversationHistory)
+                }
+            });
+
+            if (!searchResponse.success) {
+                throw new Error(searchResponse.data.message || chatbudgie_params.strings.error);
+            }
+
+            const searchData = searchResponse.data;
+
+            // 2. Call origin chat API directly
+            var chatHistory = JSON.parse(JSON.stringify(conversationHistory));
+            if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
+                chatHistory[chatHistory.length - 1].content = searchData.query;
+            } else {
+                chatHistory.push({ role: 'user', content: searchData.query });
+            }
+
+            if (chatHistory.length === 0 || chatHistory[0].role !== 'system') {
+                chatHistory.unshift({ role: 'system', content: chatbudgie_params.strings.welcome });
+            }
+
+            const response = await fetch(chatbudgie_params.chat_api_url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json'
                 },
-                body: new URLSearchParams(buildFormData(message)).toString(),
+                body: JSON.stringify({
+                    context: searchData.search_results || [],
+                    messages: chatHistory,
+                    appConfigId: searchData.appConfigId,
+                    timestamp: searchData.timestamp,
+                    signature: searchData.signature
+                }),
                 signal: currentRequestController.signal
             });
 
@@ -454,7 +489,7 @@
 
         $message.append($bubble);
         $messages.append($message);
-        
+
         if (!skipScroll) {
             scrollToBottom();
         }
@@ -482,7 +517,7 @@
 
         $message.append($avatar, $bubble);
         $messages.append($message);
-        
+
         if (!skipScroll) {
             scrollToBottom();
         }
@@ -522,13 +557,13 @@
 
         var $bubble = $message.find('.chatbudgie-bubble');
         $bubble.removeClass('chatbudgie-bubble--loading');
-        
+
         if (window.marked && typeof marked.parse === 'function') {
             $bubble.html(marked.parse(content));
         } else {
             $bubble.text(content);
         }
-        
+
         scrollToBottom();
     }
 
@@ -600,3 +635,4 @@
     }
 
 })(jQuery);
+
