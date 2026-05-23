@@ -4,7 +4,7 @@ Tags: chat, ai, chatbot, chat bot, chatgpt, claude, customer service, artificial
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -111,6 +111,13 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Changelog ==
 
+= 1.1.0 =
+* Improved search result accuracy by grouping results by post.
+* Enhanced frontend chat flow with optimized conversation history management.
+* Refined welcome message logic based on account connection status.
+* Improved security with consistent manual nonce checks and custom session expiry messages.
+* Updated API integration to use refined data field names for better alignment with the backend.
+
 = 1.0.0 =
 * Initial release.
 * Added RAG-based chat functionality.
@@ -119,6 +126,9 @@ ChatBudgie is built upon several high-quality open-source libraries:
 * Implemented background indexing via Action Scheduler.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Improved search result accuracy, enhanced chat flow, and security updates. Recommended for all users.
 
 = 1.0.0 =
 Initial version. No upgrade notice required.

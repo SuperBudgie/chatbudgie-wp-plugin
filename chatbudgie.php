@@ -6,7 +6,7 @@
  * Plugin Name: ChatBudgie
  * Plugin URI: https://github.com/SuperBudgie/chatbudgie-wp-plugin
  * Description: Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Tested up to: 6.9
@@ -47,7 +47,7 @@ if ( file_exists( __DIR__ . '/lib/Vektor/Core/Config.php' ) ) {
 	require_once __DIR__ . '/lib/Vektor/Services/Optimizer.php';
 }
 
-define( 'CHATBUDGIE_VERSION', '1.0.0' );
+define( 'CHATBUDGIE_VERSION', '1.1.0' );
 define( 'CHATBUDGIE_APP_NAME', 'chatbudgie' );
 // define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox.
 define( 'CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64VAAwj_YGTfYAWF3D0cLpmXCtYNxGG9jOvEk2Hv8-M' );  // Live.
@@ -125,12 +125,39 @@ class ChatBudgie {
 		Config::setDimensions( self::EMBEDDING_DIMENSION );
 		$data_dir = self::get_data_dir();
 
+		if ( ! empty( $data_dir ) ) {
+			$version_file = trailingslashit( $data_dir ) . 'version';
+			if ( file_exists( $version_file ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$stored_version = trim( file_get_contents( $version_file ) );
+				$stored_major   = explode( '.', $stored_version )[0];
+				$current_major  = explode( '.', CHATBUDGIE_VERSION )[0];
+
+				if ( $stored_major !== $current_major ) {
+					// Major version mismatch - clear data.
+					self::delete_index_data();
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( "ChatBudgie: Major version mismatch ($stored_version vs " . CHATBUDGIE_VERSION . "). Cleared data directory." );
+				}
+			}
+		}
+
 		if ( ! file_exists( $data_dir ) ) {
 			if ( ! wp_mkdir_p( $data_dir ) ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'ChatBudgie: Failed to create data directory at ' . $data_dir );
 			}
 		}
+
+		// Ensure version file exists in data directory.
+		if ( ! empty( $data_dir ) && is_dir( $data_dir ) ) {
+			$version_file = trailingslashit( $data_dir ) . 'version';
+			if ( ! file_exists( $version_file ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				file_put_contents( $version_file, CHATBUDGIE_VERSION );
+			}
+		}
+
 		Config::setDataDir( $data_dir );
 
 		// Initialize Indexer and Searcher.
@@ -780,7 +807,7 @@ class ChatBudgie {
 
 				$this->indexer->insert( $vector_id, $chunk['embedding'] );
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'Indexed chunk: ' . $vector_id . ' (' . strlen( $chunk['chunkText'] ) . ' chars)' );
+				error_log( 'Indexed chunk: ' . $vector_id . ' (' . strlen( $chunk['content'] ) . ' chars)' );
 			}
 
 			// Save chunk text to database.
@@ -846,7 +873,7 @@ class ChatBudgie {
 	 * Save chunk text to the database for a specific post
 	 *
 	 * @param int   $post_id The WordPress post ID.
-	 * @param array $chunks Array of chunks with 'chunkText' key.
+	 * @param array $chunks Array of chunks with 'content' key.
 	 * @return void
 	 */
 	private function update_post_chunks( $post_id, $chunks ) {
@@ -861,7 +888,7 @@ class ChatBudgie {
 				array(
 					'post_id'    => $post_id,
 					'chunk_id'   => $chunk_index,
-					'chunk_text' => $chunk['chunkText'] ?? '',
+					'chunk_text' => $chunk['content'] ?? '',
 				),
 				array( '%d', '%d', '%s' )
 			);
@@ -875,7 +902,7 @@ class ChatBudgie {
 	 * @param string $title The post title.
 	 * @param string $content The post content.
 	 * @param string $excerpt The post excerpt.
-	 * @return array Array of chunks containing 'chunkText' and 'embedding'
+	 * @return array Array of chunks containing 'content' and 'embedding'
 	 * @throws Exception If API request fails or returns invalid response.
 	 */
 	private function get_embedding( $title, $content, $excerpt ) {
@@ -944,7 +971,7 @@ class ChatBudgie {
 
 		$chunks = $data['data']['chunks'];
 
-		// Return the chunks array (contains chunkText and embedding for each chunk).
+		// Return the chunks array (contains content and embedding for each chunk).
 		return $chunks;
 	}
 
@@ -955,7 +982,7 @@ class ChatBudgie {
 	 * @param string $query_text The search query text.
 	 * @param int    $k Maximum number of results to return (default: 5).
 	 * @param float  $threshold Minimum similarity score threshold (default: 0.7).
-	 * @return array Array of results containing 'id', 'score', and 'chunkText'. Returns empty array on error.
+	 * @return array Array of results containing 'id', 'score', and 'content'. Returns empty array on error.
 	 */
 	public function search_index( $query_text, $k = 5, $threshold = 0.7 ) {
 		try {
@@ -984,7 +1011,7 @@ class ChatBudgie {
 					$filtered_results[] = array(
 						'id'        => $result['id'],
 						'score'     => $result['score'],
-						'chunkText' => $chunk_text,
+						'content' => $chunk_text,
 					);
 
 					if ( count( $filtered_results ) >= $k ) {
@@ -1623,7 +1650,7 @@ class ChatBudgie {
 				foreach ( $search_results as $result ) {
 					$context[] = array(
 						'score' => $result['score'],
-						'text'  => $result['chunkText'],
+						'text'  => $result['content'],
 					);
 				}
 			}
