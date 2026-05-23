@@ -20,7 +20,7 @@ require_once __DIR__ . '/../lib/Vektor/Services/Searcher.php';
 require_once __DIR__ . '/../lib/Vektor/Services/Optimizer.php';
 
 // Load test helper classes
-require_once __DIR__ . '/TestableChatBudgie.php';
+// require_once __DIR__ . '/TestableChatBudgie.php';
 
 // Set up test data directory
 define('CHATBUDGIE_TEST_DATA_DIR', __DIR__ . '/../test-data');

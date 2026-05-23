@@ -455,21 +455,6 @@
     }
 
     /**
-     * Constructs FormData for the AJAX request including nonce and history.
-     * 
-     * @param {string} message - The user's message.
-     * @returns {Object}
-     */
-    function buildFormData(message) {
-        return {
-            action: 'chatbudgie_send_message_sse',
-            nonce: chatbudgie_params.nonce,
-            message: message,
-            conversation_history: JSON.stringify(conversationHistory)
-        };
-    }
-
-    /**
      * Clears all message bubbles from the chat container.
      */
     function clearMessages() {

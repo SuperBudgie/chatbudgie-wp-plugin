@@ -137,7 +137,7 @@ class ChatBudgie {
 					// Major version mismatch - clear data.
 					self::delete_index_data();
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( "ChatBudgie: Major version mismatch ($stored_version vs " . CHATBUDGIE_VERSION . "). Cleared data directory." );
+					error_log( "ChatBudgie: Major version mismatch ($stored_version vs " . CHATBUDGIE_VERSION . '). Cleared data directory.' );
 				}
 			}
 		}
@@ -167,8 +167,6 @@ class ChatBudgie {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'wp_footer', array( $this, 'render_chat_widget' ) );
-		add_action( 'wp_ajax_chatbudgie_send_message_sse', array( $this, 'handle_send_message_sse' ) );
-		add_action( 'wp_ajax_nopriv_chatbudgie_send_message_sse', array( $this, 'handle_send_message_sse' ) );
 		add_action( 'wp_ajax_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'wp_ajax_nopriv_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
@@ -976,61 +974,6 @@ class ChatBudgie {
 	}
 
 	/**
-	 * Search the vector index for similar content
-	 * Embeds the query text and returns top K chunks with scores above the threshold
-	 *
-	 * @param string $query_text The search query text.
-	 * @param int    $k Maximum number of results to return (default: 5).
-	 * @param float  $threshold Minimum similarity score threshold (default: 0.7).
-	 * @return array Array of results containing 'id', 'score', and 'content'. Returns empty array on error.
-	 */
-	public function search_index( $query_text, $k = 5, $threshold = 0.7 ) {
-		try {
-			// Embed the query text.
-			$embedding_data = $this->get_embedding( '', $query_text, '' );
-
-			// Get the first chunk's embedding as the query vector.
-			if ( empty( $embedding_data ) || ! isset( $embedding_data[0]['embedding'] ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'ChatBudgie search_index error: Failed to generate query embedding' );
-				return array();
-			}
-
-			$query_vector = $embedding_data[0]['embedding'];
-
-			// Search for top K results (oversample to handle threshold filtering).
-			$results = $this->searcher->search( $query_vector, $k, false );
-
-			// Filter by threshold and limit to K.
-			$filtered_results = array();
-			foreach ( $results as $result ) {
-				if ( $result['score'] >= $threshold ) {
-					// Get chunk text from database.
-					$chunk_text = $this->get_chunk_text( $result['id'] );
-
-					$filtered_results[] = array(
-						'id'        => $result['id'],
-						'score'     => $result['score'],
-						'content' => $chunk_text,
-					);
-
-					if ( count( $filtered_results ) >= $k ) {
-						break;
-					}
-				}
-			}
-
-			return $filtered_results;
-
-		} catch ( Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'ChatBudgie search_index error: ' . $e->getMessage() );
-			// Return empty array instead of throwing exception.
-			return array();
-		}
-	}
-
-	/**
 	 * Get chunk text by vector ID from the database
 	 *
 	 * @param string $vector_id The vector ID (e.g., '123_0').
@@ -1224,35 +1167,6 @@ class ChatBudgie {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie daily task failed: ' . $e->getMessage() . ' at ' . current_time( 'Y-m-d H:i:s' ) );
 		}
-	}
-
-	/**
-	 * Get the client IP address
-	 *
-	 * @return string
-	 */
-	private function get_client_ip() {
-		$ip = '0.0.0.0';
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ips = explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
-			foreach ( $ips as $forwarded_ip ) {
-				$candidate_ip = trim( $forwarded_ip );
-				if ( filter_var( $candidate_ip, FILTER_VALIDATE_IP ) ) {
-					$ip = $candidate_ip;
-					break;
-				}
-			}
-		} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-		}
-
-		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return '0.0.0.0';
-		}
-
-		return $ip;
 	}
 
 	/**
@@ -1489,9 +1403,7 @@ class ChatBudgie {
 				'strings'      => array(
 					'placeholder' => __( 'Please enter your question...', 'chatbudgie' ),
 					'welcome'     => $welcome,
-					'sending'     => __( 'Sending...', 'chatbudgie' ),
 					'error'       => __( 'Failed to send, please try again', 'chatbudgie' ),
-					'api_error'   => __( 'API call failed', 'chatbudgie' ),
 				),
 			)
 		);
@@ -1613,76 +1525,10 @@ class ChatBudgie {
 	}
 
 	/**
-	 * Handle AJAX chat message requests with SSE streaming
-	 * Receives user messages, searches the vector index, and streams response via SSE
-	 * Hooked to wp_ajax_chatbudgie_send_message_sse and wp_ajax_nopriv_chatbudgie_send_message_sse
-	 *
-	 * @return void Outputs SSE stream and exits
-	 */
-	public function handle_send_message_sse() {
-		if ( ! check_ajax_referer( 'chatbudgie_nonce', 'nonce', false ) ) {
-			$this->sse_set_headers();
-			$this->sse_send_error( __( 'Your session has expired. Please refresh the page and try again.', 'chatbudgie' ), 403 );
-			exit;
-		}
-
-		$message                  = sanitize_text_field( wp_unslash( $_POST['message'] ?? '' ) );
-		$conversation_history_raw = sanitize_textarea_field( wp_unslash( $_POST['conversation_history'] ?? '[]' ) );
-		$conversation_history     = $this->sanitize_conversation_history(
-			json_decode( $conversation_history_raw, true )
-		);
-
-		// Set headers for SSE.
-		$this->sse_set_headers();
-
-		if ( empty( $message ) ) {
-			$this->sse_send_error( 'Message cannot be empty', 400 );
-			exit;
-		}
-
-		try {
-			// Search the vector index for relevant content (returns empty array on error).
-			$search_results = $this->search_index( $message, 5, 0.2 );
-
-			// Build context from search results.
-			$context = array();
-			if ( ! empty( $search_results ) ) {
-				foreach ( $search_results as $result ) {
-					$context[] = array(
-						'score' => $result['score'],
-						'text'  => $result['content'],
-					);
-				}
-			}
-
-			// Make request to chat API.
-			$chat_request = array(
-				'context'  => $context,
-				'messages' => $conversation_history,
-				'appName'  => CHATBUDGIE_APP_NAME,
-				'siteUrl'  => get_site_url(),
-			);
-
-			// Call the streaming chat API.
-			$this->stream_api_response( self::CHAT_API, $chat_request );
-
-		} catch ( Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'ChatBudgie handle_send_message_sse error: ' . $e->getMessage() );
-			$status_code = $e->getCode();
-			if ( ! is_int( $status_code ) || $status_code < 400 || $status_code > 599 ) {
-				$status_code = 500;
-			}
-			$this->sse_send_error( $e->getMessage(), $status_code );
-		}
-
-		exit;
-	}
-
-	/**
 	 * Handle AJAX request to search the vector index using chat history
 	 * Calls remote embedding API with chat history, then performs local vector search
 	 *
+	 * @throws Exception If the API request fails or returns an error.
 	 * @return void Outputs JSON response and exits
 	 */
 	public function handle_search_index() {
@@ -1745,7 +1591,7 @@ class ChatBudgie {
 						$post_id = (int) $parts[0];
 
 						if ( ! isset( $grouped_results[ $post_id ] ) ) {
-							$post = get_post( $post_id );
+							$post                        = get_post( $post_id );
 							$grouped_results[ $post_id ] = array(
 								'url'    => $post ? get_permalink( $post ) : '',
 								'title'  => $post ? get_the_title( $post ) : '',
@@ -1775,154 +1621,6 @@ class ChatBudgie {
 			error_log( 'ChatBudgie handle_search_index error: ' . $e->getMessage() );
 			wp_send_json_error( array( 'message' => $e->getMessage() ), 500 );
 		}
-	}
-
-	/**
-	 * Stream API response and forward to client via SSE
-	 *
-	 * @param string $url The API endpoint URL.
-	 * @param array  $body The request body.
-	 * @return void
-	 * @throws Exception If the API request fails or returns an error.
-	 */
-	private function stream_api_response( $url, $body ) {
-		$headers        = array(
-			'Content-Type'    => 'application/json',
-			'Accept'          => 'text/event-stream',
-			'appKey'          => get_option( 'chatbudgie_app_key', '' ),
-			'Referer'         => site_url(),
-			'X-Forwarded-For' => $this->get_client_ip(),
-		);
-		$body['stream'] = true;
-
-		$streamed          = false;
-		$stream_error_body = '';
-
-		$stream_response = function ( $handle, $parsed_args, $request_url ) use ( $url, &$streamed, &$stream_error_body ) {
-			if ( $request_url !== $url ) {
-				return;
-			}
-
-			curl_setopt(
-				$handle,
-				CURLOPT_WRITEFUNCTION,
-				function ( $handle, $data ) use ( &$streamed, &$stream_error_body ) {
-					$http_code = curl_getinfo( $handle, CURLINFO_HTTP_CODE );
-					if ( 200 !== $http_code ) {
-						$stream_error_body .= $data;
-						return strlen( $data );
-					}
-
-					// Preserve the SSE payload while stripping unsafe HTML from streamed content.
-					echo wp_kses_post( $data );
-					if ( ob_get_level() ) {
-						ob_flush();
-					}
-					flush();
-
-					$streamed = true;
-					return strlen( $data );
-				}
-			);
-		};
-
-		add_action( 'http_api_curl', $stream_response, 10, 3 );
-
-		try {
-			$response = wp_remote_post(
-				$url,
-				array(
-					'headers'   => $headers,
-					'body'      => wp_json_encode( $body ),
-					'timeout'   => 300,
-					'sslverify' => self::SSL_VERIFY,
-				)
-			);
-		} finally {
-			remove_action( 'http_api_curl', $stream_response, 10 );
-		}
-
-		if ( is_wp_error( $response ) ) {
-			$error_message = 'API stream error: ' . $response->get_error_message();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( sanitize_text_field( $error_message ) );
-			throw new Exception( esc_html( $error_message ), 502 );
-		}
-
-		$http_code     = wp_remote_retrieve_response_code( $response );
-		$response_body = wp_remote_retrieve_body( $response );
-		if ( '' === $response_body && '' !== $stream_error_body ) {
-			$response_body = $stream_error_body;
-		}
-
-		if ( 200 !== $http_code ) {
-			$error_message = 'API response error: ' . $http_code;
-			if ( 401 === $http_code ) {
-				$error_message .= ' - You are not allowed to access the API. Please login ChatBudgie account in the settings page.';
-			} elseif ( 402 === $http_code ) {
-				$error_message .= ' - Your token has been used up. Please go to ChatBudgie settings page to recharge.';
-			}
-			$safe_error_body = sanitize_textarea_field( wp_strip_all_tags( $response_body ) );
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( sanitize_text_field( $error_message ) );
-			if ( '' !== $safe_error_body ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( $safe_error_body );
-			}
-			throw new Exception( esc_html( $error_message ), absint( $http_code ) );
-		}
-
-		if ( ! $streamed ) {
-			// Preserve the SSE payload while stripping unsafe HTML from streamed content.
-			echo wp_kses_post( $response_body );
-			if ( ob_get_level() ) {
-				ob_flush();
-			}
-			flush();
-		}
-	}
-
-	/**
-	 * Set HTTP headers for SSE streaming
-	 *
-	 * @return void
-	 */
-	private function sse_set_headers() {
-		// Clear all output buffering levels.
-		while ( ob_get_level() ) {
-			ob_end_clean();
-		}
-
-		header( 'Content-Type: text/event-stream' );
-		header( 'Cache-Control: no-cache' );
-		header( 'Connection: keep-alive' );
-		header( 'X-Accel-Buffering: no' ); // Disable Nginx buffering.
-		header( 'Content-Encoding: none' ); // Disable compression for SSE.
-
-		// Prevent PHP from timing out.
-		set_time_limit( 0 );
-	}
-
-	/**
-	 * Send an SSE error event and set an HTTP error status when possible
-	 *
-	 * @param string   $message The error message to send.
-	 * @param int|null $status_code The HTTP status code to set before output starts.
-	 * @return void
-	 */
-	private function sse_send_error( $message, $status_code = 500 ) {
-		if ( null !== $status_code && ! headers_sent() ) {
-			status_header( $status_code );
-		}
-
-		if ( ! $message ) {
-			$message = 'An unknown error occurred';
-		}
-		echo esc_html( $message ) . "\n\n";
-		if ( ob_get_level() ) {
-			ob_flush();
-		}
-		flush();
 	}
 
 	/**
@@ -2088,6 +1786,7 @@ class ChatBudgie {
 			$user_info = $this->get_user_info();
 
 			// Get current page and size.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$page = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
 			$size = 20;
 
@@ -2122,6 +1821,7 @@ class ChatBudgie {
 			$user_info = $this->get_user_info();
 
 			// Get current page and size.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$page = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
 			$size = 20;
 
