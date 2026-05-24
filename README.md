@@ -54,7 +54,7 @@ ChatBudgie implements a local **HNSW (Hierarchical Navigable Small World)** grap
 
 ## Project Structure
 ```
-chatbudgie/
+chatbudgie-wp-plugin/
 ├── chatbudgie.php          # Main plugin entry point
 ├── lib/
 │   ├── action-scheduler/   # Background task management
@@ -70,9 +70,12 @@ chatbudgie/
 ## Contributing
 We welcome contributions! Please feel free to submit Issues or Pull Requests on our [GitHub repository](https://github.com/SuperBudgie/chatbudgie-wp-plugin).
 
-## License
-GPL v3 or later.
+### Development Requirements
+To contribute or run tests, ensure you have:
+- PHP 7.4+
+- Composer
+- PHPUnit (for running tests in the `tests/` directory)
+- PHPCS (for code style compliance, using `phpcs.xml.dist`)
 
-## Contact
-- **Author**: SuperBudgie Team
-- **Website**: [superbudgie.com](https://chat.superbudgie.com)
+## License
+GPL v3 or later. See the [LICENSE](LICENSE) file for details.
