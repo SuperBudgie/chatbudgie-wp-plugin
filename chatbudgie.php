@@ -1545,6 +1545,7 @@ class ChatBudgie {
 			$headers = array(
 				'Content-Type' => 'application/json',
 				'appKey'       => get_option( 'chatbudgie_app_key', '' ),
+				'Referer'      => site_url(),
 			);
 
 			$response = wp_remote_post(
@@ -1558,14 +1559,14 @@ class ChatBudgie {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				throw new Exception( $response->get_error_message() );
+				throw new Exception( $response->get_error_message(), 500 );
 			}
 
 			$response_body = wp_remote_retrieve_body( $response );
 			$data          = json_decode( $response_body, true );
 
 			if ( isset( $data['code'] ) && 200 !== (int) $data['code'] ) {
-				throw new Exception( $data['message'] ?? 'API error' );
+				throw new Exception( $data['message'] ?? 'API error', (int) $data['code'] );
 			}
 
 			$result_data = $data['data'] ?? array();
@@ -1617,9 +1618,18 @@ class ChatBudgie {
 			);
 
 		} catch ( Exception $e ) {
+			$status_code   = $e->getCode();
+			$error_message = $status_code . ' -' . $e->getMessage();
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'ChatBudgie handle_search_index error: ' . $e->getMessage() );
-			wp_send_json_error( array( 'message' => $e->getMessage() ), 500 );
+			error_log( 'ChatBudgie handle_search_index error: ' . $error_message );
+
+			// Format error message for frontend.
+			if ( 401 === $status_code ) {
+				$error_message = '401 - You are not allowed to access the API. Please login ChatBudgie account in the settings page.';
+			} elseif ( 402 === $status_code ) {
+				$error_message = '402 - Your token has been used up. Please go to ChatBudgie settings page to recharge.';
+			}
+			wp_send_json_error( array( 'message' => $error_message ), absint( $status_code ) );
 		}
 	}
 
@@ -2071,12 +2081,16 @@ class ChatBudgie {
 
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
 			if ( isset( $body['code'] ) && 200 !== (int) $body['code'] ) {
-				throw new Exception( $body['message'] ?? 'API error' );
+				throw new Exception( $body['message'] ?? 'API error', (int) $body['code'] );
 			}
 
 			wp_send_json_success( $body['data'] );
 		} catch ( Exception $e ) {
-			wp_send_json_error( array( 'message' => $e->getMessage() ), 500 );
+			$status_code = $e->getCode();
+			if ( $status_code < 400 || $status_code >= 600 ) {
+				$status_code = 500;
+			}
+			wp_send_json_error( array( 'message' => $e->getMessage() ), absint( $status_code ) );
 		}
 	}
 
@@ -2131,12 +2145,16 @@ class ChatBudgie {
 
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
 			if ( isset( $body['code'] ) && 200 !== (int) $body['code'] ) {
-				throw new Exception( $body['message'] ?? 'API error' );
+				throw new Exception( $body['message'] ?? 'API error', (int) $body['code'] );
 			}
 
 			wp_send_json_success( $body['data'] );
 		} catch ( Exception $e ) {
-			wp_send_json_error( array( 'message' => $e->getMessage() ), 500 );
+			$status_code = $e->getCode();
+			if ( $status_code < 400 || $status_code >= 600 ) {
+				$status_code = 500;
+			}
+			wp_send_json_error( array( 'message' => $e->getMessage() ), absint( $status_code ) );
 		}
 	}
 }

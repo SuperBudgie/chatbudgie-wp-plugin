@@ -77,7 +77,7 @@ Data sent to SuperBudgie depends on the feature being used:
 
 * When an administrator connects the plugin to a SuperBudgie account, the plugin sends the OAuth callback code, the plugin app name, and the site URL to the SuperBudgie authentication service.
 * When content is indexed, the plugin sends the post or page title, excerpt, content, content type, site URL, plugin app name, and the site's ChatBudgie app key to the SuperBudgie embedding service.
-* When a visitor sends a chat message, the plugin sends the visitor's message, recent conversation history, the relevant content snippets retrieved from the local index, the site URL, the site's ChatBudgie app key, and the visitor IP address to the SuperBudgie chat service so it can generate a response.
+* When a visitor sends a chat message, the plugin sends the visitor's message, recent conversation history, the relevant content snippets retrieved from the local index, the site URL, and the site's ChatBudgie app key to the SuperBudgie chat service so it can generate a response.
 * When an administrator opens the ChatBudgie account, usage, or orders screens, the plugin sends the site's ChatBudgie app key, plus pagination parameters for usage/orders requests, to the SuperBudgie account service.
 * When an administrator buys tokens, the plugin sends the selected package, amount, currency, display price, site URL, order ID, the plugin app name, and the site's ChatBudgie app key to the SuperBudgie payment service.
 

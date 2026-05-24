@@ -231,22 +231,40 @@
         currentRequestController = new AbortController();
 
         try {
-            // 1. Get search results first via WordPress AJAX
-            const searchResponse = await $.ajax({
-                url: chatbudgie_params.ajax_url,
+            // 1. Get search results first via native fetch
+            const searchResponse = await fetch(chatbudgie_params.ajax_url, {
                 method: 'POST',
-                data: {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
                     action: 'chatbudgie_search_index',
                     nonce: chatbudgie_params.nonce,
                     conversation_history: JSON.stringify(conversationHistory)
-                }
+                }),
+                signal: currentRequestController.signal
             });
 
-            if (!searchResponse.success) {
-                throw new Error(searchResponse.data.message || chatbudgie_params.strings.error);
+            if (!searchResponse.ok) {
+                let errorMessage = chatbudgie_params.strings.error;
+                try {
+                    const errorJson = await searchResponse.json();
+                    // Check for message in data.message or directly in message
+                    errorMessage = errorJson.data?.message || errorJson.message || errorMessage;
+                } catch (e) {
+                    const errorText = await searchResponse.text();
+                    if (errorText) errorMessage = errorText;
+                }
+                throw new Error(errorMessage);
             }
 
-            const searchData = searchResponse.data;
+            const searchResult = await searchResponse.json();
+
+            if (!searchResult.success) {
+                throw new Error(searchResult.data.message || chatbudgie_params.strings.error);
+            }
+
+            const searchData = searchResult.data;
 
             // 2. Call origin chat API directly
             var chatHistory = JSON.parse(JSON.stringify(conversationHistory));
@@ -276,8 +294,15 @@
             });
 
             if (!response.ok) {
-                var errorText = await response.text();
-                throw new Error(errorText || chatbudgie_params.strings.error);
+                let errorMessage = chatbudgie_params.strings.error;
+                try {
+                    const errorJson = await response.json();
+                    errorMessage = errorJson.data?.message || errorJson.message || errorMessage;
+                } catch (e) {
+                    const errorText = await response.text();
+                    if (errorText) errorMessage = errorText;
+                }
+                throw new Error(errorMessage);
             }
 
             const reader = response.body.getReader();
