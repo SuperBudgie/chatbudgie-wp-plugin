@@ -29,12 +29,12 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 // Action Scheduler's loader is version-aware: if another plugin has already.
 // loaded it, this file only registers this version and lets the newest.
 // available copy initialize on plugins_loaded.
-$chatbudgie_as_path = __DIR__ . '/lib/action-scheduler/action-scheduler.php';
-if ( file_exists( $chatbudgie_as_path ) ) {
-	require_once $chatbudgie_as_path;
+$superbudgie_chatbudgie_as_path = __DIR__ . '/lib/action-scheduler/action-scheduler.php';
+if ( file_exists( $superbudgie_chatbudgie_as_path ) ) {
+	require_once $superbudgie_chatbudgie_as_path;
 }
 
-// Load local Vektor library.
+// Load local vector library.
 if ( file_exists( __DIR__ . '/lib/Vektor/Core/Config.php' ) ) {
 	require_once __DIR__ . '/lib/Vektor/Core/Config.php';
 	require_once __DIR__ . '/lib/Vektor/Core/HnswLogic.php';
@@ -47,20 +47,20 @@ if ( file_exists( __DIR__ . '/lib/Vektor/Core/Config.php' ) ) {
 	require_once __DIR__ . '/lib/Vektor/Services/Optimizer.php';
 }
 
-define( 'CHATBUDGIE_VERSION', '1.1.0' );
-define( 'CHATBUDGIE_APP_NAME', 'chatbudgie' );
-// define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox.
-define( 'CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64VAAwj_YGTfYAWF3D0cLpmXCtYNxGG9jOvEk2Hv8-M' );  // Live.
-define( 'CHATBUDGIE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'CHATBUDGIE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/' );
-// define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');  // Docker test.
-// define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');    // Local test.
+define( 'SUPERBUDGIE_CHATBUDGIE_VERSION', '1.1.0' );
+define( 'SUPERBUDGIE_CHATBUDGIE_APP_NAME', 'chatbudgie' );
+// define('SUPERBUDGIE_CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox.
+define( 'SUPERBUDGIE_CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64VAAwj_YGTfYAWF3D0cLpmXCtYNxGG9jOvEk2Hv8-M' );  // Live.
+define( 'SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'SUPERBUDGIE_CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/' );
+// define('SUPERBUDGIE_CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');  // Docker test.
+// define('SUPERBUDGIE_CHATBUDGIE_BASE_URL', 'https://localhost:8443/');    // Local test.
 
-use Vektor\Core\Config;
-use Vektor\Services\Indexer;
-use Vektor\Services\Searcher;
-use Vektor\Services\Optimizer;
+use SuperBudgie\ChatBudgie\Vektor\Core\Config;
+use SuperBudgie\ChatBudgie\Vektor\Services\Indexer;
+use SuperBudgie\ChatBudgie\Vektor\Services\Searcher;
+use SuperBudgie\ChatBudgie\Vektor\Services\Optimizer;
 
 /**
  * Main controller class for ChatBudgie.
@@ -68,27 +68,27 @@ use Vektor\Services\Optimizer;
  * This class handles the initialization of the plugin, sets up WordPress hooks,
  * manages vector indexing, and provides the main entry point for chat functionality.
  */
-class ChatBudgie {
+class SuperBudgie_ChatBudgie {
 	public const EMBEDDING_DIMENSION      = 1536;
-	public const EMBEDDING_API            = CHATBUDGIE_BASE_URL . 'api/rag/embedding/v1';
-	public const CHAT_API                 = CHATBUDGIE_BASE_URL . 'api/rag/chat';
-	public const USER_INFO_API            = CHATBUDGIE_BASE_URL . 'api/user/info';
-	public const REFRESH_APP_KEY_API      = CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
-	public const TOKEN_USAGE_API          = CHATBUDGIE_BASE_URL . 'api/user/tokenusage';
-	public const USER_ORDERS_API          = CHATBUDGIE_BASE_URL . 'api/user/orders';
-	public const CREATE_PAYPAL_ORDER_API  = CHATBUDGIE_BASE_URL . 'api/payment/paypal/create';
-	public const CAPTURE_PAYPAL_ORDER_API = CHATBUDGIE_BASE_URL . 'api/payment/paypal/capture';
-	public const QUERY_EMBEDDING_API      = CHATBUDGIE_BASE_URL . 'api/rag/embedding/query/v1';
+	public const EMBEDDING_API            = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/rag/embedding/v1';
+	public const CHAT_API                 = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/rag/chat';
+	public const USER_INFO_API            = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/user/info';
+	public const REFRESH_APP_KEY_API      = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
+	public const TOKEN_USAGE_API          = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/user/tokenusage';
+	public const USER_ORDERS_API          = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/user/orders';
+	public const CREATE_PAYPAL_ORDER_API  = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/payment/paypal/create';
+	public const CAPTURE_PAYPAL_ORDER_API = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/payment/paypal/capture';
+	public const QUERY_EMBEDDING_API      = SUPERBUDGIE_CHATBUDGIE_BASE_URL . 'api/rag/embedding/query/v1';
 	public const SSL_VERIFY               = false;
-	public const INDEX_META_TABLE         = 'chatbudgie_index_meta';
-	public const CHUNK_TABLE              = 'chatbudgie_chunk_data';
+	public const INDEX_META_TABLE         = 'superbudgie_chatbudgie_index_meta';
+	public const CHUNK_TABLE              = 'superbudgie_chatbudgie_chunk_data';
 
 	/**
 	 * The singleton instance of ChatBudgie.
 	 *
-	 * @var ChatBudgie|null
+	 * @var SuperBudgie_ChatBudgie|null
 	 */
-	private static ?ChatBudgie $instance = null;
+	private static ?SuperBudgie_ChatBudgie $instance = null;
 
 	/**
 	 * The Indexer instance.
@@ -107,7 +107,7 @@ class ChatBudgie {
 	/**
 	 * Get the singleton instance of ChatBudgie
 	 *
-	 * @return ChatBudgie The singleton instance
+	 * @return SuperBudgie_ChatBudgie The singleton instance
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -131,13 +131,13 @@ class ChatBudgie {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 				$stored_version = trim( file_get_contents( $version_file ) );
 				$stored_major   = explode( '.', $stored_version )[0];
-				$current_major  = explode( '.', CHATBUDGIE_VERSION )[0];
+				$current_major  = explode( '.', SUPERBUDGIE_CHATBUDGIE_VERSION )[0];
 
 				if ( $stored_major !== $current_major ) {
 					// Major version mismatch - clear data.
 					self::delete_index_data();
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( "ChatBudgie: Major version mismatch ($stored_version vs " . CHATBUDGIE_VERSION . '). Cleared data directory.' );
+					error_log( "ChatBudgie: Major version mismatch ($stored_version vs " . SUPERBUDGIE_CHATBUDGIE_VERSION . '). Cleared data directory.' );
 				}
 			}
 		}
@@ -154,7 +154,7 @@ class ChatBudgie {
 			$version_file = trailingslashit( $data_dir ) . 'version';
 			if ( ! file_exists( $version_file ) ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-				file_put_contents( $version_file, CHATBUDGIE_VERSION );
+				file_put_contents( $version_file, SUPERBUDGIE_CHATBUDGIE_VERSION );
 			}
 		}
 
@@ -167,28 +167,28 @@ class ChatBudgie {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'wp_footer', array( $this, 'render_chat_widget' ) );
-		add_action( 'wp_ajax_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
-		add_action( 'wp_ajax_nopriv_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
+		add_action( 'wp_ajax_superbudgie_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
+		add_action( 'wp_ajax_nopriv_superbudgie_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_plugin_action_links' ) );
 		// add_action('admin_notices', array($this, 'show_index_status_notice'));.
-		add_action( 'admin_post_chatbudgie_rebuild_index', array( $this, 'handle_manual_rebuild_index' ) );
+		add_action( 'admin_post_superbudgie_chatbudgie_rebuild_index', array( $this, 'handle_manual_rebuild_index' ) );
 
 		// PayPal integration handlers.
-		add_action( 'wp_ajax_chatbudgie_create_paypal_order', array( $this, 'handle_create_paypal_order' ) );
-		add_action( 'wp_ajax_chatbudgie_capture_paypal_order', array( $this, 'handle_capture_paypal_order' ) );
+		add_action( 'wp_ajax_superbudgie_chatbudgie_create_paypal_order', array( $this, 'handle_create_paypal_order' ) );
+		add_action( 'wp_ajax_superbudgie_chatbudgie_capture_paypal_order', array( $this, 'handle_capture_paypal_order' ) );
 
 		// Add login callback action.
-		add_action( 'admin_post_chatbudgie_login_callback', array( $this, 'handle_login_callback' ) );
-		add_action( 'admin_post_nopriv_chatbudgie_login_callback', array( $this, 'handle_login_callback' ) );
+		add_action( 'admin_post_superbudgie_chatbudgie_login_callback', array( $this, 'handle_login_callback' ) );
+		add_action( 'admin_post_nopriv_superbudgie_chatbudgie_login_callback', array( $this, 'handle_login_callback' ) );
 
 		// Add cron job hook.
-		add_action( 'chatbudgie_daily_task', array( $this, 'daily_task' ) );
+		add_action( 'superbudgie_chatbudgie_daily_task', array( $this, 'daily_task' ) );
 
 		// Add Action Scheduler hooks for indexing.
-		add_action( 'chatbudgie_build_index', array( $this, 'execute_build_index' ) );
-		add_action( 'chatbudgie_index_single_post', array( $this, 'execute_index_single_post' ), 10, 1 );
+		add_action( 'superbudgie_chatbudgie_build_index', array( $this, 'execute_build_index' ) );
+		add_action( 'superbudgie_chatbudgie_index_single_post', array( $this, 'execute_index_single_post' ), 10, 1 );
 
 		// Hook into post save to schedule/remove indexing.
 		add_action( 'save_post', array( $this, 'handle_post_save' ), 10, 2 );
@@ -212,7 +212,7 @@ class ChatBudgie {
 		$upload_dir = wp_upload_dir();
 
 		if ( ! empty( $upload_dir['basedir'] ) ) {
-			return trailingslashit( $upload_dir['basedir'] ) . CHATBUDGIE_APP_NAME;
+			return trailingslashit( $upload_dir['basedir'] ) . SUPERBUDGIE_CHATBUDGIE_APP_NAME;
 		}
 
 		return '';
@@ -379,9 +379,9 @@ class ChatBudgie {
 		$this->create_chunk_data_table();
 
 		// Clear existing cron jobs (legacy WP-Cron and Action Scheduler).
-		wp_clear_scheduled_hook( 'chatbudgie_daily_task' );
+		wp_clear_scheduled_hook( 'superbudgie_chatbudgie_daily_task' );
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( 'chatbudgie_daily_task', array(), 'chatbudgie' );
+			as_unschedule_all_actions( 'superbudgie_chatbudgie_daily_task', array(), 'superbudgie-chatbudgie' );
 		}
 
 		// Schedule daily task at 3:00 AM local time using Action Scheduler.
@@ -394,7 +394,7 @@ class ChatBudgie {
 				if ( $timestamp <= time() ) {
 					$timestamp += 86400; // 24 hours in seconds.
 				}
-				as_schedule_recurring_action( $timestamp, 86400, 'chatbudgie_daily_task', array(), 'chatbudgie' );
+				as_schedule_recurring_action( $timestamp, 86400, 'superbudgie_chatbudgie_daily_task', array(), 'superbudgie-chatbudgie' );
 			} catch ( Exception $e ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'ChatBudgie: Failed to schedule daily task: ' . $e->getMessage() );
@@ -415,7 +415,7 @@ class ChatBudgie {
 	public function schedule_index_build() {
 		global $wpdb;
 
-		$app_key = get_option( 'chatbudgie_app_key', '' );
+		$app_key = get_option( 'superbudgie_chatbudgie_app_key', '' );
 		if ( empty( $app_key ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Cannot schedule index build - You should login ChatBudgie account first.' );
@@ -432,9 +432,9 @@ class ChatBudgie {
 				"DELETE a FROM {$table_name} a
                  INNER JOIN {$group_table} g ON a.group_id = g.group_id
                  WHERE g.slug = %s AND a.hook IN (%s, %s)",
-				'chatbudgie',
-				'chatbudgie_build_index',
-				'chatbudgie_index_single_post'
+				'superbudgie-chatbudgie',
+				'superbudgie_chatbudgie_build_index',
+				'superbudgie_chatbudgie_index_single_post'
 			)
 		);
 		// phpcs:enable
@@ -443,7 +443,7 @@ class ChatBudgie {
 		error_log( 'ChatBudgie: Deleted existing indexing actions from database before scheduling new build' );
 
 		// Schedule fresh action.
-		$action_id = as_enqueue_async_action( 'chatbudgie_build_index', array(), 'chatbudgie' );
+		$action_id = as_enqueue_async_action( 'superbudgie_chatbudgie_build_index', array(), 'superbudgie-chatbudgie' );
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Scheduled fresh index build with action ID: ' . $action_id );
@@ -463,7 +463,7 @@ class ChatBudgie {
 		// Get total count of all post indexing tasks (no status filter).
 		$scheduled_count = $store->query_actions(
 			array(
-				'hook' => 'chatbudgie_index_single_post',
+				'hook' => 'superbudgie_chatbudgie_index_single_post',
 			),
 			'count'
 		);
@@ -471,7 +471,7 @@ class ChatBudgie {
 		// Get count of completed tasks.
 		$completed_count = $store->query_actions(
 			array(
-				'hook'   => 'chatbudgie_index_single_post',
+				'hook'   => 'superbudgie_chatbudgie_index_single_post',
 				'status' => \ActionScheduler_Store::STATUS_COMPLETE,
 			),
 			'count'
@@ -480,21 +480,21 @@ class ChatBudgie {
 		// Check build index task status.
 		$pending_build_actions = as_get_scheduled_actions(
 			array(
-				'hook'   => 'chatbudgie_build_index',
+				'hook'   => 'superbudgie_chatbudgie_build_index',
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			)
 		);
 
 		$running_build_actions = as_get_scheduled_actions(
 			array(
-				'hook'   => 'chatbudgie_build_index',
+				'hook'   => 'superbudgie_chatbudgie_build_index',
 				'status' => \ActionScheduler_Store::STATUS_RUNNING,
 			)
 		);
 
 		$failed_build_actions = as_get_scheduled_actions(
 			array(
-				'hook'   => 'chatbudgie_build_index',
+				'hook'   => 'superbudgie_chatbudgie_build_index',
 				'status' => \ActionScheduler_Store::STATUS_FAILED,
 			)
 		);
@@ -570,7 +570,7 @@ class ChatBudgie {
 			return null;
 		}
 
-		$action_id = as_enqueue_async_action( 'chatbudgie_index_single_post', array( $post_id ), 'chatbudgie' );
+		$action_id = as_enqueue_async_action( 'superbudgie_chatbudgie_index_single_post', array( $post_id ), 'superbudgie-chatbudgie' );
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie: Scheduled post ' . $post_id . ' index with action ID: ' . $action_id );
@@ -910,12 +910,12 @@ class ChatBudgie {
 			'excerpt'     => $excerpt,
 			'content'     => $content,
 			'contentType' => 'text/html',
-			'appName'     => CHATBUDGIE_APP_NAME,
+			'appName'     => SUPERBUDGIE_CHATBUDGIE_APP_NAME,
 		);
 
 		$headers = array(
 			'Content-Type' => 'application/json',
-			'appKey'       => get_option( 'chatbudgie_app_key', '' ),
+			'appKey'       => get_option( 'superbudgie_chatbudgie_app_key', '' ),
 			'Referer'      => site_url(),
 		);
 
@@ -1013,13 +1013,13 @@ class ChatBudgie {
 	 */
 	public function deactivate() {
 		// Clean up cron jobs (legacy WP-Cron and Action Scheduler).
-		wp_clear_scheduled_hook( 'chatbudgie_daily_task' );
+		wp_clear_scheduled_hook( 'superbudgie_chatbudgie_daily_task' );
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( 'chatbudgie_daily_task', array(), 'chatbudgie' );
+			as_unschedule_all_actions( 'superbudgie_chatbudgie_daily_task', array(), 'superbudgie-chatbudgie' );
 		}
 
 		// Delete app key.
-		delete_option( 'chatbudgie_app_key' );
+		delete_option( 'superbudgie_chatbudgie_app_key' );
 
 		// Delete all index data (vectors + truncate tables).
 		$this->delete_all_index_data();
@@ -1150,7 +1150,7 @@ class ChatBudgie {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie daily task started at ' . current_time( 'Y-m-d H:i:s' ) );
 
-			// Run vektor optimization task.
+			// Run vector optimization task.
 			$optimizer = new Optimizer();
 			$optimizer->run();
 
@@ -1246,7 +1246,7 @@ class ChatBudgie {
 	 * @throws Exception If API request fails or returns an error.
 	 */
 	public function get_user_info() {
-		$app_key = get_option( 'chatbudgie_app_key', '' );
+		$app_key = get_option( 'superbudgie_chatbudgie_app_key', '' );
 		$headers = array(
 			'appKey' => $app_key,
 		);
@@ -1272,7 +1272,7 @@ class ChatBudgie {
 	 * @throws Exception If API request fails or returns an error.
 	 */
 	public function get_token_usage( $page = 1, $size = 20 ) {
-		$app_key = get_option( 'chatbudgie_app_key', '' );
+		$app_key = get_option( 'superbudgie_chatbudgie_app_key', '' );
 
 		if ( empty( $app_key ) ) {
 			throw new Exception( 'Application key is missing', 401 );
@@ -1311,7 +1311,7 @@ class ChatBudgie {
 	 * @throws Exception If API request fails or returns an error.
 	 */
 	public function get_user_orders( $page = 1, $size = 20 ) {
-		$app_key = get_option( 'chatbudgie_app_key', '' );
+		$app_key = get_option( 'superbudgie_chatbudgie_app_key', '' );
 
 		if ( empty( $app_key ) ) {
 			throw new Exception( 'Application key is missing', 401 );
@@ -1350,26 +1350,26 @@ class ChatBudgie {
 	public function enqueue_scripts() {
 		wp_enqueue_style(
 			'chatbudgie-style',
-			CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie.css',
+			SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie.css',
 			array(),
-			CHATBUDGIE_VERSION
+			SUPERBUDGIE_CHATBUDGIE_VERSION
 		);
 
-		$chatbudgie_primary_color = $this->sanitize_hex_color(
-			get_option( 'chatbudgie_primary_color', '#2f7bff' )
+		$superbudgie_chatbudgie_primary_color = $this->sanitize_hex_color(
+			get_option( 'superbudgie_chatbudgie_primary_color', '#2f7bff' )
 		);
 
 		wp_add_inline_style(
 			'chatbudgie-style',
 			sprintf(
 				'#chatbudgie-widget{--chatbudgie-accent:%1$s;--chatbudgie-accent-strong:%1$s;}',
-				esc_html( $chatbudgie_primary_color )
+				esc_html( $superbudgie_chatbudgie_primary_color )
 			)
 		);
 
 		wp_enqueue_script(
 			'marked-js',
-			CHATBUDGIE_PLUGIN_URL . 'assets/js/marked.min.js',
+			SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/js/marked.min.js',
 			array(),
 			'12.0.0',
 			true
@@ -1377,17 +1377,17 @@ class ChatBudgie {
 
 		wp_enqueue_script(
 			'chatbudgie-script',
-			CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie.js',
+			SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie.js',
 			array( 'jquery', 'marked-js' ),
-			CHATBUDGIE_VERSION,
+			SUPERBUDGIE_CHATBUDGIE_VERSION,
 			true
 		);
 
-		$app_key = get_option( 'chatbudgie_app_key', '' );
+		$app_key = get_option( 'superbudgie_chatbudgie_app_key', '' );
 		if ( empty( $app_key ) ) {
 			$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account.", 'chatbudgie' );
 		} else {
-			$welcome = get_option( 'chatbudgie_welcome_message' );
+			$welcome = get_option( 'superbudgie_chatbudgie_welcome_message' );
 			if ( empty( $welcome ) ) {
 				$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?", 'chatbudgie' );
 			}
@@ -1395,11 +1395,11 @@ class ChatBudgie {
 
 		wp_localize_script(
 			'chatbudgie-script',
-			'chatbudgie_params',
+			'superbudgie_chatbudgie_params',
 			array(
 				'ajax_url'     => admin_url( 'admin-ajax.php' ),
 				'chat_api_url' => self::CHAT_API,
-				'nonce'        => wp_create_nonce( 'chatbudgie_nonce' ),
+				'nonce'        => wp_create_nonce( 'superbudgie_chatbudgie_nonce' ),
 				'strings'      => array(
 					'placeholder' => __( 'Please enter your question...', 'chatbudgie' ),
 					'welcome'     => $welcome,
@@ -1423,25 +1423,25 @@ class ChatBudgie {
 
 		wp_enqueue_style(
 			'chatbudgie-admin-style',
-			CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie-admin.css',
+			SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie-admin.css',
 			array( 'wp-color-picker' ),
-			CHATBUDGIE_VERSION
+			SUPERBUDGIE_CHATBUDGIE_VERSION
 		);
 
 		wp_enqueue_script(
 			'chatbudgie-admin-script',
-			CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie-admin.js',
+			SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie-admin.js',
 			array( 'jquery', 'wp-color-picker' ),
-			CHATBUDGIE_VERSION,
+			SUPERBUDGIE_CHATBUDGIE_VERSION,
 			true
 		);
 
 		wp_localize_script(
 			'chatbudgie-admin-script',
-			'chatbudgie_admin_params',
+			'superbudgie_chatbudgie_admin_params',
 			array(
 				'ajax_url'        => admin_url( 'admin-ajax.php' ),
-				'nonce'           => wp_create_nonce( 'chatbudgie_nonce' ),
+				'nonce'           => wp_create_nonce( 'superbudgie_chatbudgie_nonce' ),
 				'confirm_rebuild' => __( 'Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens.', 'chatbudgie' ),
 				'choose_icon'     => __( 'Choose Icon', 'chatbudgie' ),
 				'select_icon'     => __( 'Select Icon', 'chatbudgie' ),
@@ -1451,7 +1451,7 @@ class ChatBudgie {
 		// Enqueue WordPress media scripts.
 		wp_enqueue_media();
 
-		if ( 'chatbudgie_page_chatbudgie-orders' !== $hook ) {
+		if ( 'chatbudgie_page_superbudgie-chatbudgie-orders' !== $hook ) {
 			return;
 		}
 
@@ -1459,14 +1459,14 @@ class ChatBudgie {
 
 		wp_enqueue_style(
 			'chatbudgie-admin-orders-style',
-			CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie-admin-orders.css',
+			SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie-admin-orders.css',
 			array( 'chatbudgie-admin-style' ),
-			CHATBUDGIE_VERSION
+			SUPERBUDGIE_CHATBUDGIE_VERSION
 		);
 
 		wp_enqueue_script(
 			'chatbudgie-paypal-sdk',
-			'https://www.paypal.com/sdk/js?client-id=' . rawurlencode( CHATBUDGIE_PAYPAL_CLIENT_ID ) . '&currency=' . rawurlencode( $orders_currency ) . '&components=buttons&disable-funding=venmo',
+			'https://www.paypal.com/sdk/js?client-id=' . rawurlencode( SUPERBUDGIE_CHATBUDGIE_PAYPAL_CLIENT_ID ) . '&currency=' . rawurlencode( $orders_currency ) . '&components=buttons&disable-funding=venmo',
 			array(),
 			null,
 			true
@@ -1474,20 +1474,20 @@ class ChatBudgie {
 
 		wp_enqueue_script(
 			'chatbudgie-admin-orders-script',
-			CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie-admin-orders.js',
+			SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie-admin-orders.js',
 			array( 'chatbudgie-admin-script', 'chatbudgie-paypal-sdk' ),
-			CHATBUDGIE_VERSION,
+			SUPERBUDGIE_CHATBUDGIE_VERSION,
 			true
 		);
 
 		wp_localize_script(
 			'chatbudgie-admin-orders-script',
-			'chatbudgie_orders_params',
+			'superbudgie_chatbudgie_orders_params',
 			array(
 				'ajax_url'     => admin_url( 'admin-ajax.php' ),
-				'nonce'        => wp_create_nonce( 'chatbudgie_nonce' ),
+				'nonce'        => wp_create_nonce( 'superbudgie_chatbudgie_nonce' ),
 				'currency'     => $orders_currency,
-				'redirect_url' => admin_url( 'admin.php?page=chatbudgie' ),
+				'redirect_url' => admin_url( 'admin.php?page=superbudgie-chatbudgie' ),
 				'strings'      => array(
 					'create_order_error'  => __( 'Failed to create order', 'chatbudgie' ),
 					'capture_order_error' => __( 'Failed to capture payment', 'chatbudgie' ),
@@ -1521,7 +1521,7 @@ class ChatBudgie {
 	 * @return void
 	 */
 	public function render_chat_widget() {
-		include CHATBUDGIE_PLUGIN_DIR . 'templates/chatbudgie-widget.php';
+		include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/chatbudgie-widget.php';
 	}
 
 	/**
@@ -1532,7 +1532,7 @@ class ChatBudgie {
 	 * @return void Outputs JSON response and exits
 	 */
 	public function handle_search_index() {
-		if ( ! check_ajax_referer( 'chatbudgie_nonce', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'superbudgie_chatbudgie_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => __( 'Your session has expired. Please refresh the page and try again.', 'chatbudgie' ) ), 403 );
 		}
 
@@ -1544,7 +1544,7 @@ class ChatBudgie {
 		try {
 			$headers = array(
 				'Content-Type' => 'application/json',
-				'appKey'       => get_option( 'chatbudgie_app_key', '' ),
+				'appKey'       => get_option( 'superbudgie_chatbudgie_app_key', '' ),
 				'Referer'      => site_url(),
 			);
 
@@ -1689,7 +1689,7 @@ class ChatBudgie {
 					<strong><?php echo esc_html__( 'ChatBudgie:', 'chatbudgie' ); ?></strong>
 					<?php echo esc_html__( 'Index build failed:', 'chatbudgie' ); ?>
 					<?php echo esc_html( $error_msg ); ?>
-					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=chatbudgie_rebuild_index' ), 'chatbudgie_rebuild_index' ) ); ?>">
+					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=superbudgie_chatbudgie_rebuild_index' ), 'superbudgie_chatbudgie_rebuild_index' ) ); ?>">
 						<?php echo esc_html__( 'Try again', 'chatbudgie' ); ?>
 					</a>
 				</p>
@@ -1708,7 +1708,7 @@ class ChatBudgie {
 			wp_die( 'Unauthorized' );
 		}
 
-		check_admin_referer( 'chatbudgie_rebuild_index' );
+		check_admin_referer( 'superbudgie_chatbudgie_rebuild_index' );
 
 		// Clear all existing index data.
 		$this->delete_all_index_data();
@@ -1716,7 +1716,7 @@ class ChatBudgie {
 		// Schedule fresh index build.
 		$this->schedule_index_build();
 
-		wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'options-general.php?page=chatbudgie' ) );
+		wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'options-general.php?page=superbudgie-chatbudgie' ) );
 		exit;
 	}
 
@@ -1731,35 +1731,35 @@ class ChatBudgie {
 			__( 'ChatBudgie', 'chatbudgie' ),
 			__( 'ChatBudgie', 'chatbudgie' ),
 			'manage_options',
-			'chatbudgie',
+			'superbudgie-chatbudgie',
 			array( $this, 'render_settings_page' ),
 			'dashicons-format-chat'
 		);
 
 		add_submenu_page(
-			'chatbudgie',
+			'superbudgie-chatbudgie',
 			__( 'Settings', 'chatbudgie' ),
 			__( 'Settings', 'chatbudgie' ),
 			'manage_options',
-			'chatbudgie',
+			'superbudgie-chatbudgie',
 			array( $this, 'render_settings_page' )
 		);
 
 		add_submenu_page(
-			'chatbudgie',
+			'superbudgie-chatbudgie',
 			__( 'Usage', 'chatbudgie' ),
 			__( 'Usage', 'chatbudgie' ),
 			'manage_options',
-			'chatbudgie-usage',
+			'superbudgie-chatbudgie-usage',
 			array( $this, 'render_usage_page' )
 		);
 
 		add_submenu_page(
-			'chatbudgie',
+			'superbudgie-chatbudgie',
 			__( 'Orders', 'chatbudgie' ),
 			__( 'Orders', 'chatbudgie' ),
 			'manage_options',
-			'chatbudgie-orders',
+			'superbudgie-chatbudgie-orders',
 			array( $this, 'render_orders_page' )
 		);
 	}
@@ -1773,7 +1773,7 @@ class ChatBudgie {
 	public function add_plugin_action_links( $links ) {
 		$settings_link = sprintf(
 			'<a href="%1$s">%2$s</a>',
-			esc_url( admin_url( 'admin.php?page=chatbudgie' ) ),
+			esc_url( admin_url( 'admin.php?page=superbudgie-chatbudgie' ) ),
 			esc_html__( 'Settings', 'chatbudgie' )
 		);
 
@@ -1802,17 +1802,17 @@ class ChatBudgie {
 
 			$usage_data = $this->get_token_usage( $page, $size );
 
-			include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-usage.php';
+			include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-usage.php';
 		} catch ( Exception $e ) {
 			if ( $e->getCode() === 401 ) {
 				// Key is invalid, clear it and show login page.
-				update_option( 'chatbudgie_app_key', '' );
+				update_option( 'superbudgie_chatbudgie_app_key', '' );
 				$this->render_login_page();
 			} else {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to fetch usage info. Please try again later.', 'chatbudgie' ) . ' (' . esc_html( $e->getMessage() ) . ')</p></div>';
 				// Still try to show the page but without user info.
 				$user_info = null;
-				include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-usage.php';
+				include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-usage.php';
 			}
 		}
 	}
@@ -1837,17 +1837,17 @@ class ChatBudgie {
 
 			$orders_data = $this->get_user_orders( $page, $size );
 
-			include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
+			include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
 		} catch ( Exception $e ) {
 			if ( $e->getCode() === 401 ) {
 				// Key is invalid, clear it and show login page.
-				update_option( 'chatbudgie_app_key', '' );
+				update_option( 'superbudgie_chatbudgie_app_key', '' );
 				$this->render_login_page();
 			} else {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to fetch user info. Please try again later.', 'chatbudgie' ) . ' (' . esc_html( $e->getMessage() ) . ')</p></div>';
 				$user_info   = null;
 				$orders_data = null;
-				include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
+				include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-orders.php';
 			}
 		}
 	}
@@ -1863,7 +1863,7 @@ class ChatBudgie {
 		}
 
 		$state = sanitize_text_field( wp_unslash( $_GET['state'] ?? '' ) );
-		if ( empty( $state ) || ! wp_verify_nonce( $state, 'chatbudgie_login_callback' ) ) {
+		if ( empty( $state ) || ! wp_verify_nonce( $state, 'superbudgie_chatbudgie_login_callback' ) ) {
 			wp_die( esc_html__( 'Invalid login callback request.', 'chatbudgie' ), esc_html__( 'Login Error', 'chatbudgie' ), array( 'response' => 403 ) );
 		}
 
@@ -1880,7 +1880,7 @@ class ChatBudgie {
 				'headers'   => array( 'Content-Type' => 'application/x-www-form-urlencoded' ),
 				'body'      => array(
 					'code'    => $code,
-					'appName' => CHATBUDGIE_APP_NAME,
+					'appName' => SUPERBUDGIE_CHATBUDGIE_APP_NAME,
 					'siteUrl' => get_site_url(),
 				),
 				'timeout'   => 30,
@@ -1907,13 +1907,13 @@ class ChatBudgie {
 		}
 
 		if ( $app_key ) {
-			update_option( 'chatbudgie_app_key', $app_key );
+			update_option( 'superbudgie_chatbudgie_app_key', $app_key );
 
 			// Schedule initial index build.
 			$this->schedule_index_build();
 
 			// Redirect to settings page.
-			wp_safe_redirect( admin_url( 'admin.php?page=chatbudgie' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=superbudgie-chatbudgie' ) );
 			exit;
 		}
 
@@ -1926,7 +1926,7 @@ class ChatBudgie {
 	 * @return void
 	 */
 	private function render_login_page() {
-		include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-login.php';
+		include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-login.php';
 	}
 
 	/**
@@ -1937,37 +1937,37 @@ class ChatBudgie {
 	 */
 	public function register_settings() {
 		register_setting(
-			'chatbudgie_general_settings',
-			'chatbudgie_app_key',
+			'superbudgie_chatbudgie_general_settings',
+			'superbudgie_chatbudgie_app_key',
 			array(
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
 
 		register_setting(
-			'chatbudgie_appearance_settings',
-			'chatbudgie_welcome_message',
+			'superbudgie_chatbudgie_appearance_settings',
+			'superbudgie_chatbudgie_welcome_message',
 			array(
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
 		register_setting(
-			'chatbudgie_appearance_settings',
-			'chatbudgie_custom_icon',
+			'superbudgie_chatbudgie_appearance_settings',
+			'superbudgie_chatbudgie_custom_icon',
 			array(
 				'sanitize_callback' => 'esc_url_raw',
 			)
 		);
 		register_setting(
-			'chatbudgie_appearance_settings',
-			'chatbudgie_primary_color',
+			'superbudgie_chatbudgie_appearance_settings',
+			'superbudgie_chatbudgie_primary_color',
 			array(
 				'sanitize_callback' => array( $this, 'sanitize_hex_color' ),
 			)
 		);
 		register_setting(
-			'chatbudgie_appearance_settings',
-			'chatbudgie_secondary_color',
+			'superbudgie_chatbudgie_appearance_settings',
+			'superbudgie_chatbudgie_secondary_color',
 			array(
 				'sanitize_callback' => array( $this, 'sanitize_hex_color' ),
 			)
@@ -1999,7 +1999,7 @@ class ChatBudgie {
 		}
 
 		// Check if appKey is set.
-		$app_key = get_option( 'chatbudgie_app_key', '' );
+		$app_key = get_option( 'superbudgie_chatbudgie_app_key', '' );
 
 		if ( empty( $app_key ) ) {
 			$this->render_login_page();
@@ -2008,17 +2008,17 @@ class ChatBudgie {
 
 		try {
 			$user_info = $this->get_user_info();
-			include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
+			include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
 		} catch ( Exception $e ) {
 			if ( $e->getCode() === 401 ) {
 				// Key is invalid, clear it and show login page.
-				update_option( 'chatbudgie_app_key', '' );
+				update_option( 'superbudgie_chatbudgie_app_key', '' );
 				$this->render_login_page();
 			} else {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to fetch account info. Please try again later.', 'chatbudgie' ) . ' (' . esc_html( $e->getMessage() ) . ')</p></div>';
 				// Still try to show the page but without user info.
 				$user_info = null;
-				include CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
+				include SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-settings.php';
 			}
 		}
 	}
@@ -2030,7 +2030,7 @@ class ChatBudgie {
 	 * @return void
 	 */
 	public function handle_create_paypal_order() {
-		check_ajax_referer( 'chatbudgie_nonce', 'nonce' );
+		check_ajax_referer( 'superbudgie_chatbudgie_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
@@ -2052,7 +2052,7 @@ class ChatBudgie {
 					'amount'    => $amount . 'M',
 					'currency'  => $currency,
 					'showPrice' => $show_price,
-					'appName'   => CHATBUDGIE_APP_NAME,
+					'appName'   => SUPERBUDGIE_CHATBUDGIE_APP_NAME,
 					'siteUrl'   => get_site_url(),
 				)
 			);
@@ -2061,7 +2061,7 @@ class ChatBudgie {
 				array(
 					'headers'   => array(
 						'Content-Type' => 'application/json',
-						'appKey'       => get_option( 'chatbudgie_app_key', '' ),
+						'appKey'       => get_option( 'superbudgie_chatbudgie_app_key', '' ),
 					),
 					'body'      => wp_json_encode(
 						array(
@@ -2101,7 +2101,7 @@ class ChatBudgie {
 	 * @return void
 	 */
 	public function handle_capture_paypal_order() {
-		check_ajax_referer( 'chatbudgie_nonce', 'nonce' );
+		check_ajax_referer( 'superbudgie_chatbudgie_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
@@ -2117,7 +2117,7 @@ class ChatBudgie {
 			$extra    = wp_json_encode(
 				array(
 					'orderId' => $order_id,
-					'appName' => CHATBUDGIE_APP_NAME,
+					'appName' => SUPERBUDGIE_CHATBUDGIE_APP_NAME,
 					'siteUrl' => get_site_url(),
 				)
 			);
@@ -2126,7 +2126,7 @@ class ChatBudgie {
 				array(
 					'headers'   => array(
 						'Content-Type' => 'application/json',
-						'appKey'       => get_option( 'chatbudgie_app_key', '' ),
+						'appKey'       => get_option( 'superbudgie_chatbudgie_app_key', '' ),
 					),
 					'body'      => wp_json_encode(
 						array(
@@ -2160,5 +2160,5 @@ class ChatBudgie {
 }
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	ChatBudgie::get_instance();
+	SuperBudgie_ChatBudgie::get_instance();
 }

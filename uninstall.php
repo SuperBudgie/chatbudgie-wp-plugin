@@ -19,10 +19,10 @@ require_once __DIR__ . '/chatbudgie.php';
 global $wpdb;
 
 // 1. Clear scheduled tasks from Action Scheduler and WP-Cron.
-wp_clear_scheduled_hook( 'chatbudgie_daily_task' );
+wp_clear_scheduled_hook( 'superbudgie_chatbudgie_daily_task' );
 
 if ( function_exists( 'as_unschedule_all_actions' ) ) {
-	as_unschedule_all_actions( null, array(), 'chatbudgie' );
+	as_unschedule_all_actions( null, array(), 'superbudgie-chatbudgie' );
 } else {
 	$actions_table = esc_sql( $wpdb->prefix . 'actionscheduler_actions' );
 	$groups_table  = esc_sql( $wpdb->prefix . 'actionscheduler_groups' );
@@ -31,7 +31,7 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
 		$wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is generated from $wpdb->prefix and escaped above.
 			"SELECT group_id FROM {$groups_table} WHERE slug = %s",
-			'chatbudgie'
+			'superbudgie-chatbudgie'
 		)
 	);
 
@@ -52,8 +52,8 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
 
 // 2. Drop custom database tables.
 $tables = array(
-	$wpdb->prefix . 'chatbudgie_index_meta',
-	$wpdb->prefix . 'chatbudgie_chunk_data',
+	$wpdb->prefix . 'superbudgie_chatbudgie_index_meta',
+	$wpdb->prefix . 'superbudgie_chatbudgie_chunk_data',
 );
 
 foreach ( $tables as $table ) {
@@ -64,11 +64,11 @@ foreach ( $tables as $table ) {
 
 // 3. Delete plugin options.
 $options = array(
-	'chatbudgie_app_key',
-	'chatbudgie_welcome_message',
-	'chatbudgie_custom_icon',
-	'chatbudgie_primary_color',
-	'chatbudgie_secondary_color',
+	'superbudgie_chatbudgie_app_key',
+	'superbudgie_chatbudgie_welcome_message',
+	'superbudgie_chatbudgie_custom_icon',
+	'superbudgie_chatbudgie_primary_color',
+	'superbudgie_chatbudgie_secondary_color',
 );
 
 foreach ( $options as $option ) {
@@ -76,4 +76,4 @@ foreach ( $options as $option ) {
 }
 
 // 4. Delete vector index files from the shared data directory.
-ChatBudgie::delete_index_data();
+SuperBudgie_ChatBudgie::delete_index_data();

@@ -1,8 +1,8 @@
 <?php
 
-namespace Vektor\Storage\Binary;
+namespace SuperBudgie\ChatBudgie\Vektor\Storage\Binary;
 
-use Vektor\Core\Config;
+use SuperBudgie\ChatBudgie\Vektor\Core\Config;
 use RuntimeException;
 
 class GraphFile

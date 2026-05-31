@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="page page--settings">
-	<?php require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
+	<?php require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
 
 	<main class="settings" role="main">
 		<section class="settings__hero" aria-labelledby="orders-title">
@@ -180,7 +180,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php endif; ?>
 		</section>
 
-		<?php require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>
+		<?php require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>
 	</main>
 </div>
 

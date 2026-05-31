@@ -1,6 +1,6 @@
 <?php
 
-namespace Vektor\Core;
+namespace SuperBudgie\ChatBudgie\Vektor\Core;
 
 use InvalidArgumentException;
 

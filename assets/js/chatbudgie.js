@@ -10,7 +10,7 @@
     var lastFailedMessage = '';
     var botAvatarHtml = '';
     var errorBannerTemplate = '';
-    var STORAGE_KEY = 'chatbudgie_history';
+    var STORAGE_KEY = 'superbudgie_chatbudgie_history';
     var currentRequestController = null;
     var $widget;
     var $toggle;
@@ -52,14 +52,14 @@
     function initializeWidget() {
         $widget.removeClass('is-open');
 
-        $input.attr('placeholder', chatbudgie_params.strings.placeholder);
+        $input.attr('placeholder', superbudgie_chatbudgie_params.strings.placeholder);
         clearMessages();
         hideErrorBanner();
 
         loadHistory();
 
         if (conversationHistory.length === 0) {
-            addBotMessage(chatbudgie_params.strings.welcome);
+            addBotMessage(superbudgie_chatbudgie_params.strings.welcome);
         } else {
             renderHistory();
         }
@@ -232,21 +232,21 @@
 
         try {
             // 1. Get search results first via native fetch
-            const searchResponse = await fetch(chatbudgie_params.ajax_url, {
+            const searchResponse = await fetch(superbudgie_chatbudgie_params.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'chatbudgie_search_index',
-                    nonce: chatbudgie_params.nonce,
+                    action: 'superbudgie_chatbudgie_search_index',
+                    nonce: superbudgie_chatbudgie_params.nonce,
                     conversation_history: JSON.stringify(conversationHistory)
                 }),
                 signal: currentRequestController.signal
             });
 
             if (!searchResponse.ok) {
-                let errorMessage = chatbudgie_params.strings.error;
+                let errorMessage = superbudgie_chatbudgie_params.strings.error;
                 try {
                     const errorJson = await searchResponse.json();
                     // Check for message in data.message or directly in message
@@ -261,7 +261,7 @@
             const searchResult = await searchResponse.json();
 
             if (!searchResult.success) {
-                throw new Error(searchResult.data.message || chatbudgie_params.strings.error);
+                throw new Error(searchResult.data.message || superbudgie_chatbudgie_params.strings.error);
             }
 
             const searchData = searchResult.data;
@@ -275,10 +275,10 @@
             }
 
             if (chatHistory.length === 0 || chatHistory[0].role !== 'system') {
-                chatHistory.unshift({ role: 'system', content: chatbudgie_params.strings.welcome });
+                chatHistory.unshift({ role: 'system', content: superbudgie_chatbudgie_params.strings.welcome });
             }
 
-            const response = await fetch(chatbudgie_params.chat_api_url, {
+            const response = await fetch(superbudgie_chatbudgie_params.chat_api_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -294,7 +294,7 @@
             });
 
             if (!response.ok) {
-                let errorMessage = chatbudgie_params.strings.error;
+                let errorMessage = superbudgie_chatbudgie_params.strings.error;
                 try {
                     const errorJson = await response.json();
                     errorMessage = errorJson.data?.message || errorJson.message || errorMessage;
@@ -338,7 +338,7 @@
                 return;
             }
 
-            handleRequestFailure($loadingMessage, error.message || chatbudgie_params.strings.error);
+            handleRequestFailure($loadingMessage, error.message || superbudgie_chatbudgie_params.strings.error);
         } finally {
             currentRequestController = null;
         }
@@ -402,7 +402,7 @@
             return;
         }
 
-        var message = streamError || chatbudgie_params.strings.error;
+        var message = streamError || superbudgie_chatbudgie_params.strings.error;
         handleRequestFailure($loadingMessage, message);
     }
 

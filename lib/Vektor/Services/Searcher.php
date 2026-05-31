@@ -1,11 +1,11 @@
 <?php
 
-namespace Vektor\Services;
+namespace SuperBudgie\ChatBudgie\Vektor\Services;
 
-use Vektor\Core\Config;
-use Vektor\Core\HnswLogic;
-use Vektor\Storage\Binary\GraphFile;
-use Vektor\Storage\Binary\VectorFile;
+use SuperBudgie\ChatBudgie\Vektor\Core\Config;
+use SuperBudgie\ChatBudgie\Vektor\Core\HnswLogic;
+use SuperBudgie\ChatBudgie\Vektor\Storage\Binary\GraphFile;
+use SuperBudgie\ChatBudgie\Vektor\Storage\Binary\VectorFile;
 
 class Searcher
 {

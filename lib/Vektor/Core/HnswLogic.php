@@ -1,9 +1,9 @@
 <?php
 
-namespace Vektor\Core;
+namespace SuperBudgie\ChatBudgie\Vektor\Core;
 
-use Vektor\Storage\Binary\GraphFile;
-use Vektor\Storage\Binary\VectorFile;
+use SuperBudgie\ChatBudgie\Vektor\Storage\Binary\GraphFile;
+use SuperBudgie\ChatBudgie\Vektor\Storage\Binary\VectorFile;
 use SplPriorityQueue;
 
 class HnswLogic
