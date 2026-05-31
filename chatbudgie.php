@@ -25,12 +25,16 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
 
-// Register ChatBudgie's bundled Action Scheduler copy during plugin bootstrap.
-// Action Scheduler's loader is version-aware: if another plugin has already.
-// loaded it, this file only registers this version and lets the newest.
-// available copy initialize on plugins_loaded.
+// Register ChatBudgie's bundled Action Scheduler only when another copy is not
+// already active. Action Scheduler also has its own version-aware loader, but
+// this guard avoids loading a second library copy into WordPress' shared space.
 $superbudgie_chatbudgie_as_path = __DIR__ . '/lib/action-scheduler/action-scheduler.php';
-if ( file_exists( $superbudgie_chatbudgie_as_path ) ) {
+if (
+	! class_exists( 'ActionScheduler', false )
+	&& ! class_exists( 'ActionScheduler_Versions', false )
+	&& ! function_exists( 'as_enqueue_async_action' )
+	&& file_exists( $superbudgie_chatbudgie_as_path )
+) {
 	require_once $superbudgie_chatbudgie_as_path;
 }
 
@@ -216,6 +220,18 @@ class SuperBudgie_ChatBudgie {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Check whether a compatible Action Scheduler API is available.
+	 *
+	 * @return bool
+	 */
+	private static function is_action_scheduler_available() {
+		return function_exists( 'as_enqueue_async_action' )
+			&& function_exists( 'as_schedule_recurring_action' )
+			&& function_exists( 'as_unschedule_all_actions' )
+			&& function_exists( 'as_get_scheduled_actions' );
 	}
 
 	/**
@@ -415,6 +431,12 @@ class SuperBudgie_ChatBudgie {
 	public function schedule_index_build() {
 		global $wpdb;
 
+		if ( ! self::is_action_scheduler_available() ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'ChatBudgie: Cannot schedule index build - Action Scheduler is unavailable.' );
+			return null;
+		}
+
 		$app_key = get_option( 'superbudgie_chatbudgie_app_key', '' );
 		if ( empty( $app_key ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -458,6 +480,17 @@ class SuperBudgie_ChatBudgie {
 	 */
 	public function get_index_status() {
 		$error = '';
+
+		if ( ! self::is_action_scheduler_available() || ! class_exists( 'ActionScheduler_Store', false ) ) {
+			return array(
+				'status'                => 'failed',
+				'scheduled_posts_count' => 0,
+				'completed_posts_count' => 0,
+				'progress'              => 0,
+				'error'                 => __( 'Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy.', 'chatbudgie' ),
+			);
+		}
+
 		$store = \ActionScheduler_Store::instance();
 
 		// Get total count of all post indexing tasks (no status filter).
@@ -544,6 +577,12 @@ class SuperBudgie_ChatBudgie {
 	 * @return int|null The action ID or null if skipped
 	 */
 	public function schedule_post_index( $post_id ) {
+		if ( ! self::is_action_scheduler_available() ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'ChatBudgie: Cannot schedule post index - Action Scheduler is unavailable.' );
+			return null;
+		}
+
 		// Check if post needs indexing.
 		$post = get_post( $post_id );
 		if ( ! $post ) {
