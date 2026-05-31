@@ -12,6 +12,8 @@ jobs:
   tag:
     name: New Tag
     runs-on: ubuntu-latest
+    env:
+      COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ github.token }}"}}'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -54,4 +56,4 @@ jobs:
           files: ${{ steps.build.outputs.zip-path || steps.deploy.outputs.zip-path }}
           prerelease: ${{ contains(github.ref, '-') }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
