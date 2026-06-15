@@ -3,6 +3,7 @@
 .DS_Store
 
 # Build files
+.wordpress-org
 .github
 .vscode
 tests
