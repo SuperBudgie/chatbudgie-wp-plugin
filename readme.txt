@@ -1,20 +1,20 @@
-=== ChatBudgie ===
+=== ChatBudgie - AI Chatbot based on ChatGPT, RAG and Knowledge Base ===
 Contributors: superbudgie
-Tags: chat, ai, chatbot, chat bot, chatgpt, claude, customer service, artificial-intelligence
+Tags: ai chatbot, chat bot assistant, chatgpt, claude, customer support
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-ChatBudgie is a powerful, AI-driven chat plugin for WordPress that can automatically transform your website into an intelligent knowledge base.
+AI chatbot for WordPress that answers visitor questions from your site content using RAG, ChatGPT, Claude, and local vector search.
 
 == Description ==
 
-ChatBudgie is an AI-powered chat plugin that transforms your WordPress website into an intelligent knowledge base. It provides a RAG (Retrieval-Augmented Generation) based agent that can answer your visitors' questions using your site's actual content.
+ChatBudgie is an AI chatbot plugin for WordPress that turns your website content into an intelligent knowledge base. It helps visitors get fast, accurate answers from your posts and pages using RAG (Retrieval-Augmented Generation), local vector search, and managed AI models such as OpenAI ChatGPT, Claude, and Qwen.
 
-Designed as a true out-of-the-box solution, ChatBudgie is incredibly easy to use. Once activated, it automatically handles the indexing of your posts and pages and building a local search index without any complex configuration. ChatBudgie understands your content and provides context-aware responses, ensuring your visitors get the help they need.
+Use ChatBudgie as a WordPress AI assistant, site search companion, product FAQ bot, documentation helper, or customer support chatbot. Once activated, it automatically indexes your public posts and pages, builds a local search index, and provides context-aware answers without complex setup.
 
 = Smart Chat =
 * **Knowledge Base Answers**: Delivers accurate, easy-to-understand responses based on your website's actual content.
@@ -51,6 +51,12 @@ ChatBudgie bridges the gap between your website content and AI through a sophist
 
 = How does ChatBudgie index my site? =
 ChatBudgie uses Action Scheduler to process your posts and pages in the background. It breaks the text into chunks and generates vector embeddings for each chunk.
+
+= Can ChatBudgie answer questions from my WordPress content? =
+Yes. ChatBudgie is designed to answer visitor questions using your public WordPress posts and pages. It retrieves relevant content from your local index before generating a response.
+
+= Can I use ChatBudgie as a customer support chatbot? =
+Yes. ChatBudgie can help visitors find answers from your website content, product information, documentation, FAQs, and support articles.
 
 = Is my data safe? =
 The vector index of the knowledge base is stored locally in this site's WordPress uploads directory.
@@ -105,11 +111,14 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Screenshots ==
 
-1. The chat widget appearing on the frontend.
-2. The admin dashboard showing index status and usage.
-3. Appearance settings for customizing colors and icons.
+1. ChatBudgie AI chatbot widget appearing on the WordPress frontend.
+2. ChatBudgie admin dashboard showing knowledge base index status and token usage.
+3. Appearance settings for customizing the chatbot widget colors and icons.
 
 == Changelog ==
+
+= 1.1.1 =
+* Add multi language support, such as 智能聊天AI, Künstliche Intelligenz Chat, Robot de chat IA, Asistente virtual IA, 人工知能チャット
 
 = 1.1.0 =
 * Improved search result accuracy by grouping results by post.
@@ -126,6 +135,9 @@ ChatBudgie is built upon several high-quality open-source libraries:
 * Implemented background indexing via Action Scheduler.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Readme and metadata improvements for better plugin discoverability.
 
 = 1.1.0 =
 Improved search result accuracy, enhanced chat flow, and security updates. Recommended for all users.
