@@ -1,0 +1,405 @@
+# Copyright (C) 2026 SuperBudgie Team
+# This file is distributed under the GPL v3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ChatBudgie 1.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-plugin\n"
+"POT-Creation-Date: 2026-06-20T06:37:50+00:00\n"
+"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"Last-Translator: SuperBudgie Team <support@superbudgie.com>\n"
+"Language-Team: Korean\n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: ChatBudgie bundled translations\n"
+"X-Domain: chatbudgie\n"
+
+msgid "ChatBudgie"
+msgstr "ChatBudgie"
+
+msgid "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+msgstr "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+
+msgid "Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers"
+msgstr "WordPress 페이지에 채팅 대화상자를 표시하여 사용자가 RAG 기반 에이전트와 대화하고 웹사이트 관련 답변을 얻을 수 있게 합니다"
+
+msgid "SuperBudgie Team"
+msgstr "SuperBudgie Team"
+
+msgid "https://chat.superbudgie.com"
+msgstr "https://chat.superbudgie.com"
+
+msgid "Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy."
+msgstr "Action Scheduler를 사용할 수 없습니다. 다른 플러그인이 호환되지 않는 사본을 로드하고 있지 않은지 확인하세요."
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account."
+msgstr "안녕하세요, 저는 웹사이트 도우미 ChatBudgie입니다. 채팅 기능을 사용하려면 플러그인 설정 페이지에서 ChatBudgie 계정을 연결하세요."
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
+msgstr "안녕하세요, 저는 웹사이트 도우미 ChatBudgie입니다. 오늘 무엇을 도와드릴까요?"
+
+msgid "Please enter your question..."
+msgstr "질문을 입력하세요..."
+
+msgid "Failed to send, please try again"
+msgstr "전송에 실패했습니다. 다시 시도하세요"
+
+msgid "Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens."
+msgstr "인덱스를 다시 빌드하시겠습니까? 이 작업은 기존 인덱스를 삭제하고 다시 빌드하며, 시간이 걸리고 토큰을 소비할 수 있습니다."
+
+msgid "Choose Icon"
+msgstr "아이콘 선택"
+
+msgid "Select Icon"
+msgstr "아이콘 선택"
+
+msgid "Failed to create order"
+msgstr "주문을 생성하지 못했습니다"
+
+msgid "Failed to capture payment"
+msgstr "결제를 캡처하지 못했습니다"
+
+msgid "An error occurred during the transaction:"
+msgstr "거래 중 오류가 발생했습니다:"
+
+msgid "Your session has expired. Please refresh the page and try again."
+msgstr "세션이 만료되었습니다. 페이지를 새로고침한 후 다시 시도하세요."
+
+msgid "ChatBudgie:"
+msgstr "ChatBudgie:"
+
+msgid "Index build is scheduled and will start shortly."
+msgstr "인덱스 빌드가 예약되었으며 곧 시작됩니다."
+
+msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
+msgstr "인덱싱 진행률: 게시물 %2$d개 중 %1$d개 완료(%3$d%%)"
+
+msgid "Index build completed successfully."
+msgstr "인덱스 빌드가 성공적으로 완료되었습니다."
+
+msgid "Index build failed:"
+msgstr "인덱스 빌드 실패:"
+
+msgid "Try again"
+msgstr "다시 시도"
+
+msgid "Settings"
+msgstr "설정"
+
+msgid "Usage"
+msgstr "사용량"
+
+msgid "Orders"
+msgstr "주문"
+
+msgid "You do not have permission to access this page."
+msgstr "이 페이지에 접근할 권한이 없습니다."
+
+msgid "Unauthorized"
+msgstr "권한 없음"
+
+msgid "Failed to fetch usage info. Please try again later."
+msgstr "사용량 정보를 가져오지 못했습니다. 나중에 다시 시도하세요."
+
+msgid "Failed to fetch user info. Please try again later."
+msgstr "사용자 정보를 가져오지 못했습니다. 나중에 다시 시도하세요."
+
+msgid "You do not have permission to complete this action."
+msgstr "이 작업을 완료할 권한이 없습니다."
+
+msgid "Invalid login callback request."
+msgstr "잘못된 로그인 콜백 요청입니다."
+
+msgid "Login Error"
+msgstr "로그인 오류"
+
+msgid "Authorization code is missing"
+msgstr "인증 코드가 없습니다"
+
+msgid "API Error"
+msgstr "API 오류"
+
+msgid "Failed to retrieve appKey from login server"
+msgstr "로그인 서버에서 appKey를 가져오지 못했습니다"
+
+msgid "Failed to fetch account info. Please try again later."
+msgstr "계정 정보를 가져오지 못했습니다. 나중에 다시 시도하세요."
+
+msgid "ChatBudgie Workspace"
+msgstr "ChatBudgie 워크스페이스"
+
+msgid "Connected via your WordPress admin account"
+msgstr "WordPress 관리자 계정으로 연결됨"
+
+msgid "Account Summary"
+msgstr "계정 요약"
+
+msgid "Remaining Tokens"
+msgstr "남은 토큰"
+
+msgid "Low balance: please recharge."
+msgstr "잔액이 부족합니다. 충전하세요."
+
+msgid "ChatBudgie uses tokens to power its features."
+msgstr "ChatBudgie는 기능을 제공하기 위해 토큰을 사용합니다."
+
+msgid "Buy Tokens"
+msgstr "토큰 구매"
+
+msgid "Track purchases, account balance, and token top-ups in one place."
+msgstr "구매, 계정 잔액, 토큰 충전을 한곳에서 추적하세요."
+
+msgid "Remaining Tokens:"
+msgstr "남은 토큰:"
+
+msgid "Recharge Tokens"
+msgstr "토큰 충전"
+
+msgid "Select a token package to recharge your account balance."
+msgstr "계정 잔액을 충전할 토큰 패키지를 선택하세요."
+
+msgid "Basic Recharge"
+msgstr "기본 충전"
+
+msgid "Pro Pack - Best Value"
+msgstr "Pro 팩 - 최고의 가치"
+
+msgid "Enterprise Scale"
+msgstr "엔터프라이즈 규모"
+
+msgid "Order History"
+msgstr "주문 내역"
+
+msgid "Track your past recharges and billing status."
+msgstr "지난 충전 및 청구 상태를 추적하세요."
+
+msgid "Refresh"
+msgstr "새로고침"
+
+msgid "Time"
+msgstr "시간"
+
+msgid "Order ID"
+msgstr "주문 ID"
+
+msgid "Tokens"
+msgstr "토큰"
+
+msgid "Price"
+msgstr "가격"
+
+msgid "Channel"
+msgstr "채널"
+
+msgid "Status"
+msgstr "상태"
+
+msgid "No order history found."
+msgstr "주문 내역을 찾을 수 없습니다."
+
+msgid "Previous Page"
+msgstr "이전 페이지"
+
+msgid "&laquo; Previous"
+msgstr "&laquo; 이전"
+
+msgid "Page %1$d of %2$d"
+msgstr "%2$d페이지 중 %1$d페이지"
+
+msgid "Next Page"
+msgstr "다음 페이지"
+
+msgid "Next &raquo;"
+msgstr "다음 &raquo;"
+
+msgid "Close"
+msgstr "닫기"
+
+msgid "Payment Success!"
+msgstr "결제 성공!"
+
+msgid "Your transaction has been successfully completed. The tokens will be recharged to your account shortly."
+msgstr "거래가 성공적으로 완료되었습니다. 토큰은 곧 계정에 충전됩니다."
+
+msgid "Continue"
+msgstr "계속"
+
+msgid "I'm ChatBudgie, your AI assistant. How can I help you today?"
+msgstr "저는 AI 도우미 ChatBudgie입니다. 오늘 무엇을 도와드릴까요?"
+
+msgid "Preparing index"
+msgstr "인덱스 준비 중"
+
+msgid "Indexing content"
+msgstr "콘텐츠 인덱싱 중"
+
+msgid "Index is ready"
+msgstr "인덱스 준비 완료"
+
+msgid "Index needs attention"
+msgstr "인덱스에 주의 필요"
+
+msgid "Status unavailable"
+msgstr "상태를 사용할 수 없음"
+
+msgid "Check logs"
+msgstr "로그 확인"
+
+msgid "Ready now"
+msgstr "지금 준비됨"
+
+msgid "%1$dm %2$02ds"
+msgstr "%1$d분 %2$02$d초"
+
+msgid "%1$ds"
+msgstr "%1$d초"
+
+msgid "Starting"
+msgstr "시작 중"
+
+msgid "Ocean Blue"
+msgstr "오션 블루"
+
+msgid "Violet"
+msgstr "바이올렛"
+
+msgid "Teal"
+msgstr "틸"
+
+msgid "Amber"
+msgstr "앰버"
+
+msgid "Rose"
+msgstr "로즈"
+
+msgid "Manage your chatbot settings and account."
+msgstr "챗봇 설정과 계정을 관리하세요."
+
+msgid "knowledge Base Indexing Status"
+msgstr "지식 베이스 인덱싱 상태"
+
+msgid "Rebuild Index"
+msgstr "인덱스 다시 빌드"
+
+msgid "Total Files"
+msgstr "전체 파일"
+
+msgid "Indexed Files"
+msgstr "인덱싱된 파일"
+
+msgid "Estimated Time"
+msgstr "예상 시간"
+
+msgid "Indexing runs in the background. It builds the knowledge base index on the public content of your website. After the indexing is complete, ChatBudgie will be able to answer questions based on your content."
+msgstr "인덱싱은 백그라운드에서 실행됩니다. 웹사이트의 공개 콘텐츠를 기반으로 지식 베이스 인덱스를 만듭니다. 인덱싱이 완료되면 ChatBudgie가 콘텐츠를 바탕으로 질문에 답할 수 있습니다."
+
+msgid "Appearance"
+msgstr "모양"
+
+msgid "Chatbot Icon"
+msgstr "챗봇 아이콘"
+
+msgid "Choose the avatar that represents your chatbot."
+msgstr "챗봇을 나타내는 아바타를 선택하세요."
+
+msgid "Avatar options"
+msgstr "아바타 옵션"
+
+msgid "Change Icon"
+msgstr "아이콘 변경"
+
+msgid "Primary Color"
+msgstr "기본 색상"
+
+msgid "Set the main color for your chatbot UI."
+msgstr "챗봇 UI의 기본 색상을 설정하세요."
+
+msgid "Primary color options"
+msgstr "기본 색상 옵션"
+
+msgid "Welcome Message"
+msgstr "환영 메시지"
+
+msgid "Set the default greeting message for your visitors."
+msgstr "방문자를 위한 기본 인사말 메시지를 설정하세요."
+
+msgid "Save Settings"
+msgstr "설정 저장"
+
+msgid "Need help or have a question?"
+msgstr "도움이 필요하거나 질문이 있으신가요?"
+
+msgid "SuperBudgie team is here to assist you."
+msgstr "SuperBudgie 팀이 도와드리겠습니다."
+
+msgid "Token Usage"
+msgstr "토큰 사용량"
+
+msgid "Monitor your token consumption and request activity."
+msgstr "토큰 소비와 요청 활동을 모니터링하세요."
+
+msgid "Request Logs"
+msgstr "요청 로그"
+
+msgid "View a detailed history of your chatbot requests and token usage."
+msgstr "챗봇 요청과 토큰 사용량의 자세한 기록을 확인하세요."
+
+msgid "App Name"
+msgstr "앱 이름"
+
+msgid "Site"
+msgstr "사이트"
+
+msgid "Request Type"
+msgstr "요청 유형"
+
+msgid "Token Cost"
+msgstr "토큰 비용"
+
+msgid "Time Cost"
+msgstr "소요 시간"
+
+msgid "No request logs found."
+msgstr "요청 로그를 찾을 수 없습니다."
+
+msgid "ChatBudgie chat window"
+msgstr "ChatBudgie 채팅 창"
+
+msgid "ChatBudgie avatar"
+msgstr "ChatBudgie 아바타"
+
+msgid "Close chat"
+msgstr "채팅 닫기"
+
+msgid "What services do you offer?"
+msgstr "어떤 서비스를 제공하나요?"
+
+msgid "We offer AI chatbot solutions that help you automate support and engage your visitors."
+msgstr "지원 자동화와 방문자 참여를 돕는 AI 챗봇 솔루션을 제공합니다."
+
+msgid "Is my data safe?"
+msgstr "내 데이터는 안전한가요?"
+
+msgid "Oops! Something went wrong."
+msgstr "이런! 문제가 발생했습니다."
+
+msgid "I'm having a little trouble thinking right now. Please try again in a moment."
+msgstr "지금은 생각하는 데 약간 문제가 있습니다. 잠시 후 다시 시도하세요."
+
+msgid "Try Again"
+msgstr "다시 시도"
+
+msgid "Ask anything..."
+msgstr "무엇이든 물어보세요..."
+
+msgid "Type your message"
+msgstr "메시지 입력"
+
+msgid "Send message"
+msgstr "메시지 보내기"
+
+msgid "Stop response"
+msgstr "응답 중지"
+

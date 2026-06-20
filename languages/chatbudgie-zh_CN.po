@@ -1,0 +1,405 @@
+# Copyright (C) 2026 SuperBudgie Team
+# This file is distributed under the GPL v3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ChatBudgie 1.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-plugin\n"
+"POT-Creation-Date: 2026-06-20T06:37:50+00:00\n"
+"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"Last-Translator: SuperBudgie Team <support@superbudgie.com>\n"
+"Language-Team: Chinese (China)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: ChatBudgie bundled translations\n"
+"X-Domain: chatbudgie\n"
+
+msgid "ChatBudgie"
+msgstr "ChatBudgie"
+
+msgid "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+msgstr "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+
+msgid "SuperBudgie Team"
+msgstr "SuperBudgie Team"
+
+msgid "https://chat.superbudgie.com"
+msgstr "https://chat.superbudgie.com"
+
+msgid "Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers"
+msgstr "在 WordPress 页面上显示聊天对话框，让用户可以与基于 RAG 的智能助手对话，获取与网站相关的答案"
+
+msgid "Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy."
+msgstr "Action Scheduler 不可用。请确保没有其他插件正在加载不兼容的副本。"
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account."
+msgstr "你好，我是 ChatBudgie，这个网站的助手。要使用聊天功能，请前往插件设置页面连接你的 ChatBudgie 账号。"
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
+msgstr "你好，我是 ChatBudgie，这个网站的助手。今天有什么可以帮你？"
+
+msgid "Please enter your question..."
+msgstr "请输入你的问题..."
+
+msgid "Failed to send, please try again"
+msgstr "发送失败，请重试"
+
+msgid "Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens."
+msgstr "确定要重建索引吗？此操作会删除现有索引并重新构建，可能需要一些时间并消耗你的 token。"
+
+msgid "Choose Icon"
+msgstr "选择图标"
+
+msgid "Select Icon"
+msgstr "选择图标"
+
+msgid "Failed to create order"
+msgstr "创建订单失败"
+
+msgid "Failed to capture payment"
+msgstr "扣款失败"
+
+msgid "An error occurred during the transaction:"
+msgstr "交易过程中发生错误："
+
+msgid "Your session has expired. Please refresh the page and try again."
+msgstr "你的会话已过期。请刷新页面后重试。"
+
+msgid "ChatBudgie:"
+msgstr "ChatBudgie："
+
+msgid "Index build is scheduled and will start shortly."
+msgstr "索引构建已安排，将很快开始。"
+
+msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
+msgstr "索引进度：已完成 %1$d / %2$d 篇文章（%3$d%%）"
+
+msgid "Index build completed successfully."
+msgstr "索引构建已成功完成。"
+
+msgid "Index build failed:"
+msgstr "索引构建失败："
+
+msgid "Try again"
+msgstr "重试"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Usage"
+msgstr "用量"
+
+msgid "Orders"
+msgstr "订单"
+
+msgid "You do not have permission to access this page."
+msgstr "你没有权限访问此页面。"
+
+msgid "Unauthorized"
+msgstr "未授权"
+
+msgid "Failed to fetch usage info. Please try again later."
+msgstr "获取用量信息失败。请稍后重试。"
+
+msgid "Failed to fetch user info. Please try again later."
+msgstr "获取用户信息失败。请稍后重试。"
+
+msgid "You do not have permission to complete this action."
+msgstr "你没有权限完成此操作。"
+
+msgid "Invalid login callback request."
+msgstr "无效的登录回调请求。"
+
+msgid "Login Error"
+msgstr "登录错误"
+
+msgid "Authorization code is missing"
+msgstr "缺少授权码"
+
+msgid "API Error"
+msgstr "API 错误"
+
+msgid "Failed to retrieve appKey from login server"
+msgstr "无法从登录服务器获取 appKey"
+
+msgid "Failed to fetch account info. Please try again later."
+msgstr "获取账号信息失败。请稍后重试。"
+
+msgid "ChatBudgie Workspace"
+msgstr "ChatBudgie 工作区"
+
+msgid "Connected via your WordPress admin account"
+msgstr "已通过你的 WordPress 管理员账号连接"
+
+msgid "Account Summary"
+msgstr "账号摘要"
+
+msgid "Remaining Tokens"
+msgstr "剩余 Token"
+
+msgid "Low balance: please recharge."
+msgstr "余额不足：请充值。"
+
+msgid "ChatBudgie uses tokens to power its features."
+msgstr "ChatBudgie 使用 token 来驱动其功能。"
+
+msgid "Buy Tokens"
+msgstr "购买 Token"
+
+msgid "Track purchases, account balance, and token top-ups in one place."
+msgstr "在一个位置跟踪购买记录、账号余额和 token 充值。"
+
+msgid "Remaining Tokens:"
+msgstr "剩余 Token："
+
+msgid "Recharge Tokens"
+msgstr "充值 Token"
+
+msgid "Select a token package to recharge your account balance."
+msgstr "选择一个 token 套餐为账号余额充值。"
+
+msgid "Basic Recharge"
+msgstr "基础充值"
+
+msgid "Pro Pack - Best Value"
+msgstr "专业套餐 - 最划算"
+
+msgid "Enterprise Scale"
+msgstr "企业规模"
+
+msgid "Order History"
+msgstr "订单历史"
+
+msgid "Track your past recharges and billing status."
+msgstr "跟踪过去的充值记录和账单状态。"
+
+msgid "Refresh"
+msgstr "刷新"
+
+msgid "Time"
+msgstr "时间"
+
+msgid "Order ID"
+msgstr "订单 ID"
+
+msgid "Tokens"
+msgstr "Token"
+
+msgid "Price"
+msgstr "价格"
+
+msgid "Channel"
+msgstr "渠道"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "No order history found."
+msgstr "未找到订单历史。"
+
+msgid "Previous Page"
+msgstr "上一页"
+
+msgid "&laquo; Previous"
+msgstr "&laquo; 上一页"
+
+msgid "Page %1$d of %2$d"
+msgstr "第 %1$d 页，共 %2$d 页"
+
+msgid "Next Page"
+msgstr "下一页"
+
+msgid "Next &raquo;"
+msgstr "下一页 &raquo;"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Payment Success!"
+msgstr "支付成功！"
+
+msgid "Your transaction has been successfully completed. The tokens will be recharged to your account shortly."
+msgstr "你的交易已成功完成。Token 将很快充值到你的账号。"
+
+msgid "Continue"
+msgstr "继续"
+
+msgid "I'm ChatBudgie, your AI assistant. How can I help you today?"
+msgstr "我是 ChatBudgie，你的 AI 助手。今天有什么可以帮你？"
+
+msgid "Preparing index"
+msgstr "正在准备索引"
+
+msgid "Indexing content"
+msgstr "正在索引内容"
+
+msgid "Index is ready"
+msgstr "索引已就绪"
+
+msgid "Index needs attention"
+msgstr "索引需要处理"
+
+msgid "Status unavailable"
+msgstr "状态不可用"
+
+msgid "Check logs"
+msgstr "查看日志"
+
+msgid "Ready now"
+msgstr "已就绪"
+
+msgid "%1$dm %2$02ds"
+msgstr "%1$d 分 %2$02d 秒"
+
+msgid "%1$ds"
+msgstr "%1$d 秒"
+
+msgid "Starting"
+msgstr "正在开始"
+
+msgid "Ocean Blue"
+msgstr "海洋蓝"
+
+msgid "Violet"
+msgstr "紫罗兰"
+
+msgid "Teal"
+msgstr "青绿色"
+
+msgid "Amber"
+msgstr "琥珀色"
+
+msgid "Rose"
+msgstr "玫瑰色"
+
+msgid "Manage your chatbot settings and account."
+msgstr "管理你的聊天机器人设置和账号。"
+
+msgid "knowledge Base Indexing Status"
+msgstr "知识库索引状态"
+
+msgid "Rebuild Index"
+msgstr "重建索引"
+
+msgid "Total Files"
+msgstr "文件总数"
+
+msgid "Indexed Files"
+msgstr "已索引文件"
+
+msgid "Estimated Time"
+msgstr "预计时间"
+
+msgid "Indexing runs in the background. It builds the knowledge base index on the public content of your website. After the indexing is complete, ChatBudgie will be able to answer questions based on your content."
+msgstr "索引会在后台运行。它会基于你网站的公开内容构建知识库索引。索引完成后，ChatBudgie 将能够根据你的内容回答问题。"
+
+msgid "Appearance"
+msgstr "外观"
+
+msgid "Chatbot Icon"
+msgstr "聊天机器人图标"
+
+msgid "Choose the avatar that represents your chatbot."
+msgstr "选择代表你的聊天机器人的头像。"
+
+msgid "Avatar options"
+msgstr "头像选项"
+
+msgid "Change Icon"
+msgstr "更换图标"
+
+msgid "Primary Color"
+msgstr "主色"
+
+msgid "Set the main color for your chatbot UI."
+msgstr "设置聊天机器人界面的主色。"
+
+msgid "Primary color options"
+msgstr "主色选项"
+
+msgid "Welcome Message"
+msgstr "欢迎消息"
+
+msgid "Set the default greeting message for your visitors."
+msgstr "设置访客看到的默认问候语。"
+
+msgid "Save Settings"
+msgstr "保存设置"
+
+msgid "Need help or have a question?"
+msgstr "需要帮助或有问题？"
+
+msgid "SuperBudgie team is here to assist you."
+msgstr "SuperBudgie 团队随时为你提供帮助。"
+
+msgid "Token Usage"
+msgstr "Token 用量"
+
+msgid "Monitor your token consumption and request activity."
+msgstr "监控你的 token 消耗和请求活动。"
+
+msgid "Request Logs"
+msgstr "请求日志"
+
+msgid "View a detailed history of your chatbot requests and token usage."
+msgstr "查看聊天机器人请求和 token 用量的详细历史。"
+
+msgid "App Name"
+msgstr "应用名称"
+
+msgid "Site"
+msgstr "站点"
+
+msgid "Request Type"
+msgstr "请求类型"
+
+msgid "Token Cost"
+msgstr "Token 成本"
+
+msgid "Time Cost"
+msgstr "耗时"
+
+msgid "No request logs found."
+msgstr "未找到请求日志。"
+
+msgid "ChatBudgie chat window"
+msgstr "ChatBudgie 聊天窗口"
+
+msgid "ChatBudgie avatar"
+msgstr "ChatBudgie 头像"
+
+msgid "Close chat"
+msgstr "关闭聊天"
+
+msgid "What services do you offer?"
+msgstr "你们提供哪些服务？"
+
+msgid "We offer AI chatbot solutions that help you automate support and engage your visitors."
+msgstr "我们提供 AI 聊天机器人解决方案，帮助你自动化支持并与访客互动。"
+
+msgid "Is my data safe?"
+msgstr "我的数据安全吗？"
+
+msgid "Oops! Something went wrong."
+msgstr "糟糕！出了点问题。"
+
+msgid "I'm having a little trouble thinking right now. Please try again in a moment."
+msgstr "我现在思考时遇到了一点问题。请稍后再试。"
+
+msgid "Try Again"
+msgstr "重试"
+
+msgid "Ask anything..."
+msgstr "随便问..."
+
+msgid "Type your message"
+msgstr "输入你的消息"
+
+msgid "Send message"
+msgstr "发送消息"
+
+msgid "Stop response"
+msgstr "停止回复"
+

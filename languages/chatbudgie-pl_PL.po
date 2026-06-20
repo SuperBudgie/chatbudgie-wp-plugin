@@ -1,0 +1,405 @@
+# Copyright (C) 2026 SuperBudgie Team
+# This file is distributed under the GPL v3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ChatBudgie 1.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-plugin\n"
+"POT-Creation-Date: 2026-06-20T06:37:50+00:00\n"
+"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"Last-Translator: SuperBudgie Team <support@superbudgie.com>\n"
+"Language-Team: Polish\n"
+"Language: pl_PL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: ChatBudgie bundled translations\n"
+"X-Domain: chatbudgie\n"
+
+msgid "ChatBudgie"
+msgstr "ChatBudgie"
+
+msgid "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+msgstr "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+
+msgid "Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers"
+msgstr "Wyświetla okno czatu na stronach WordPress, umożliwiając użytkownikom rozmowę z agentem opartym na RAG i uzyskiwanie odpowiedzi związanych z witryną"
+
+msgid "SuperBudgie Team"
+msgstr "SuperBudgie Team"
+
+msgid "https://chat.superbudgie.com"
+msgstr "https://chat.superbudgie.com"
+
+msgid "Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy."
+msgstr "Action Scheduler jest niedostępny. Upewnij się, że żadna inna wtyczka nie ładuje niezgodnej kopii."
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account."
+msgstr "Cześć, jestem ChatBudgie, asystentem tej witryny. Aby użyć czatu, przejdź do strony ustawień wtyczki i połącz swoje konto ChatBudgie."
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
+msgstr "Cześć, jestem ChatBudgie, asystentem tej witryny. Jak mogę dziś pomóc?"
+
+msgid "Please enter your question..."
+msgstr "Wpisz swoje pytanie..."
+
+msgid "Failed to send, please try again"
+msgstr "Nie udało się wysłać, spróbuj ponownie"
+
+msgid "Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens."
+msgstr "Czy na pewno chcesz odbudować indeks? Ta akcja usunie istniejący indeks i zbuduje go ponownie; może to potrwać i zużyć Twoje tokeny."
+
+msgid "Choose Icon"
+msgstr "Wybierz ikonę"
+
+msgid "Select Icon"
+msgstr "Wybierz ikonę"
+
+msgid "Failed to create order"
+msgstr "Nie udało się utworzyć zamówienia"
+
+msgid "Failed to capture payment"
+msgstr "Nie udało się pobrać płatności"
+
+msgid "An error occurred during the transaction:"
+msgstr "Wystąpił błąd podczas transakcji:"
+
+msgid "Your session has expired. Please refresh the page and try again."
+msgstr "Twoja sesja wygasła. Odśwież stronę i spróbuj ponownie."
+
+msgid "ChatBudgie:"
+msgstr "ChatBudgie:"
+
+msgid "Index build is scheduled and will start shortly."
+msgstr "Budowa indeksu została zaplanowana i wkrótce się rozpocznie."
+
+msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
+msgstr "Postęp indeksowania: ukończono %1$d z %2$d wpisów (%3$d%%)"
+
+msgid "Index build completed successfully."
+msgstr "Indeks został pomyślnie zbudowany."
+
+msgid "Index build failed:"
+msgstr "Budowa indeksu nie powiodła się:"
+
+msgid "Try again"
+msgstr "Spróbuj ponownie"
+
+msgid "Settings"
+msgstr "Ustawienia"
+
+msgid "Usage"
+msgstr "Użycie"
+
+msgid "Orders"
+msgstr "Zamówienia"
+
+msgid "You do not have permission to access this page."
+msgstr "Nie masz uprawnień do dostępu do tej strony."
+
+msgid "Unauthorized"
+msgstr "Brak autoryzacji"
+
+msgid "Failed to fetch usage info. Please try again later."
+msgstr "Nie udało się pobrać informacji o użyciu. Spróbuj ponownie później."
+
+msgid "Failed to fetch user info. Please try again later."
+msgstr "Nie udało się pobrać informacji o użytkowniku. Spróbuj ponownie później."
+
+msgid "You do not have permission to complete this action."
+msgstr "Nie masz uprawnień do wykonania tej akcji."
+
+msgid "Invalid login callback request."
+msgstr "Nieprawidłowe żądanie wywołania zwrotnego logowania."
+
+msgid "Login Error"
+msgstr "Błąd logowania"
+
+msgid "Authorization code is missing"
+msgstr "Brakuje kodu autoryzacji"
+
+msgid "API Error"
+msgstr "Błąd API"
+
+msgid "Failed to retrieve appKey from login server"
+msgstr "Nie udało się pobrać appKey z serwera logowania"
+
+msgid "Failed to fetch account info. Please try again later."
+msgstr "Nie udało się pobrać informacji o koncie. Spróbuj ponownie później."
+
+msgid "ChatBudgie Workspace"
+msgstr "Przestrzeń robocza ChatBudgie"
+
+msgid "Connected via your WordPress admin account"
+msgstr "Połączono przez konto administratora WordPress"
+
+msgid "Account Summary"
+msgstr "Podsumowanie konta"
+
+msgid "Remaining Tokens"
+msgstr "Pozostałe tokeny"
+
+msgid "Low balance: please recharge."
+msgstr "Niskie saldo: doładuj konto."
+
+msgid "ChatBudgie uses tokens to power its features."
+msgstr "ChatBudgie używa tokenów do obsługi swoich funkcji."
+
+msgid "Buy Tokens"
+msgstr "Kup tokeny"
+
+msgid "Track purchases, account balance, and token top-ups in one place."
+msgstr "Śledź zakupy, saldo konta i doładowania tokenów w jednym miejscu."
+
+msgid "Remaining Tokens:"
+msgstr "Pozostałe tokeny:"
+
+msgid "Recharge Tokens"
+msgstr "Doładuj tokeny"
+
+msgid "Select a token package to recharge your account balance."
+msgstr "Wybierz pakiet tokenów, aby doładować saldo konta."
+
+msgid "Basic Recharge"
+msgstr "Doładowanie podstawowe"
+
+msgid "Pro Pack - Best Value"
+msgstr "Pakiet Pro - Najlepsza wartość"
+
+msgid "Enterprise Scale"
+msgstr "Skala enterprise"
+
+msgid "Order History"
+msgstr "Historia zamówień"
+
+msgid "Track your past recharges and billing status."
+msgstr "Śledź poprzednie doładowania i status rozliczeń."
+
+msgid "Refresh"
+msgstr "Odśwież"
+
+msgid "Time"
+msgstr "Czas"
+
+msgid "Order ID"
+msgstr "ID zamówienia"
+
+msgid "Tokens"
+msgstr "Tokeny"
+
+msgid "Price"
+msgstr "Cena"
+
+msgid "Channel"
+msgstr "Kanał"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "No order history found."
+msgstr "Nie znaleziono historii zamówień."
+
+msgid "Previous Page"
+msgstr "Poprzednia strona"
+
+msgid "&laquo; Previous"
+msgstr "&laquo; Poprzednia"
+
+msgid "Page %1$d of %2$d"
+msgstr "Strona %1$d z %2$d"
+
+msgid "Next Page"
+msgstr "Następna strona"
+
+msgid "Next &raquo;"
+msgstr "Następna &raquo;"
+
+msgid "Close"
+msgstr "Zamknij"
+
+msgid "Payment Success!"
+msgstr "Płatność zakończona sukcesem!"
+
+msgid "Your transaction has been successfully completed. The tokens will be recharged to your account shortly."
+msgstr "Transakcja została pomyślnie zakończona. Tokeny wkrótce zostaną doładowane na Twoje konto."
+
+msgid "Continue"
+msgstr "Kontynuuj"
+
+msgid "I'm ChatBudgie, your AI assistant. How can I help you today?"
+msgstr "Jestem ChatBudgie, Twoim asystentem AI. Jak mogę dziś pomóc?"
+
+msgid "Preparing index"
+msgstr "Przygotowywanie indeksu"
+
+msgid "Indexing content"
+msgstr "Indeksowanie treści"
+
+msgid "Index is ready"
+msgstr "Indeks jest gotowy"
+
+msgid "Index needs attention"
+msgstr "Indeks wymaga uwagi"
+
+msgid "Status unavailable"
+msgstr "Status niedostępny"
+
+msgid "Check logs"
+msgstr "Sprawdź logi"
+
+msgid "Ready now"
+msgstr "Gotowe"
+
+msgid "%1$dm %2$02ds"
+msgstr "%1$d min %2$02$d s"
+
+msgid "%1$ds"
+msgstr "%1$d s"
+
+msgid "Starting"
+msgstr "Uruchamianie"
+
+msgid "Ocean Blue"
+msgstr "Błękit oceanu"
+
+msgid "Violet"
+msgstr "Fioletowy"
+
+msgid "Teal"
+msgstr "Morski"
+
+msgid "Amber"
+msgstr "Bursztynowy"
+
+msgid "Rose"
+msgstr "Różany"
+
+msgid "Manage your chatbot settings and account."
+msgstr "Zarządzaj ustawieniami chatbota i kontem."
+
+msgid "knowledge Base Indexing Status"
+msgstr "Status indeksowania bazy wiedzy"
+
+msgid "Rebuild Index"
+msgstr "Odbuduj indeks"
+
+msgid "Total Files"
+msgstr "Łączna liczba plików"
+
+msgid "Indexed Files"
+msgstr "Zaindeksowane pliki"
+
+msgid "Estimated Time"
+msgstr "Szacowany czas"
+
+msgid "Indexing runs in the background. It builds the knowledge base index on the public content of your website. After the indexing is complete, ChatBudgie will be able to answer questions based on your content."
+msgstr "Indeksowanie działa w tle. Tworzy indeks bazy wiedzy na podstawie publicznych treści Twojej witryny. Po zakończeniu indeksowania ChatBudgie będzie mógł odpowiadać na pytania na podstawie Twoich treści."
+
+msgid "Appearance"
+msgstr "Wygląd"
+
+msgid "Chatbot Icon"
+msgstr "Ikona chatbota"
+
+msgid "Choose the avatar that represents your chatbot."
+msgstr "Wybierz awatar reprezentujący chatbota."
+
+msgid "Avatar options"
+msgstr "Opcje awatara"
+
+msgid "Change Icon"
+msgstr "Zmień ikonę"
+
+msgid "Primary Color"
+msgstr "Kolor główny"
+
+msgid "Set the main color for your chatbot UI."
+msgstr "Ustaw główny kolor interfejsu chatbota."
+
+msgid "Primary color options"
+msgstr "Opcje koloru głównego"
+
+msgid "Welcome Message"
+msgstr "Wiadomość powitalna"
+
+msgid "Set the default greeting message for your visitors."
+msgstr "Ustaw domyślną wiadomość powitalną dla odwiedzających."
+
+msgid "Save Settings"
+msgstr "Zapisz ustawienia"
+
+msgid "Need help or have a question?"
+msgstr "Potrzebujesz pomocy lub masz pytanie?"
+
+msgid "SuperBudgie team is here to assist you."
+msgstr "Zespół SuperBudgie chętnie pomoże."
+
+msgid "Token Usage"
+msgstr "Użycie tokenów"
+
+msgid "Monitor your token consumption and request activity."
+msgstr "Monitoruj zużycie tokenów i aktywność żądań."
+
+msgid "Request Logs"
+msgstr "Logi żądań"
+
+msgid "View a detailed history of your chatbot requests and token usage."
+msgstr "Zobacz szczegółową historię żądań chatbota i użycia tokenów."
+
+msgid "App Name"
+msgstr "Nazwa aplikacji"
+
+msgid "Site"
+msgstr "Witryna"
+
+msgid "Request Type"
+msgstr "Typ żądania"
+
+msgid "Token Cost"
+msgstr "Koszt tokenów"
+
+msgid "Time Cost"
+msgstr "Koszt czasu"
+
+msgid "No request logs found."
+msgstr "Nie znaleziono logów żądań."
+
+msgid "ChatBudgie chat window"
+msgstr "Okno czatu ChatBudgie"
+
+msgid "ChatBudgie avatar"
+msgstr "Awatar ChatBudgie"
+
+msgid "Close chat"
+msgstr "Zamknij czat"
+
+msgid "What services do you offer?"
+msgstr "Jakie usługi oferujecie?"
+
+msgid "We offer AI chatbot solutions that help you automate support and engage your visitors."
+msgstr "Oferujemy rozwiązania chatbotów AI, które pomagają automatyzować wsparcie i angażować odwiedzających."
+
+msgid "Is my data safe?"
+msgstr "Czy moje dane są bezpieczne?"
+
+msgid "Oops! Something went wrong."
+msgstr "Ups! Coś poszło nie tak."
+
+msgid "I'm having a little trouble thinking right now. Please try again in a moment."
+msgstr "Mam teraz mały problem z odpowiedzią. Spróbuj ponownie za chwilę."
+
+msgid "Try Again"
+msgstr "Spróbuj ponownie"
+
+msgid "Ask anything..."
+msgstr "Zapytaj o cokolwiek..."
+
+msgid "Type your message"
+msgstr "Wpisz wiadomość"
+
+msgid "Send message"
+msgstr "Wyślij wiadomość"
+
+msgid "Stop response"
+msgstr "Zatrzymaj odpowiedź"
+

@@ -1,0 +1,405 @@
+# Copyright (C) 2026 SuperBudgie Team
+# This file is distributed under the GPL v3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ChatBudgie 1.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-plugin\n"
+"POT-Creation-Date: 2026-06-20T06:37:50+00:00\n"
+"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"Last-Translator: SuperBudgie Team <support@superbudgie.com>\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: ChatBudgie bundled translations\n"
+"X-Domain: chatbudgie\n"
+
+msgid "ChatBudgie"
+msgstr "ChatBudgie"
+
+msgid "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+msgstr "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+
+msgid "Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers"
+msgstr "WordPress ページにチャットダイアログを表示し、ユーザーが RAG ベースのエージェントと会話してサイトに関する回答を得られるようにします"
+
+msgid "SuperBudgie Team"
+msgstr "SuperBudgie Team"
+
+msgid "https://chat.superbudgie.com"
+msgstr "https://chat.superbudgie.com"
+
+msgid "Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy."
+msgstr "Action Scheduler を利用できません。互換性のないコピーを他のプラグインが読み込んでいないか確認してください。"
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account."
+msgstr "こんにちは、私はこのサイトのアシスタント ChatBudgie です。チャット機能を使用するには、プラグイン設定ページで ChatBudgie アカウントを接続してください。"
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
+msgstr "こんにちは、私はこのサイトのアシスタント ChatBudgie です。本日はどのようにお手伝いできますか？"
+
+msgid "Please enter your question..."
+msgstr "質問を入力してください..."
+
+msgid "Failed to send, please try again"
+msgstr "送信に失敗しました。もう一度お試しください"
+
+msgid "Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens."
+msgstr "インデックスを再構築してもよろしいですか？この操作により既存のインデックスが削除されて再構築されます。時間がかかり、トークンを消費する場合があります。"
+
+msgid "Choose Icon"
+msgstr "アイコンを選択"
+
+msgid "Select Icon"
+msgstr "アイコンを選択"
+
+msgid "Failed to create order"
+msgstr "注文の作成に失敗しました"
+
+msgid "Failed to capture payment"
+msgstr "支払いの確定に失敗しました"
+
+msgid "An error occurred during the transaction:"
+msgstr "取引中にエラーが発生しました:"
+
+msgid "Your session has expired. Please refresh the page and try again."
+msgstr "セッションの有効期限が切れました。ページを更新してもう一度お試しください。"
+
+msgid "ChatBudgie:"
+msgstr "ChatBudgie:"
+
+msgid "Index build is scheduled and will start shortly."
+msgstr "インデックスの作成がスケジュールされ、まもなく開始されます。"
+
+msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
+msgstr "インデックス作成の進行状況: %2$d 件中 %1$d 件の投稿が完了 (%3$d%%)"
+
+msgid "Index build completed successfully."
+msgstr "インデックスの作成が正常に完了しました。"
+
+msgid "Index build failed:"
+msgstr "インデックスの作成に失敗しました:"
+
+msgid "Try again"
+msgstr "もう一度試す"
+
+msgid "Settings"
+msgstr "設定"
+
+msgid "Usage"
+msgstr "使用状況"
+
+msgid "Orders"
+msgstr "注文"
+
+msgid "You do not have permission to access this page."
+msgstr "このページにアクセスする権限がありません。"
+
+msgid "Unauthorized"
+msgstr "権限がありません"
+
+msgid "Failed to fetch usage info. Please try again later."
+msgstr "使用状況情報の取得に失敗しました。後でもう一度お試しください。"
+
+msgid "Failed to fetch user info. Please try again later."
+msgstr "ユーザー情報の取得に失敗しました。後でもう一度お試しください。"
+
+msgid "You do not have permission to complete this action."
+msgstr "この操作を完了する権限がありません。"
+
+msgid "Invalid login callback request."
+msgstr "ログインコールバックリクエストが無効です。"
+
+msgid "Login Error"
+msgstr "ログインエラー"
+
+msgid "Authorization code is missing"
+msgstr "認証コードがありません"
+
+msgid "API Error"
+msgstr "API エラー"
+
+msgid "Failed to retrieve appKey from login server"
+msgstr "ログインサーバーから appKey を取得できませんでした"
+
+msgid "Failed to fetch account info. Please try again later."
+msgstr "アカウント情報の取得に失敗しました。後でもう一度お試しください。"
+
+msgid "ChatBudgie Workspace"
+msgstr "ChatBudgie ワークスペース"
+
+msgid "Connected via your WordPress admin account"
+msgstr "WordPress 管理者アカウントで接続済み"
+
+msgid "Account Summary"
+msgstr "アカウント概要"
+
+msgid "Remaining Tokens"
+msgstr "残りトークン"
+
+msgid "Low balance: please recharge."
+msgstr "残高が少なくなっています。チャージしてください。"
+
+msgid "ChatBudgie uses tokens to power its features."
+msgstr "ChatBudgie は機能の利用にトークンを使用します。"
+
+msgid "Buy Tokens"
+msgstr "トークンを購入"
+
+msgid "Track purchases, account balance, and token top-ups in one place."
+msgstr "購入、アカウント残高、トークンチャージを一か所で確認できます。"
+
+msgid "Remaining Tokens:"
+msgstr "残りトークン:"
+
+msgid "Recharge Tokens"
+msgstr "トークンをチャージ"
+
+msgid "Select a token package to recharge your account balance."
+msgstr "アカウント残高をチャージするトークンパッケージを選択してください。"
+
+msgid "Basic Recharge"
+msgstr "基本チャージ"
+
+msgid "Pro Pack - Best Value"
+msgstr "Pro パック - お得"
+
+msgid "Enterprise Scale"
+msgstr "エンタープライズ規模"
+
+msgid "Order History"
+msgstr "注文履歴"
+
+msgid "Track your past recharges and billing status."
+msgstr "過去のチャージと請求ステータスを確認します。"
+
+msgid "Refresh"
+msgstr "更新"
+
+msgid "Time"
+msgstr "時間"
+
+msgid "Order ID"
+msgstr "注文 ID"
+
+msgid "Tokens"
+msgstr "トークン"
+
+msgid "Price"
+msgstr "価格"
+
+msgid "Channel"
+msgstr "チャネル"
+
+msgid "Status"
+msgstr "ステータス"
+
+msgid "No order history found."
+msgstr "注文履歴が見つかりません。"
+
+msgid "Previous Page"
+msgstr "前のページ"
+
+msgid "&laquo; Previous"
+msgstr "&laquo; 前へ"
+
+msgid "Page %1$d of %2$d"
+msgstr "%2$d ページ中 %1$d ページ"
+
+msgid "Next Page"
+msgstr "次のページ"
+
+msgid "Next &raquo;"
+msgstr "次へ &raquo;"
+
+msgid "Close"
+msgstr "閉じる"
+
+msgid "Payment Success!"
+msgstr "支払いが完了しました！"
+
+msgid "Your transaction has been successfully completed. The tokens will be recharged to your account shortly."
+msgstr "取引は正常に完了しました。トークンはまもなくアカウントにチャージされます。"
+
+msgid "Continue"
+msgstr "続行"
+
+msgid "I'm ChatBudgie, your AI assistant. How can I help you today?"
+msgstr "私はあなたの AI アシスタント ChatBudgie です。本日はどのようにお手伝いできますか？"
+
+msgid "Preparing index"
+msgstr "インデックスを準備中"
+
+msgid "Indexing content"
+msgstr "コンテンツをインデックス中"
+
+msgid "Index is ready"
+msgstr "インデックスは準備完了です"
+
+msgid "Index needs attention"
+msgstr "インデックスに対応が必要です"
+
+msgid "Status unavailable"
+msgstr "ステータスを利用できません"
+
+msgid "Check logs"
+msgstr "ログを確認"
+
+msgid "Ready now"
+msgstr "準備完了"
+
+msgid "%1$dm %2$02ds"
+msgstr "%1$d分 %2$02$d秒"
+
+msgid "%1$ds"
+msgstr "%1$d秒"
+
+msgid "Starting"
+msgstr "開始中"
+
+msgid "Ocean Blue"
+msgstr "オーシャンブルー"
+
+msgid "Violet"
+msgstr "バイオレット"
+
+msgid "Teal"
+msgstr "ティール"
+
+msgid "Amber"
+msgstr "アンバー"
+
+msgid "Rose"
+msgstr "ローズ"
+
+msgid "Manage your chatbot settings and account."
+msgstr "チャットボットの設定とアカウントを管理します。"
+
+msgid "knowledge Base Indexing Status"
+msgstr "ナレッジベースのインデックス状態"
+
+msgid "Rebuild Index"
+msgstr "インデックスを再構築"
+
+msgid "Total Files"
+msgstr "合計ファイル数"
+
+msgid "Indexed Files"
+msgstr "インデックス済みファイル"
+
+msgid "Estimated Time"
+msgstr "推定時間"
+
+msgid "Indexing runs in the background. It builds the knowledge base index on the public content of your website. After the indexing is complete, ChatBudgie will be able to answer questions based on your content."
+msgstr "インデックス作成はバックグラウンドで実行されます。サイトの公開コンテンツからナレッジベースのインデックスを作成します。完了後、ChatBudgie はコンテンツに基づいて質問に回答できるようになります。"
+
+msgid "Appearance"
+msgstr "外観"
+
+msgid "Chatbot Icon"
+msgstr "チャットボットアイコン"
+
+msgid "Choose the avatar that represents your chatbot."
+msgstr "チャットボットを表すアバターを選択してください。"
+
+msgid "Avatar options"
+msgstr "アバターオプション"
+
+msgid "Change Icon"
+msgstr "アイコンを変更"
+
+msgid "Primary Color"
+msgstr "メインカラー"
+
+msgid "Set the main color for your chatbot UI."
+msgstr "チャットボット UI のメインカラーを設定します。"
+
+msgid "Primary color options"
+msgstr "メインカラーオプション"
+
+msgid "Welcome Message"
+msgstr "ウェルカムメッセージ"
+
+msgid "Set the default greeting message for your visitors."
+msgstr "訪問者向けの既定の挨拶メッセージを設定します。"
+
+msgid "Save Settings"
+msgstr "設定を保存"
+
+msgid "Need help or have a question?"
+msgstr "ヘルプが必要ですか？質問がありますか？"
+
+msgid "SuperBudgie team is here to assist you."
+msgstr "SuperBudgie チームがお手伝いします。"
+
+msgid "Token Usage"
+msgstr "トークン使用量"
+
+msgid "Monitor your token consumption and request activity."
+msgstr "トークン消費量とリクエスト状況を監視します。"
+
+msgid "Request Logs"
+msgstr "リクエストログ"
+
+msgid "View a detailed history of your chatbot requests and token usage."
+msgstr "チャットボットのリクエストとトークン使用量の詳細履歴を表示します。"
+
+msgid "App Name"
+msgstr "アプリ名"
+
+msgid "Site"
+msgstr "サイト"
+
+msgid "Request Type"
+msgstr "リクエストタイプ"
+
+msgid "Token Cost"
+msgstr "トークンコスト"
+
+msgid "Time Cost"
+msgstr "所要時間"
+
+msgid "No request logs found."
+msgstr "リクエストログが見つかりません。"
+
+msgid "ChatBudgie chat window"
+msgstr "ChatBudgie チャットウィンドウ"
+
+msgid "ChatBudgie avatar"
+msgstr "ChatBudgie アバター"
+
+msgid "Close chat"
+msgstr "チャットを閉じる"
+
+msgid "What services do you offer?"
+msgstr "どのようなサービスを提供していますか？"
+
+msgid "We offer AI chatbot solutions that help you automate support and engage your visitors."
+msgstr "サポートを自動化し、訪問者とのエンゲージメントを高める AI チャットボットソリューションを提供しています。"
+
+msgid "Is my data safe?"
+msgstr "私のデータは安全ですか？"
+
+msgid "Oops! Something went wrong."
+msgstr "おっと、問題が発生しました。"
+
+msgid "I'm having a little trouble thinking right now. Please try again in a moment."
+msgstr "今は少しうまく考えられません。しばらくしてからもう一度お試しください。"
+
+msgid "Try Again"
+msgstr "もう一度試す"
+
+msgid "Ask anything..."
+msgstr "何でも質問してください..."
+
+msgid "Type your message"
+msgstr "メッセージを入力"
+
+msgid "Send message"
+msgstr "メッセージを送信"
+
+msgid "Stop response"
+msgstr "応答を停止"
+

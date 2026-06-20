@@ -15,6 +15,7 @@
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: chatbudgie
+ * Domain Path: /languages
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -168,6 +169,7 @@ class SuperBudgie_ChatBudgie {
 		$this->indexer  = new Indexer();
 		$this->searcher = new Searcher();
 
+		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'wp_footer', array( $this, 'render_chat_widget' ) );
@@ -205,6 +207,35 @@ class SuperBudgie_ChatBudgie {
 
 		// Clean up cron job on plugin deactivation.
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
+	}
+
+	/**
+	 * Load bundled translations.
+	 *
+	 * @return void
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain( 'chatbudgie', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
+		if ( is_textdomain_loaded( 'chatbudgie' ) ) {
+			return;
+		}
+
+		$locale       = determine_locale();
+		$mofile_paths = array();
+
+		if ( defined( 'WP_LANG_DIR' ) ) {
+			$mofile_paths[] = trailingslashit( WP_LANG_DIR ) . 'plugins/chatbudgie-' . $locale . '.mo';
+		}
+
+		$mofile_paths[] = plugin_dir_path( __FILE__ ) . 'languages/chatbudgie-' . $locale . '.mo';
+
+		foreach ( $mofile_paths as $mofile_path ) {
+			if ( is_readable( $mofile_path ) ) {
+				load_textdomain( 'chatbudgie', $mofile_path );
+				return;
+			}
+		}
 	}
 
 	/**

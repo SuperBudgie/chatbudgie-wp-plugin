@@ -1,0 +1,405 @@
+# Copyright (C) 2026 SuperBudgie Team
+# This file is distributed under the GPL v3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ChatBudgie 1.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-plugin\n"
+"POT-Creation-Date: 2026-06-20T06:37:50+00:00\n"
+"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"Last-Translator: SuperBudgie Team <support@superbudgie.com>\n"
+"Language-Team: Dutch (Netherlands)\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: ChatBudgie bundled translations\n"
+"X-Domain: chatbudgie\n"
+
+msgid "ChatBudgie"
+msgstr "ChatBudgie"
+
+msgid "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+msgstr "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
+
+msgid "Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers"
+msgstr "Toont een chatvenster op WordPress-pagina’s, zodat gebruikers met een RAG-gebaseerde agent kunnen praten en websitegerelateerde antwoorden krijgen"
+
+msgid "SuperBudgie Team"
+msgstr "SuperBudgie Team"
+
+msgid "https://chat.superbudgie.com"
+msgstr "https://chat.superbudgie.com"
+
+msgid "Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy."
+msgstr "Action Scheduler is niet beschikbaar. Zorg ervoor dat geen andere plugin een incompatibele kopie laadt."
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account."
+msgstr "Hallo, ik ben ChatBudgie, de assistent van de website. Ga naar de instellingenpagina van de plugin om je ChatBudgie-account te koppelen en de chatfunctie te gebruiken."
+
+msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
+msgstr "Hallo, ik ben ChatBudgie, de assistent van de website. Waarmee kan ik je vandaag helpen?"
+
+msgid "Please enter your question..."
+msgstr "Voer je vraag in..."
+
+msgid "Failed to send, please try again"
+msgstr "Verzenden mislukt, probeer het opnieuw"
+
+msgid "Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens."
+msgstr "Weet je zeker dat je de index opnieuw wilt opbouwen? Deze actie verwijdert de bestaande index en bouwt deze opnieuw op; dit kan tijd kosten en je tokens verbruiken."
+
+msgid "Choose Icon"
+msgstr "Icoon kiezen"
+
+msgid "Select Icon"
+msgstr "Icoon selecteren"
+
+msgid "Failed to create order"
+msgstr "Bestelling maken mislukt"
+
+msgid "Failed to capture payment"
+msgstr "Betaling vastleggen mislukt"
+
+msgid "An error occurred during the transaction:"
+msgstr "Er is een fout opgetreden tijdens de transactie:"
+
+msgid "Your session has expired. Please refresh the page and try again."
+msgstr "Je sessie is verlopen. Vernieuw de pagina en probeer het opnieuw."
+
+msgid "ChatBudgie:"
+msgstr "ChatBudgie:"
+
+msgid "Index build is scheduled and will start shortly."
+msgstr "Het opbouwen van de index is gepland en start binnenkort."
+
+msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
+msgstr "Indexeringsvoortgang: %1$d van %2$d berichten voltooid (%3$d%%)"
+
+msgid "Index build completed successfully."
+msgstr "Index succesvol opgebouwd."
+
+msgid "Index build failed:"
+msgstr "Index opbouwen mislukt:"
+
+msgid "Try again"
+msgstr "Probeer opnieuw"
+
+msgid "Settings"
+msgstr "Instellingen"
+
+msgid "Usage"
+msgstr "Gebruik"
+
+msgid "Orders"
+msgstr "Bestellingen"
+
+msgid "You do not have permission to access this page."
+msgstr "Je hebt geen toestemming om deze pagina te openen."
+
+msgid "Unauthorized"
+msgstr "Niet geautoriseerd"
+
+msgid "Failed to fetch usage info. Please try again later."
+msgstr "Gebruiksinformatie ophalen mislukt. Probeer het later opnieuw."
+
+msgid "Failed to fetch user info. Please try again later."
+msgstr "Gebruikersinformatie ophalen mislukt. Probeer het later opnieuw."
+
+msgid "You do not have permission to complete this action."
+msgstr "Je hebt geen toestemming om deze actie uit te voeren."
+
+msgid "Invalid login callback request."
+msgstr "Ongeldig login-callbackverzoek."
+
+msgid "Login Error"
+msgstr "Loginfout"
+
+msgid "Authorization code is missing"
+msgstr "Autorisatiecode ontbreekt"
+
+msgid "API Error"
+msgstr "API-fout"
+
+msgid "Failed to retrieve appKey from login server"
+msgstr "Kan appKey niet ophalen van de loginserver"
+
+msgid "Failed to fetch account info. Please try again later."
+msgstr "Accountinformatie ophalen mislukt. Probeer het later opnieuw."
+
+msgid "ChatBudgie Workspace"
+msgstr "ChatBudgie-werkruimte"
+
+msgid "Connected via your WordPress admin account"
+msgstr "Verbonden via je WordPress-beheerdersaccount"
+
+msgid "Account Summary"
+msgstr "Accountoverzicht"
+
+msgid "Remaining Tokens"
+msgstr "Resterende tokens"
+
+msgid "Low balance: please recharge."
+msgstr "Laag saldo: laad op."
+
+msgid "ChatBudgie uses tokens to power its features."
+msgstr "ChatBudgie gebruikt tokens om zijn functies aan te drijven."
+
+msgid "Buy Tokens"
+msgstr "Tokens kopen"
+
+msgid "Track purchases, account balance, and token top-ups in one place."
+msgstr "Volg aankopen, accountsaldo en tokenopwaarderingen op één plek."
+
+msgid "Remaining Tokens:"
+msgstr "Resterende tokens:"
+
+msgid "Recharge Tokens"
+msgstr "Tokens opwaarderen"
+
+msgid "Select a token package to recharge your account balance."
+msgstr "Selecteer een tokenpakket om je accountsaldo op te waarderen."
+
+msgid "Basic Recharge"
+msgstr "Basisopwaardering"
+
+msgid "Pro Pack - Best Value"
+msgstr "Pro-pakket - Beste waarde"
+
+msgid "Enterprise Scale"
+msgstr "Enterprise-schaal"
+
+msgid "Order History"
+msgstr "Bestelgeschiedenis"
+
+msgid "Track your past recharges and billing status."
+msgstr "Volg je eerdere opwaarderingen en factureringsstatus."
+
+msgid "Refresh"
+msgstr "Vernieuwen"
+
+msgid "Time"
+msgstr "Tijd"
+
+msgid "Order ID"
+msgstr "Bestel-ID"
+
+msgid "Tokens"
+msgstr "Tokens"
+
+msgid "Price"
+msgstr "Prijs"
+
+msgid "Channel"
+msgstr "Kanaal"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "No order history found."
+msgstr "Geen bestelgeschiedenis gevonden."
+
+msgid "Previous Page"
+msgstr "Vorige pagina"
+
+msgid "&laquo; Previous"
+msgstr "&laquo; Vorige"
+
+msgid "Page %1$d of %2$d"
+msgstr "Pagina %1$d van %2$d"
+
+msgid "Next Page"
+msgstr "Volgende pagina"
+
+msgid "Next &raquo;"
+msgstr "Volgende &raquo;"
+
+msgid "Close"
+msgstr "Sluiten"
+
+msgid "Payment Success!"
+msgstr "Betaling gelukt!"
+
+msgid "Your transaction has been successfully completed. The tokens will be recharged to your account shortly."
+msgstr "Je transactie is succesvol voltooid. De tokens worden binnenkort aan je account toegevoegd."
+
+msgid "Continue"
+msgstr "Doorgaan"
+
+msgid "I'm ChatBudgie, your AI assistant. How can I help you today?"
+msgstr "Ik ben ChatBudgie, je AI-assistent. Waarmee kan ik je vandaag helpen?"
+
+msgid "Preparing index"
+msgstr "Index voorbereiden"
+
+msgid "Indexing content"
+msgstr "Inhoud indexeren"
+
+msgid "Index is ready"
+msgstr "Index is klaar"
+
+msgid "Index needs attention"
+msgstr "Index heeft aandacht nodig"
+
+msgid "Status unavailable"
+msgstr "Status niet beschikbaar"
+
+msgid "Check logs"
+msgstr "Logs controleren"
+
+msgid "Ready now"
+msgstr "Nu klaar"
+
+msgid "%1$dm %2$02ds"
+msgstr "%1$d min %2$02$d sec"
+
+msgid "%1$ds"
+msgstr "%1$d sec"
+
+msgid "Starting"
+msgstr "Starten"
+
+msgid "Ocean Blue"
+msgstr "Oceaanblauw"
+
+msgid "Violet"
+msgstr "Violet"
+
+msgid "Teal"
+msgstr "Groenblauw"
+
+msgid "Amber"
+msgstr "Amber"
+
+msgid "Rose"
+msgstr "Roos"
+
+msgid "Manage your chatbot settings and account."
+msgstr "Beheer je chatbotinstellingen en account."
+
+msgid "knowledge Base Indexing Status"
+msgstr "Indexeringsstatus van kennisbank"
+
+msgid "Rebuild Index"
+msgstr "Index opnieuw opbouwen"
+
+msgid "Total Files"
+msgstr "Totaal aantal bestanden"
+
+msgid "Indexed Files"
+msgstr "Geïndexeerde bestanden"
+
+msgid "Estimated Time"
+msgstr "Geschatte tijd"
+
+msgid "Indexing runs in the background. It builds the knowledge base index on the public content of your website. After the indexing is complete, ChatBudgie will be able to answer questions based on your content."
+msgstr "Indexering draait op de achtergrond. Het bouwt de kennisbankindex op basis van de openbare inhoud van je website. Nadat de indexering is voltooid, kan ChatBudgie vragen beantwoorden op basis van je inhoud."
+
+msgid "Appearance"
+msgstr "Weergave"
+
+msgid "Chatbot Icon"
+msgstr "Chatbot-icoon"
+
+msgid "Choose the avatar that represents your chatbot."
+msgstr "Kies de avatar die je chatbot vertegenwoordigt."
+
+msgid "Avatar options"
+msgstr "Avataropties"
+
+msgid "Change Icon"
+msgstr "Icoon wijzigen"
+
+msgid "Primary Color"
+msgstr "Primaire kleur"
+
+msgid "Set the main color for your chatbot UI."
+msgstr "Stel de hoofdkleur in voor de chatbotinterface."
+
+msgid "Primary color options"
+msgstr "Opties voor primaire kleur"
+
+msgid "Welcome Message"
+msgstr "Welkomstbericht"
+
+msgid "Set the default greeting message for your visitors."
+msgstr "Stel het standaard begroetingsbericht voor je bezoekers in."
+
+msgid "Save Settings"
+msgstr "Instellingen opslaan"
+
+msgid "Need help or have a question?"
+msgstr "Hulp nodig of een vraag?"
+
+msgid "SuperBudgie team is here to assist you."
+msgstr "Het SuperBudgie-team staat klaar om je te helpen."
+
+msgid "Token Usage"
+msgstr "Tokengebruik"
+
+msgid "Monitor your token consumption and request activity."
+msgstr "Monitor je tokenverbruik en aanvraagactiviteit."
+
+msgid "Request Logs"
+msgstr "Aanvraaglogs"
+
+msgid "View a detailed history of your chatbot requests and token usage."
+msgstr "Bekijk een gedetailleerde geschiedenis van je chatbotaanvragen en tokengebruik."
+
+msgid "App Name"
+msgstr "Appnaam"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "Request Type"
+msgstr "Aanvraagtype"
+
+msgid "Token Cost"
+msgstr "Tokenkosten"
+
+msgid "Time Cost"
+msgstr "Tijdkosten"
+
+msgid "No request logs found."
+msgstr "Geen aanvraaglogs gevonden."
+
+msgid "ChatBudgie chat window"
+msgstr "ChatBudgie-chatvenster"
+
+msgid "ChatBudgie avatar"
+msgstr "ChatBudgie-avatar"
+
+msgid "Close chat"
+msgstr "Chat sluiten"
+
+msgid "What services do you offer?"
+msgstr "Welke diensten bieden jullie aan?"
+
+msgid "We offer AI chatbot solutions that help you automate support and engage your visitors."
+msgstr "Wij bieden AI-chatbotoplossingen die je helpen support te automatiseren en je bezoekers te betrekken."
+
+msgid "Is my data safe?"
+msgstr "Zijn mijn gegevens veilig?"
+
+msgid "Oops! Something went wrong."
+msgstr "Oeps! Er is iets misgegaan."
+
+msgid "I'm having a little trouble thinking right now. Please try again in a moment."
+msgstr "Ik heb momenteel wat moeite met nadenken. Probeer het zo opnieuw."
+
+msgid "Try Again"
+msgstr "Probeer opnieuw"
+
+msgid "Ask anything..."
+msgstr "Vraag alles..."
+
+msgid "Type your message"
+msgstr "Typ je bericht"
+
+msgid "Send message"
+msgstr "Bericht verzenden"
+
+msgid "Stop response"
+msgstr "Reactie stoppen"
+
