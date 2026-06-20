@@ -1,6 +1,6 @@
 === ChatBudgie - AI Chatbot based on ChatGPT, RAG and Knowledge Base ===
 Contributors: superbudgie
-Tags: ai chatbot, chat bot assistant, chatgpt, claude, customer support
+Tags: ai chatbot, chat bot, chatgpt, claude, chat button
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
@@ -8,13 +8,30 @@ Stable tag: 1.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-AI chatbot for WordPress that answers visitor questions from your site content using RAG, ChatGPT, Claude, and local vector search.
+ChatBudgie is the easiest and most user-friendly AI chatbot for WordPress. It answers visitor questions from your site content using ChatGPT, Claude.
 
 == Description ==
 
 ChatBudgie is an AI chatbot plugin for WordPress that turns your website content into an intelligent knowledge base. It helps visitors get fast, accurate answers from your posts and pages using RAG (Retrieval-Augmented Generation), local vector search, and managed AI models such as OpenAI ChatGPT, Claude, and Qwen.
 
 Use ChatBudgie as a WordPress AI assistant, site search companion, product FAQ bot, documentation helper, or customer support chatbot. Once activated, it automatically indexes your public posts and pages, builds a local search index, and provides context-aware answers without complex setup.
+
+= Multilingual Introductions =
+
+ChatBudgie includes bundled translations for major WordPress locales and helps international sites offer an AI chatbot, RAG assistant, and knowledge base search experience in the visitor's language.
+
+* **Español (es_ES)**: ChatBudgie es un chatbot de IA para WordPress que responde preguntas de visitantes usando el contenido de tu sitio, RAG y una base de conocimiento inteligente.
+* **Français (fr_FR)**: ChatBudgie est un chatbot IA pour WordPress qui répond aux questions des visiteurs à partir du contenu de votre site, avec RAG et une base de connaissances.
+* **Deutsch (de_DE)**: ChatBudgie ist ein KI-Chatbot für WordPress, der Besucherfragen mit Ihren Website-Inhalten, RAG und einer intelligenten Wissensdatenbank beantwortet.
+* **Italiano (it_IT)**: ChatBudgie è un chatbot AI per WordPress che risponde alle domande dei visitatori usando i contenuti del sito, RAG e una knowledge base.
+* **Português do Brasil (pt_BR)**: ChatBudgie é um chatbot de IA para WordPress que responde perguntas dos visitantes usando o conteúdo do site, RAG e uma base de conhecimento.
+* **日本語 (ja)**: ChatBudgie は、サイトコンテンツ、RAG、ナレッジベースを使って訪問者の質問に答える WordPress 向け AI チャットボットです。
+* **简体中文 (zh_CN)**: ChatBudgie 是一款 WordPress AI 聊天机器人，可基于网站内容、RAG 和知识库回答访客问题。
+* **繁體中文 (zh_TW)**: ChatBudgie 是一款 WordPress AI 聊天機器人，可根據網站內容、RAG 與知識庫回答訪客問題。
+* **한국어 (ko_KR)**: ChatBudgie는 사이트 콘텐츠, RAG, 지식 베이스를 사용해 방문자 질문에 답하는 WordPress용 AI 챗봇입니다.
+* **Русский (ru_RU)**: ChatBudgie — это AI-чатбот для WordPress, который отвечает на вопросы посетителей на основе контента сайта, RAG и базы знаний.
+* **Nederlands (nl_NL)**: ChatBudgie is een AI-chatbot voor WordPress die vragen van bezoekers beantwoordt met je site-inhoud, RAG en een kennisbank.
+* **Polski (pl_PL)**: ChatBudgie to chatbot AI dla WordPressa, który odpowiada na pytania odwiedzających na podstawie treści witryny, RAG i bazy wiedzy.
 
 = Smart Chat =
 * **Knowledge Base Answers**: Delivers accurate, easy-to-understand responses based on your website's actual content.
@@ -138,9 +155,3 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 = 1.1.1 =
 Readme and metadata improvements for better plugin discoverability.
-
-= 1.1.0 =
-Improved search result accuracy, enhanced chat flow, and security updates. Recommended for all users.
-
-= 1.0.0 =
-Initial version. No upgrade notice required.
