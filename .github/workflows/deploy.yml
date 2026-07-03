@@ -14,13 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
           tools: wp-cli
+          github-token: ''
 
       - name: Install dist-archive-command
         run: wp package install wp-cli/dist-archive-command:v3.1.0
