@@ -6,21 +6,21 @@
     'use strict';
 
     $(function() {
-        var colorRadios = $('input[name="superbudgie_chatbudgie_primary_color"]');
-        var avatarRadios = $('input[name="superbudgie_chatbudgie_avatar_choice"]');
-        var secondaryColorInput = $('#superbudgie_chatbudgie_secondary_color');
+        var colorRadios = $('input[name="chatbudgie_primary_color"]');
+        var avatarRadios = $('input[name="chatbudgie_avatar_choice"]');
+        var secondaryColorInput = $('#chatbudgie_secondary_color');
         var rebuildButton = $('#chatbudgie-rebuild-index');
         var changeIconButton = $('#chatbudgie-change-icon');
         var iconPreview = $('#chatbudgie-icon-preview');
-        var customIconInput = $('#superbudgie_chatbudgie_custom_icon');
-        var messageField = $('#superbudgie_chatbudgie_welcome_message');
+        var customIconInput = $('#chatbudgie_custom_icon');
+        var messageField = $('#chatbudgie_welcome_message');
         var messageCount = $('#chatbudgie-message-count');
         var saveButtons = $('.settings-form button[type="submit"]');
         
         // Initial values for change detection
         var initialValues = {
-            primaryColor: $('input[name="superbudgie_chatbudgie_primary_color"]:checked').val(),
-            avatarChoice: $('input[name="superbudgie_chatbudgie_avatar_choice"]:checked').val(),
+            primaryColor: $('input[name="chatbudgie_primary_color"]:checked').val(),
+            avatarChoice: $('input[name="chatbudgie_avatar_choice"]:checked').val(),
             welcomeMessage: messageField.val()
         };
 
@@ -29,8 +29,8 @@
          */
         function checkChanges() {
             var currentValues = {
-                primaryColor: $('input[name="superbudgie_chatbudgie_primary_color"]:checked').val(),
-                avatarChoice: $('input[name="superbudgie_chatbudgie_avatar_choice"]:checked').val(),
+                primaryColor: $('input[name="chatbudgie_primary_color"]:checked').val(),
+                avatarChoice: $('input[name="chatbudgie_avatar_choice"]:checked').val(),
                 welcomeMessage: messageField.val()
             };
             
@@ -102,7 +102,7 @@
         }
 
         function syncColorState() {
-            var $activeRadio = $('input[name="superbudgie_chatbudgie_primary_color"]:checked');
+            var $activeRadio = $('input[name="chatbudgie_primary_color"]:checked');
             
             // Clear all active classes
             $('.color-choice').removeClass('is-active');
@@ -170,7 +170,7 @@
 
         if (rebuildButton.length) {
             rebuildButton.on('click', function(e) {
-                if (!confirm(superbudgie_chatbudgie_admin_params.confirm_rebuild)) {
+                if (!confirm(chatbudgie_admin_params.confirm_rebuild)) {
                     e.preventDefault();
                 }
             });
@@ -185,8 +185,8 @@
                     return;
                 }
                 mediaUploader = wp.media({
-                    title: superbudgie_chatbudgie_admin_params.choose_icon,
-                    button: { text: superbudgie_chatbudgie_admin_params.select_icon },
+                    title: chatbudgie_admin_params.choose_icon,
+                    button: { text: chatbudgie_admin_params.select_icon },
                     multiple: false
                 });
                 mediaUploader.on('select', function() {
@@ -221,8 +221,8 @@
         
         // Reset initial values after initial sync to avoid false change detection on load
         initialValues = {
-            primaryColor: $('input[name="superbudgie_chatbudgie_primary_color"]:checked').val(),
-            avatarChoice: $('input[name="superbudgie_chatbudgie_avatar_choice"]:checked').val(),
+            primaryColor: $('input[name="chatbudgie_primary_color"]:checked').val(),
+            avatarChoice: $('input[name="chatbudgie_avatar_choice"]:checked').val(),
             welcomeMessage: messageField.val()
         };
         checkChanges();

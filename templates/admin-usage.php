@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $chatbudgie_usage_rows = isset( $usage_data['content'] ) ? $usage_data['content'] : array();
 ?>
 <div class="page page--settings page--usage">
-	<?php require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
+	<?php require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
 
 	<main class="settings usage" role="main">
 		<section class="settings__hero" aria-labelledby="usage-title">
@@ -22,7 +22,7 @@ $chatbudgie_usage_rows = isset( $usage_data['content'] ) ? $usage_data['content'
 		</section>
 
 		<?php
-		require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-account-summary.php';
+		require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-account-summary.php';
 		?>
 
 		<section class="settings-card" aria-labelledby="request-logs-title">
@@ -123,6 +123,6 @@ $chatbudgie_usage_rows = isset( $usage_data['content'] ) ? $usage_data['content'
 			<?php endif; ?>
 		</section>
 
-		<?php require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>
+		<?php require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>
 	</main>
 </div>

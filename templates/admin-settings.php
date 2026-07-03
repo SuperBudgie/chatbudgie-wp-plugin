@@ -9,15 +9,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$chatbudgie_index_status                = $this->get_index_status();
-$superbudgie_chatbudgie_welcome_message = get_option( 'superbudgie_chatbudgie_welcome_message', __( "I'm ChatBudgie, your AI assistant. How can I help you today?", 'chatbudgie' ) );
-$superbudgie_chatbudgie_primary_color   = get_option( 'superbudgie_chatbudgie_primary_color', '#2f7bff' );
-$superbudgie_chatbudgie_secondary_color = get_option( 'superbudgie_chatbudgie_secondary_color', '#dbe9ff' );
-$chatbudgie_selected_avatar             = get_option( 'superbudgie_chatbudgie_custom_icon', SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png' );
-$chatbudgie_progress                    = max( 0, min( 100, (int) $chatbudgie_index_status['progress'] ) );
-$chatbudgie_total_files                 = max( 0, (int) $chatbudgie_index_status['scheduled_posts_count'] );
-$chatbudgie_indexed_files               = max( 0, (int) $chatbudgie_index_status['completed_posts_count'] );
-$chatbudgie_remaining_files             = max( 0, $chatbudgie_total_files - $chatbudgie_indexed_files );
+$chatbudgie_index_status    = $this->get_index_status();
+$chatbudgie_welcome_message = get_option( 'chatbudgie_welcome_message', __( "I'm ChatBudgie, your AI assistant. How can I help you today?", 'chatbudgie' ) );
+$chatbudgie_primary_color   = get_option( 'chatbudgie_primary_color', '#2f7bff' );
+$chatbudgie_secondary_color = get_option( 'chatbudgie_secondary_color', '#dbe9ff' );
+$chatbudgie_selected_avatar = get_option( 'chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png' );
+$chatbudgie_progress        = max( 0, min( 100, (int) $chatbudgie_index_status['progress'] ) );
+$chatbudgie_total_files     = max( 0, (int) $chatbudgie_index_status['scheduled_posts_count'] );
+$chatbudgie_indexed_files   = max( 0, (int) $chatbudgie_index_status['completed_posts_count'] );
+$chatbudgie_remaining_files = max( 0, $chatbudgie_total_files - $chatbudgie_indexed_files );
 
 $chatbudgie_status_labels = array(
 	'pending'   => __( 'Preparing index', 'chatbudgie' ),
@@ -71,18 +71,18 @@ $chatbudgie_color_options = array(
 );
 
 $chatbudgie_avatar_options = array(
-	SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png',
-	SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar-2.png',
-	SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar.png',
-	SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar-green.png',
-	SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar2.png',
+	CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png',
+	CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar-2.png',
+	CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar.png',
+	CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar-green.png',
+	CHATBUDGIE_PLUGIN_URL . 'assets/images/support-budgie-avatar2.png',
 );
 
 $chatbudgie_is_predefined_avatar = in_array( $chatbudgie_selected_avatar, $chatbudgie_avatar_options, true );
 
 $chatbudgie_has_matching_palette = false;
 foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
-	if ( strcasecmp( $chatbudgie_color_option['primary'], $superbudgie_chatbudgie_primary_color ) === 0 ) {
+	if ( strcasecmp( $chatbudgie_color_option['primary'], $chatbudgie_primary_color ) === 0 ) {
 		$chatbudgie_has_matching_palette = true;
 		break;
 	}
@@ -90,7 +90,7 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 
 ?>
 <div class="page page--settings">
-	<?php require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
+	<?php require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-header.php'; ?>
 
 	<main class="settings" role="main">
 		<section class="settings__hero" aria-labelledby="settings-title">
@@ -100,7 +100,7 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 
 		<?php
 		// $user_info is passed from the controller
-		require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-account-summary.php';
+		require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-account-summary.php';
 		?>
 
 		<section class="settings-card" aria-labelledby="index-status-title">
@@ -109,7 +109,7 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 					<h2 id="index-status-title" class="settings-card__title"><?php echo esc_html__( 'knowledge Base Indexing Status', 'chatbudgie' ); ?></h2>
 					<p class="settings-card__sub"><?php echo esc_html( $chatbudgie_status_label ); ?></p>
 				</div>
-				<a class="cb-btn cb-btn--ghost" id="chatbudgie-rebuild-index" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=superbudgie_chatbudgie_rebuild_index' ), 'superbudgie_chatbudgie_rebuild_index' ) ); ?>">
+				<a class="cb-btn cb-btn--ghost" id="chatbudgie-rebuild-index" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=chatbudgie_rebuild_index' ), 'chatbudgie_rebuild_index' ) ); ?>">
 					<span class="cb-icon cb-icon--sm" aria-hidden="true">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
 							<path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
@@ -181,9 +181,9 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 		</section>
 
 		<form method="post" action="options.php" class="settings-form">
-			<?php settings_fields( 'superbudgie_chatbudgie_appearance_settings' ); ?>
-			<input type="hidden" name="superbudgie_chatbudgie_secondary_color" id="superbudgie_chatbudgie_secondary_color" value="<?php echo esc_attr( $superbudgie_chatbudgie_secondary_color ); ?>" />
-			<input type="hidden" name="superbudgie_chatbudgie_custom_icon" id="superbudgie_chatbudgie_custom_icon" value="<?php echo esc_attr( $chatbudgie_selected_avatar ); ?>" />
+			<?php settings_fields( 'chatbudgie_appearance_settings' ); ?>
+			<input type="hidden" name="chatbudgie_secondary_color" id="chatbudgie_secondary_color" value="<?php echo esc_attr( $chatbudgie_secondary_color ); ?>" />
+			<input type="hidden" name="chatbudgie_custom_icon" id="chatbudgie_custom_icon" value="<?php echo esc_attr( $chatbudgie_selected_avatar ); ?>" />
 
 			<section class="settings-card" aria-labelledby="appearance-title">
 				<div class="settings-card__header">
@@ -209,7 +209,7 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 									<label class="avatar-choice<?php echo esc_attr( $chatbudgie_is_selected ? ' is-active' : '' ); ?>">
 										<input
 											type="radio"
-											name="superbudgie_chatbudgie_avatar_choice"
+											name="chatbudgie_avatar_choice"
 											value="<?php echo esc_attr( $chatbudgie_avatar_url ); ?>"
 											<?php checked( $chatbudgie_is_selected ); ?>
 											class="screen-reader-text" />
@@ -220,7 +220,7 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 								<label class="avatar-choice custom-choice<?php echo esc_attr( ! $chatbudgie_is_predefined_avatar && '' !== $chatbudgie_selected_avatar ? ' is-active' : '' ); ?>" <?php echo ( ! $chatbudgie_is_predefined_avatar && '' !== $chatbudgie_selected_avatar ? '' : 'style="display: none;"' ); ?>>
 									<input
 										type="radio"
-										name="superbudgie_chatbudgie_avatar_choice"
+										name="chatbudgie_avatar_choice"
 										value="<?php echo esc_attr( $chatbudgie_selected_avatar ); ?>"
 										<?php checked( ! $chatbudgie_is_predefined_avatar && '' !== $chatbudgie_selected_avatar ); ?>
 										class="screen-reader-text" />
@@ -238,7 +238,7 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 
 					<div class="setting-row">
 						<div class="setting-row__intro">
-							<div class="setting-row__icon setting-row__icon--swatch" style="--swatch-color: <?php echo esc_attr( $superbudgie_chatbudgie_primary_color ); ?>;"></div>
+							<div class="setting-row__icon setting-row__icon--swatch" style="--swatch-color: <?php echo esc_attr( $chatbudgie_primary_color ); ?>;"></div>
 							<div>
 								<h3 class="setting-row__title"><?php echo esc_html__( 'Primary Color', 'chatbudgie' ); ?></h3>
 								<p class="setting-row__text"><?php echo esc_html__( 'Set the main color for your chatbot UI.', 'chatbudgie' ); ?></p>
@@ -248,11 +248,11 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 						<div class="setting-row__content">
 							<div class="color-options" role="radiogroup" aria-label="<?php echo esc_attr__( 'Primary color options', 'chatbudgie' ); ?>">
 								<?php foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) : ?>
-									<?php $chatbudgie_is_selected = strcasecmp( $chatbudgie_color_option['primary'], $superbudgie_chatbudgie_primary_color ) === 0; ?>
+									<?php $chatbudgie_is_selected = strcasecmp( $chatbudgie_color_option['primary'], $chatbudgie_primary_color ) === 0; ?>
 									<label class="color-choice<?php echo esc_attr( $chatbudgie_is_selected ? ' is-active' : '' ); ?>" title="<?php echo esc_attr( $chatbudgie_color_option['label'] ); ?>">
 										<input
 											type="radio"
-											name="superbudgie_chatbudgie_primary_color"
+											name="chatbudgie_primary_color"
 											value="<?php echo esc_attr( $chatbudgie_color_option['primary'] ); ?>"
 											data-secondary="<?php echo esc_attr( $chatbudgie_color_option['secondary'] ); ?>"
 											<?php checked( $chatbudgie_is_selected ); ?> />
@@ -262,8 +262,8 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 								<?php endforeach; ?>
 
 								<div class="color-choice color-choice--picker<?php echo esc_attr( ! $chatbudgie_has_matching_palette ? ' is-active' : '' ); ?>">
-									<input type="radio" name="superbudgie_chatbudgie_primary_color" value="<?php echo esc_attr( $superbudgie_chatbudgie_primary_color ); ?>" data-secondary="<?php echo esc_attr( $superbudgie_chatbudgie_secondary_color ); ?>" <?php checked( ! $chatbudgie_has_matching_palette ); ?> class="screen-reader-text" />
-									<input type="text" id="chatbudgie-custom-color-picker" value="<?php echo esc_attr( $superbudgie_chatbudgie_primary_color ); ?>" class="chatbudgie-color-picker" />
+									<input type="radio" name="chatbudgie_primary_color" value="<?php echo esc_attr( $chatbudgie_primary_color ); ?>" data-secondary="<?php echo esc_attr( $chatbudgie_secondary_color ); ?>" <?php checked( ! $chatbudgie_has_matching_palette ); ?> class="screen-reader-text" />
+									<input type="text" id="chatbudgie-custom-color-picker" value="<?php echo esc_attr( $chatbudgie_primary_color ); ?>" class="chatbudgie-color-picker" />
 								</div>
 							</div>
 						</div>
@@ -285,12 +285,12 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 						<div class="setting-row__content">
 							<label class="field field--textarea">
 								<textarea
-									name="superbudgie_chatbudgie_welcome_message"
-									id="superbudgie_chatbudgie_welcome_message"
+									name="chatbudgie_welcome_message"
+									id="chatbudgie_welcome_message"
 									class="field__input field__input--textarea"
 									rows="4"
-									maxlength="500"><?php echo esc_textarea( $superbudgie_chatbudgie_welcome_message ); ?></textarea>
-								<span class="field__counter"><span id="chatbudgie-message-count"><?php echo esc_html( strlen( $superbudgie_chatbudgie_welcome_message ) ); ?></span> / 500</span>
+									maxlength="500"><?php echo esc_textarea( $chatbudgie_welcome_message ); ?></textarea>
+								<span class="field__counter"><span id="chatbudgie-message-count"><?php echo esc_html( strlen( $chatbudgie_welcome_message ) ); ?></span> / 500</span>
 							</label>
 						</div>
 					</div>
@@ -308,6 +308,6 @@ foreach ( $chatbudgie_color_options as $chatbudgie_color_option ) {
 		</form>
 
 
-		<?php require SUPERBUDGIE_CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>
+		<?php require CHATBUDGIE_PLUGIN_DIR . 'templates/admin-support-footer.php'; ?>
 	</main>
 </div>

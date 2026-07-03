@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$chatbudgie_avatar_url = get_option( 'superbudgie_chatbudgie_custom_icon', SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png' );
+$chatbudgie_avatar_url = get_option( 'chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png' );
 ?>
 
 <div class="chatbudgie-widget" id="chatbudgie-widget" role="dialog" aria-label="<?php echo esc_attr__( 'ChatBudgie chat window', 'chatbudgie' ); ?>">

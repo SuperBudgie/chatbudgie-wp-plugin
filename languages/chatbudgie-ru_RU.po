@@ -3,8 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChatBudgie 1.1.1\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-plugin\n"
-"POT-Creation-Date: 2026-06-20T06:37:50+00:00\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-"
+"plugin\n"
+"POT-Creation-Date: 2026-07-03T08:03:02+00:00\n"
 "PO-Revision-Date: 2026-06-20 00:00+0000\n"
 "Last-Translator: SuperBudgie Team <support@superbudgie.com>\n"
 "Language-Team: Russian\n"
@@ -12,394 +13,667 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: ChatBudgie bundled translations\n"
 "X-Domain: chatbudgie\n"
 
+#. Plugin Name of the plugin
+#: chatbudgie.php class-chatbudgie.php:1752 class-chatbudgie.php:1753
 msgid "ChatBudgie"
 msgstr "ChatBudgie"
 
+#. Plugin URI of the plugin
+#: chatbudgie.php
 msgid "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
 msgstr "https://github.com/SuperBudgie/chatbudgie-wp-plugin"
 
-msgid "Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers"
-msgstr "Отображает окно чата на страницах WordPress, позволяя пользователям общаться с агентом на базе RAG и получать ответы, связанные с сайтом"
+#. Description of the plugin
+#: chatbudgie.php
+msgid ""
+"Display a chat dialog on WordPress pages, allowing users to talk with a RAG-"
+"based Agent to get website-related answers"
+msgstr ""
+"Отображает окно чата на страницах WordPress, позволяя пользователям общаться "
+"с агентом на базе RAG и получать ответы, связанные с сайтом"
 
+#. Author of the plugin
+#: chatbudgie.php
 msgid "SuperBudgie Team"
 msgstr "SuperBudgie Team"
 
+#. Author URI of the plugin
+#: chatbudgie.php
 msgid "https://chat.superbudgie.com"
 msgstr "https://chat.superbudgie.com"
 
-msgid "Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy."
-msgstr "Action Scheduler недоступен. Убедитесь, что другой плагин не загружает несовместимую копию."
+#: class-chatbudgie.php:472
+msgid ""
+"Action Scheduler is unavailable. Please make sure no other plugin is loading "
+"an incompatible copy."
+msgstr ""
+"Action Scheduler недоступен. Убедитесь, что другой плагин не загружает "
+"несовместимую копию."
 
-msgid "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account."
-msgstr "Здравствуйте, я ChatBudgie, помощник сайта. Чтобы использовать чат, перейдите на страницу настроек плагина и подключите аккаунт ChatBudgie."
+#: class-chatbudgie.php:1409
+msgid ""
+"Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, "
+"please go to the plugin settings page to connect your ChatBudgie account."
+msgstr ""
+"Здравствуйте, я ChatBudgie, помощник сайта. Чтобы использовать чат, "
+"перейдите на страницу настроек плагина и подключите аккаунт ChatBudgie."
 
+#: class-chatbudgie.php:1413
 msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
 msgstr "Здравствуйте, я ChatBudgie, помощник сайта. Чем могу помочь сегодня?"
 
+#: class-chatbudgie.php:1425
 msgid "Please enter your question..."
 msgstr "Введите ваш вопрос..."
 
+#: class-chatbudgie.php:1427
 msgid "Failed to send, please try again"
 msgstr "Не удалось отправить, попробуйте еще раз"
 
-msgid "Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens."
-msgstr "Вы уверены, что хотите перестроить индекс? Это действие удалит существующий индекс и создаст его заново; это может занять время и израсходовать ваши токены."
+#: class-chatbudgie.php:1466
+msgid ""
+"Are you sure you want to rebuild the index? This action will delete the "
+"existing index and rebuild it, it may take some time and consume your tokens."
+msgstr ""
+"Вы уверены, что хотите перестроить индекс? Это действие удалит существующий "
+"индекс и создаст его заново; это может занять время и израсходовать ваши "
+"токены."
 
+#: class-chatbudgie.php:1467
 msgid "Choose Icon"
 msgstr "Выбрать значок"
 
+#: class-chatbudgie.php:1468
 msgid "Select Icon"
 msgstr "Выбрать значок"
 
+#: class-chatbudgie.php:1513
 msgid "Failed to create order"
 msgstr "Не удалось создать заказ"
 
+#: class-chatbudgie.php:1514
 msgid "Failed to capture payment"
 msgstr "Не удалось подтвердить платеж"
 
+#: class-chatbudgie.php:1515
 msgid "An error occurred during the transaction:"
 msgstr "Во время транзакции произошла ошибка:"
 
+#: class-chatbudgie.php:1557
 msgid "Your session has expired. Please refresh the page and try again."
 msgstr "Срок действия сеанса истек. Обновите страницу и попробуйте снова."
 
+#: class-chatbudgie.php:1670 class-chatbudgie.php:1682
+#: class-chatbudgie.php:1700 class-chatbudgie.php:1710
 msgid "ChatBudgie:"
 msgstr "ChatBudgie:"
 
+#: class-chatbudgie.php:1671
 msgid "Index build is scheduled and will start shortly."
 msgstr "Создание индекса запланировано и скоро начнется."
 
+#. translators: 1: number of completed posts, 2: total number of scheduled posts, 3: progress percentage
+#: class-chatbudgie.php:1686
+#, php-format
 msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
 msgstr "Ход индексации: завершено %1$d из %2$d записей (%3$d%%)"
 
+#: class-chatbudgie.php:1701
 msgid "Index build completed successfully."
 msgstr "Индекс успешно создан."
 
+#: class-chatbudgie.php:1711
 msgid "Index build failed:"
 msgstr "Не удалось создать индекс:"
 
+#: class-chatbudgie.php:1714 templates/chatbudgie-widget.php:60
 msgid "Try again"
 msgstr "Попробовать снова"
 
+#: class-chatbudgie.php:1762 class-chatbudgie.php:1763
+#: class-chatbudgie.php:1798 templates/admin-settings.php:97
 msgid "Settings"
 msgstr "Настройки"
 
+#: class-chatbudgie.php:1771 class-chatbudgie.php:1772
 msgid "Usage"
 msgstr "Использование"
 
+#: class-chatbudgie.php:1780 class-chatbudgie.php:1781
+#: templates/admin-orders.php:19
 msgid "Orders"
 msgstr "Заказы"
 
+#: class-chatbudgie.php:1813 class-chatbudgie.php:1848
+#: class-chatbudgie.php:2019
 msgid "You do not have permission to access this page."
 msgstr "У вас нет прав для доступа к этой странице."
 
+#: class-chatbudgie.php:1813 class-chatbudgie.php:1848
+#: class-chatbudgie.php:1883 class-chatbudgie.php:2019
 msgid "Unauthorized"
 msgstr "Не авторизовано"
 
+#: class-chatbudgie.php:1833
 msgid "Failed to fetch usage info. Please try again later."
-msgstr "Не удалось получить информацию об использовании. Повторите попытку позже."
+msgstr ""
+"Не удалось получить информацию об использовании. Повторите попытку позже."
 
+#: class-chatbudgie.php:1868
 msgid "Failed to fetch user info. Please try again later."
-msgstr "Не удалось получить информацию о пользователе. Повторите попытку позже."
+msgstr ""
+"Не удалось получить информацию о пользователе. Повторите попытку позже."
 
+#: class-chatbudgie.php:1883
 msgid "You do not have permission to complete this action."
 msgstr "У вас нет прав для выполнения этого действия."
 
+#: class-chatbudgie.php:1888
 msgid "Invalid login callback request."
 msgstr "Недопустимый запрос обратного вызова входа."
 
+#: class-chatbudgie.php:1888 class-chatbudgie.php:1894
+#: class-chatbudgie.php:1941
 msgid "Login Error"
 msgstr "Ошибка входа"
 
+#: class-chatbudgie.php:1894
 msgid "Authorization code is missing"
 msgstr "Код авторизации отсутствует"
 
+#: class-chatbudgie.php:1913
 msgid "API Error"
 msgstr "Ошибка API"
 
+#: class-chatbudgie.php:1941
 msgid "Failed to retrieve appKey from login server"
 msgstr "Не удалось получить appKey с сервера входа"
 
+#: class-chatbudgie.php:2039
 msgid "Failed to fetch account info. Please try again later."
 msgstr "Не удалось получить информацию об аккаунте. Повторите попытку позже."
 
+#: templates/admin-account-summary.php:14
 msgid "ChatBudgie Workspace"
 msgstr "Рабочая область ChatBudgie"
 
+#: templates/admin-account-summary.php:15
 msgid "Connected via your WordPress admin account"
 msgstr "Подключено через ваш аккаунт администратора WordPress"
 
+#: templates/admin-account-summary.php:30
 msgid "Account Summary"
 msgstr "Сводка аккаунта"
 
+#: templates/admin-account-summary.php:44
 msgid "Remaining Tokens"
 msgstr "Оставшиеся токены"
 
+#: templates/admin-account-summary.php:48
+#: templates/admin-account-summary.php:49
 msgid "Low balance: please recharge."
 msgstr "Низкий баланс: пополните счет."
 
+#: templates/admin-account-summary.php:52
 msgid "ChatBudgie uses tokens to power its features."
 msgstr "ChatBudgie использует токены для работы своих функций."
 
+#: templates/admin-account-summary.php:67
 msgid "Buy Tokens"
 msgstr "Купить токены"
 
-msgid "Track purchases, account balance, and token top-ups in one place."
-msgstr "Отслеживайте покупки, баланс аккаунта и пополнения токенов в одном месте."
+#: templates/admin-login.php:48
+msgid "Get Started"
+msgstr ""
 
+#: templates/admin-login.php:49
+msgid "waving hand"
+msgstr ""
+
+#: templates/admin-login.php:51
+msgid "Login to your ChatBudgie account."
+msgstr ""
+
+#: templates/admin-login.php:51
+msgid "New users will receive a certain amount of free tokens."
+msgstr ""
+
+#: templates/admin-login.php:59
+msgid "Sign in with Google"
+msgstr ""
+
+#: templates/admin-login.php:66
+msgid "Sign in with Microsoft"
+msgstr ""
+
+#: templates/admin-login.php:73
+msgid "Sign in with GitHub"
+msgstr ""
+
+#: templates/admin-login.php:83
+msgid "By continuing, you agree to our"
+msgstr ""
+
+#: templates/admin-login.php:84
+msgid "Terms of Service"
+msgstr ""
+
+#: templates/admin-login.php:85
+msgid "and"
+msgstr ""
+
+#: templates/admin-login.php:85
+msgid "Privacy Policy"
+msgstr ""
+
+#: templates/admin-login.php:110
+msgid "Smart AI Chatbot for WordPress"
+msgstr ""
+
+#: templates/admin-login.php:113
+msgid "Turn your WordPress to a smart chatbot."
+msgstr ""
+
+#: templates/admin-login.php:123
+msgid "Smart Chat"
+msgstr ""
+
+#: templates/admin-login.php:124
+msgid "Answers from your content, not the internet."
+msgstr ""
+
+#: templates/admin-login.php:133
+msgid "Easy to Setup"
+msgstr ""
+
+#: templates/admin-login.php:134
+msgid "Get started in just a few minutes."
+msgstr ""
+
+#: templates/admin-login.php:143
+msgid "Zero Maintenance"
+msgstr ""
+
+#: templates/admin-login.php:144
+msgid "We keep your knowledge base up to date automatically."
+msgstr ""
+
+#: templates/admin-login.php:151
+#, fuzzy
+msgid "ChatBudgie mascot"
+msgstr "Аватар ChatBudgie"
+
+#. translators: %s: Current year.
+#: templates/admin-login.php:163
+#, php-format
+msgid "© %s ChatBudgie. All rights reserved."
+msgstr ""
+
+#: templates/admin-orders.php:20
+msgid "Track purchases, account balance, and token top-ups in one place."
+msgstr ""
+"Отслеживайте покупки, баланс аккаунта и пополнения токенов в одном месте."
+
+#: templates/admin-orders.php:27
 msgid "Remaining Tokens:"
 msgstr "Оставшиеся токены:"
 
+#: templates/admin-orders.php:36
 msgid "Recharge Tokens"
 msgstr "Пополнить токены"
 
+#: templates/admin-orders.php:37
 msgid "Select a token package to recharge your account balance."
 msgstr "Выберите пакет токенов для пополнения баланса аккаунта."
 
+#: templates/admin-orders.php:45
 msgid "Basic Recharge"
 msgstr "Базовое пополнение"
 
+#: templates/admin-orders.php:56
 msgid "Pro Pack - Best Value"
 msgstr "Пакет Pro - Лучшая выгода"
 
+#: templates/admin-orders.php:67
 msgid "Enterprise Scale"
 msgstr "Корпоративный масштаб"
 
+#: templates/admin-orders.php:80
 msgid "Order History"
 msgstr "История заказов"
 
+#: templates/admin-orders.php:81
 msgid "Track your past recharges and billing status."
 msgstr "Отслеживайте прошлые пополнения и статус оплаты."
 
+#: templates/admin-orders.php:90 templates/admin-usage.php:41
 msgid "Refresh"
 msgstr "Обновить"
 
+#: templates/admin-orders.php:98 templates/admin-usage.php:49
 msgid "Time"
 msgstr "Время"
 
+#: templates/admin-orders.php:99
 msgid "Order ID"
 msgstr "ID заказа"
 
+#: templates/admin-orders.php:100
 msgid "Tokens"
 msgstr "Токены"
 
+#: templates/admin-orders.php:101
 msgid "Price"
 msgstr "Цена"
 
+#: templates/admin-orders.php:102
 msgid "Channel"
 msgstr "Канал"
 
+#: templates/admin-orders.php:103
 msgid "Status"
 msgstr "Статус"
 
+#: templates/admin-orders.php:113
 msgid "No order history found."
 msgstr "История заказов не найдена."
 
+#: templates/admin-orders.php:159 templates/admin-usage.php:102
 msgid "Previous Page"
 msgstr "Предыдущая страница"
 
+#: templates/admin-orders.php:160 templates/admin-usage.php:103
 msgid "&laquo; Previous"
 msgstr "&laquo; Предыдущая"
 
+#. translators: 1: current page number, 2: total number of pages
+#: templates/admin-orders.php:167 templates/admin-usage.php:110
+#, php-format
 msgid "Page %1$d of %2$d"
 msgstr "Страница %1$d из %2$d"
 
+#: templates/admin-orders.php:176 templates/admin-usage.php:119
 msgid "Next Page"
 msgstr "Следующая страница"
 
+#: templates/admin-orders.php:177 templates/admin-usage.php:120
 msgid "Next &raquo;"
 msgstr "Следующая &raquo;"
 
+#: templates/admin-orders.php:191
 msgid "Close"
 msgstr "Закрыть"
 
+#: templates/admin-orders.php:202
 msgid "Payment Success!"
 msgstr "Платеж успешен!"
 
-msgid "Your transaction has been successfully completed. The tokens will be recharged to your account shortly."
-msgstr "Ваша транзакция успешно завершена. Токены скоро будут зачислены на ваш аккаунт."
+#: templates/admin-orders.php:203
+msgid ""
+"Your transaction has been successfully completed. The tokens will be "
+"recharged to your account shortly."
+msgstr ""
+"Ваша транзакция успешно завершена. Токены скоро будут зачислены на ваш "
+"аккаунт."
 
+#: templates/admin-orders.php:205
 msgid "Continue"
 msgstr "Продолжить"
 
+#: templates/admin-settings.php:13
 msgid "I'm ChatBudgie, your AI assistant. How can I help you today?"
 msgstr "Я ChatBudgie, ваш AI-помощник. Чем могу помочь сегодня?"
 
+#: templates/admin-settings.php:23
 msgid "Preparing index"
 msgstr "Подготовка индекса"
 
+#: templates/admin-settings.php:24
 msgid "Indexing content"
 msgstr "Индексация содержимого"
 
+#: templates/admin-settings.php:25
 msgid "Index is ready"
 msgstr "Индекс готов"
 
+#: templates/admin-settings.php:26
 msgid "Index needs attention"
 msgstr "Индекс требует внимания"
 
+#: templates/admin-settings.php:28
 msgid "Status unavailable"
 msgstr "Статус недоступен"
 
+#: templates/admin-settings.php:31
 msgid "Check logs"
 msgstr "Проверить журналы"
 
+#: templates/admin-settings.php:33
 msgid "Ready now"
 msgstr "Готово"
 
+#. translators: 1: minutes, 2: seconds
+#: templates/admin-settings.php:39
+#, fuzzy, php-format
 msgid "%1$dm %2$02ds"
 msgstr "%1$d мин %2$02$d сек"
 
+#. translators: 1: minutes, 2: seconds
+#: templates/admin-settings.php:39
+#, php-format
 msgid "%1$ds"
 msgstr "%1$d сек"
 
+#: templates/admin-settings.php:41
 msgid "Starting"
 msgstr "Запуск"
 
+#: templates/admin-settings.php:49
 msgid "Ocean Blue"
 msgstr "Океанский синий"
 
+#: templates/admin-settings.php:54
 msgid "Violet"
 msgstr "Фиолетовый"
 
+#: templates/admin-settings.php:59
 msgid "Teal"
 msgstr "Бирюзовый"
 
+#: templates/admin-settings.php:64
 msgid "Amber"
 msgstr "Янтарный"
 
+#: templates/admin-settings.php:69
 msgid "Rose"
 msgstr "Розовый"
 
+#: templates/admin-settings.php:98
 msgid "Manage your chatbot settings and account."
 msgstr "Управляйте настройками и аккаунтом вашего чат-бота."
 
+#: templates/admin-settings.php:109
 msgid "knowledge Base Indexing Status"
 msgstr "Статус индексации базы знаний"
 
+#: templates/admin-settings.php:119
 msgid "Rebuild Index"
 msgstr "Перестроить индекс"
 
+#: templates/admin-settings.php:142
 msgid "Total Files"
 msgstr "Всего файлов"
 
+#: templates/admin-settings.php:156
 msgid "Indexed Files"
 msgstr "Проиндексировано файлов"
 
+#: templates/admin-settings.php:169
 msgid "Estimated Time"
 msgstr "Оценочное время"
 
-msgid "Indexing runs in the background. It builds the knowledge base index on the public content of your website. After the indexing is complete, ChatBudgie will be able to answer questions based on your content."
-msgstr "Индексация выполняется в фоновом режиме. Она создает индекс базы знаний на основе публичного содержимого вашего сайта. После завершения ChatBudgie сможет отвечать на вопросы на основе вашего контента."
+#: templates/admin-settings.php:178
+msgid ""
+"Indexing runs in the background. It builds the knowledge base index on the "
+"public content of your website. After the indexing is complete, ChatBudgie "
+"will be able to answer questions based on your content."
+msgstr ""
+"Индексация выполняется в фоновом режиме. Она создает индекс базы знаний на "
+"основе публичного содержимого вашего сайта. После завершения ChatBudgie "
+"сможет отвечать на вопросы на основе вашего контента."
 
+#: templates/admin-settings.php:190
 msgid "Appearance"
 msgstr "Внешний вид"
 
+#: templates/admin-settings.php:200
 msgid "Chatbot Icon"
 msgstr "Значок чат-бота"
 
+#: templates/admin-settings.php:201
 msgid "Choose the avatar that represents your chatbot."
 msgstr "Выберите аватар, представляющий вашего чат-бота."
 
+#: templates/admin-settings.php:206
 msgid "Avatar options"
 msgstr "Варианты аватара"
 
+#: templates/admin-settings.php:229
 msgid "Change Icon"
 msgstr "Изменить значок"
 
+#: templates/admin-settings.php:243
 msgid "Primary Color"
 msgstr "Основной цвет"
 
+#: templates/admin-settings.php:244
 msgid "Set the main color for your chatbot UI."
 msgstr "Установите основной цвет интерфейса чат-бота."
 
+#: templates/admin-settings.php:249
 msgid "Primary color options"
 msgstr "Варианты основного цвета"
 
+#: templates/admin-settings.php:280
 msgid "Welcome Message"
 msgstr "Приветственное сообщение"
 
+#: templates/admin-settings.php:281
 msgid "Set the default greeting message for your visitors."
 msgstr "Задайте приветствие по умолчанию для посетителей."
 
+#: templates/admin-settings.php:302
 msgid "Save Settings"
 msgstr "Сохранить настройки"
 
+#: templates/admin-support-footer.php:12
 msgid "Need help or have a question?"
 msgstr "Нужна помощь или есть вопрос?"
 
+#: templates/admin-support-footer.php:13
 msgid "SuperBudgie team is here to assist you."
 msgstr "Команда SuperBudgie готова помочь вам."
 
+#: templates/admin-usage.php:20
 msgid "Token Usage"
 msgstr "Использование токенов"
 
+#: templates/admin-usage.php:21
 msgid "Monitor your token consumption and request activity."
 msgstr "Отслеживайте расход токенов и активность запросов."
 
+#: templates/admin-usage.php:31
 msgid "Request Logs"
 msgstr "Журналы запросов"
 
+#: templates/admin-usage.php:32
 msgid "View a detailed history of your chatbot requests and token usage."
-msgstr "Просмотрите подробную историю запросов чат-бота и использования токенов."
+msgstr ""
+"Просмотрите подробную историю запросов чат-бота и использования токенов."
 
+#: templates/admin-usage.php:50
 msgid "App Name"
 msgstr "Название приложения"
 
+#: templates/admin-usage.php:51
 msgid "Site"
 msgstr "Сайт"
 
+#: templates/admin-usage.php:52
 msgid "Request Type"
 msgstr "Тип запроса"
 
+#: templates/admin-usage.php:53
 msgid "Token Cost"
 msgstr "Стоимость в токенах"
 
+#: templates/admin-usage.php:54
 msgid "Time Cost"
 msgstr "Затраченное время"
 
+#: templates/admin-usage.php:61
 msgid "No request logs found."
 msgstr "Журналы запросов не найдены."
 
+#: templates/chatbudgie-widget.php:15
 msgid "ChatBudgie chat window"
 msgstr "Окно чата ChatBudgie"
 
+#: templates/chatbudgie-widget.php:17 templates/chatbudgie-widget.php:22
+#: templates/chatbudgie-widget.php:39
 msgid "ChatBudgie avatar"
 msgstr "Аватар ChatBudgie"
 
+#: templates/chatbudgie-widget.php:25
 msgid "Close chat"
 msgstr "Закрыть чат"
 
+#: templates/chatbudgie-widget.php:35
 msgid "What services do you offer?"
 msgstr "Какие услуги вы предлагаете?"
 
-msgid "We offer AI chatbot solutions that help you automate support and engage your visitors."
-msgstr "Мы предлагаем решения AI-чатботов, которые помогают автоматизировать поддержку и вовлекать посетителей."
+#: templates/chatbudgie-widget.php:40
+msgid ""
+"We offer AI chatbot solutions that help you automate support and engage your "
+"visitors."
+msgstr ""
+"Мы предлагаем решения AI-чатботов, которые помогают автоматизировать "
+"поддержку и вовлекать посетителей."
 
+#: templates/chatbudgie-widget.php:44
 msgid "Is my data safe?"
 msgstr "Безопасны ли мои данные?"
 
+#: templates/chatbudgie-widget.php:57
 msgid "Oops! Something went wrong."
 msgstr "Упс! Что-то пошло не так."
 
-msgid "I'm having a little trouble thinking right now. Please try again in a moment."
+#: templates/chatbudgie-widget.php:58
+msgid ""
+"I'm having a little trouble thinking right now. Please try again in a moment."
 msgstr "Сейчас мне немного трудно ответить. Повторите попытку через минуту."
 
+#: templates/chatbudgie-widget.php:67
 msgid "Try Again"
 msgstr "Попробовать снова"
 
+#: templates/chatbudgie-widget.php:78
 msgid "Ask anything..."
 msgstr "Спросите что угодно..."
 
+#: templates/chatbudgie-widget.php:79
 msgid "Type your message"
 msgstr "Введите сообщение"
 
+#: templates/chatbudgie-widget.php:80
 msgid "Send message"
 msgstr "Отправить сообщение"
 
+#: templates/chatbudgie-widget.php:86
 msgid "Stop response"
 msgstr "Остановить ответ"
-

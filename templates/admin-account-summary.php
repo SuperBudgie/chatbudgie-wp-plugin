@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // $user_info is passed from the controller (ChatBudgie class)
-$chatbudgie_avatar_url    = ! empty( $user_info['avatarUrl'] ) ? $user_info['avatarUrl'] : SUPERBUDGIE_CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png';
+$chatbudgie_avatar_url    = ! empty( $user_info['avatarUrl'] ) ? $user_info['avatarUrl'] : CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png';
 $chatbudgie_account_name  = ! empty( $user_info['name'] ) ? $user_info['name'] : __( 'ChatBudgie Workspace', 'chatbudgie' );
 $chatbudgie_account_email = ! empty( $user_info['email'] ) ? $user_info['email'] : __( 'Connected via your WordPress admin account', 'chatbudgie' );
 $chatbudgie_balance       = isset( $user_info['tokenBalance'] ) ? $user_info['tokenBalance'] : 0;
@@ -55,7 +55,7 @@ $chatbudgie_is_low_balance = $chatbudgie_numeric_balance < 50000;
 		</div>
 
 		<div class="summary-actions">
-			<a href="admin.php?page=superbudgie-chatbudgie-orders#recharge-title">
+			<a href="admin.php?page=chatbudgie-orders#recharge-title">
 				<button type="button" class="cb-btn cb-btn--primary" id="chatbudgie-buy-tokens">
 					<span class="cb-icon cb-icon--sm" aria-hidden="true">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">

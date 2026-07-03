@@ -23,22 +23,22 @@ require_once __DIR__ . '/../lib/Vektor/Services/Optimizer.php';
 // require_once __DIR__ . '/TestableChatBudgie.php';
 
 // Set up test data directory
-define('SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR', __DIR__ . '/../test-data');
+define('CHATBUDGIE_TEST_DATA_DIR', __DIR__ . '/../test-data');
 
 // Create test data directory if it doesn't exist
-if (!file_exists(SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR)) {
-    mkdir(SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR, 0755, true);
+if (!file_exists(CHATBUDGIE_TEST_DATA_DIR)) {
+    mkdir(CHATBUDGIE_TEST_DATA_DIR, 0755, true);
 }
 
 // Initialize the vector index dimension for testing
 \SuperBudgie\ChatBudgie\Vektor\Core\Config::setDimensions(1536);
-\SuperBudgie\ChatBudgie\Vektor\Core\Config::setDataDir(SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR);
+\SuperBudgie\ChatBudgie\Vektor\Core\Config::setDataDir(CHATBUDGIE_TEST_DATA_DIR);
 
 // Create empty binary files for vector library
-$vectorFile = SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR . '/vector.bin';
-$graphFile = SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR . '/graph.bin';
-$metaFile = SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR . '/meta.bin';
-$lockFile = SUPERBUDGIE_CHATBUDGIE_TEST_DATA_DIR . '/db.lock';
+$vectorFile = CHATBUDGIE_TEST_DATA_DIR . '/vector.bin';
+$graphFile = CHATBUDGIE_TEST_DATA_DIR . '/graph.bin';
+$metaFile = CHATBUDGIE_TEST_DATA_DIR . '/meta.bin';
+$lockFile = CHATBUDGIE_TEST_DATA_DIR . '/db.lock';
 
 if (!file_exists($vectorFile)) {
     touch($vectorFile);

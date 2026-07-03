@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const params = window.superbudgie_chatbudgie_orders_params;
+    const params = window.chatbudgie_orders_params;
 
     if (!params) {
         return;
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: new URLSearchParams({
-                        action: 'superbudgie_chatbudgie_create_paypal_order',
+                        action: 'chatbudgie_create_paypal_order',
                         _ajax_nonce: params.nonce,
                         package: pkg.id,
                         amount: pkg.amount,
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: new URLSearchParams({
-                        action: 'superbudgie_chatbudgie_capture_paypal_order',
+                        action: 'chatbudgie_capture_paypal_order',
                         _ajax_nonce: params.nonce,
                         order_id: data.orderID
                     })
