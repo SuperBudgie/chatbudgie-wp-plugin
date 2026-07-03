@@ -129,6 +129,7 @@ class ChatBudgie {
 		add_action( 'wp_ajax_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'wp_ajax_nopriv_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'maybe_redirect_after_activation' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( CHATBUDGIE_PLUGIN_FILE ), array( $this, 'add_plugin_action_links' ) );
 		// add_action('admin_notices', array($this, 'show_index_status_notice'));.
@@ -400,6 +401,38 @@ class ChatBudgie {
 
 		// Schedule immediate index build via Action Scheduler.
 		$this->schedule_index_build();
+
+		update_option( 'chatbudgie_activation_redirect', 1 );
+	}
+
+	/**
+	 * Redirect administrators to ChatBudgie settings once after plugin activation.
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_after_activation() {
+		if ( ! get_option( 'chatbudgie_activation_redirect' ) ) {
+			return;
+		}
+
+		delete_option( 'chatbudgie_activation_redirect' );
+
+		if (
+			! current_user_can( 'manage_options' )
+			|| wp_doing_ajax()
+			|| is_network_admin()
+			|| ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) )
+		) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['activate-multi'] ) ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=chatbudgie' ) );
+		exit;
 	}
 
 	/**
@@ -607,7 +640,7 @@ class ChatBudgie {
 	 */
 	public function handle_post_save( $post_id, $post ) {
 		// Skip autosaves.
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && constant( 'DOING_AUTOSAVE' ) ) {
 			return;
 		}
 
