@@ -8,7 +8,7 @@ Stable tag: 1.1.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-ChatBudgie is the easiest and most user-friendly AI chatbot for WordPress. It answers visitor questions from your site content using ChatGPT, Claude.
+ChatBudgie adds an AI chatbot widget to your WordPress which answers questions from your content using ChatGPT, RAG technology. It is a simple Tidio and AI Engine alternative which doesn't need complex API configurations.
 
 == Description ==
 
