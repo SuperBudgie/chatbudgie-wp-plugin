@@ -162,6 +162,11 @@
 	}
 
 	var HIGHLIGHT_CONTAINER_ID = 'chatbudgie-agent-highlight-container'
+	var activeHighlightContainer = null
+	var highlightedElements = []
+	var highlightUpdateFrame = null
+	var highlightScrollHandler = null
+	var highlightResizeHandler = null
 
 	function ChatBudgieAgent(options) {
 		this.options = options || {}
@@ -430,8 +435,22 @@
 	}
 
 	ChatBudgieAgent.prototype.cleanUpHighlights = function () {
+		restoreElementHighlights()
 		var container = document.getElementById(HIGHLIGHT_CONTAINER_ID)
 		if (container) container.remove()
+		activeHighlightContainer = null
+		if (highlightScrollHandler) {
+			window.removeEventListener('scroll', highlightScrollHandler, true)
+			highlightScrollHandler = null
+		}
+		if (highlightResizeHandler) {
+			window.removeEventListener('resize', highlightResizeHandler)
+			highlightResizeHandler = null
+		}
+		if (highlightUpdateFrame) {
+			cancelAnimationFrame(highlightUpdateFrame)
+			highlightUpdateFrame = null
+		}
 	}
 
 	ChatBudgieAgent.prototype.dispose = function () {
@@ -856,40 +875,106 @@
 			container.setAttribute('data-chatbudgie-agent-ignore', 'true')
 			container.style.cssText =
 				'position:fixed;inset:0;pointer-events:none;z-index:2147483640;background:transparent;'
+			container._chatbudgieHighlightItems = []
 			document.body.appendChild(container)
+			activeHighlightContainer = container
+			ensureHighlightListeners()
 		}
 
 		var rect = element.getBoundingClientRect()
 		if (!rect.width || !rect.height) return
 
 		var color = options.highlightColor || '#3b82f6'
-		var overlay = document.createElement('div')
-		overlay.style.cssText =
-			'position:fixed;box-sizing:border-box;border:2px solid ' +
-			color +
-			';background:rgba(59,130,246,.08);left:' +
-			rect.left +
-			'px;top:' +
-			rect.top +
-			'px;width:' +
-			rect.width +
-			'px;height:' +
-			rect.height +
-			'px;'
+		applyElementHighlight(element, color)
 
 		var label = document.createElement('div')
 		label.textContent = String(index)
 		label.style.cssText =
 			'position:fixed;background:' +
 			color +
-			';color:white;font:11px/1.4 system-ui,sans-serif;padding:1px 4px;border-radius:4px;left:' +
-			Math.max(0, rect.left) +
-			'px;top:' +
-			Math.max(0, rect.top - 18) +
-			'px;'
+			';color:white;font:11px/1.4 system-ui,sans-serif;padding:1px 4px;border-radius:4px;'
 
-		container.appendChild(overlay)
 		container.appendChild(label)
+		container._chatbudgieHighlightItems.push({
+			element: element,
+			label: label,
+		})
+		updateHighlightLabel(element, label)
+	}
+
+	function applyElementHighlight(element, color) {
+		if (!element._chatbudgieOriginalHighlightStyle) {
+			element._chatbudgieOriginalHighlightStyle = {
+				outline: element.style.outline,
+				outlineOffset: element.style.outlineOffset,
+				boxShadow: element.style.boxShadow,
+			}
+			highlightedElements.push(element)
+		}
+
+		element.style.outline = '2px solid ' + color
+		element.style.outlineOffset = '2px'
+		element.style.boxShadow = '0 0 0 3px rgba(59,130,246,.14)'
+	}
+
+	function restoreElementHighlights() {
+		for (var i = 0; i < highlightedElements.length; i++) {
+			var element = highlightedElements[i]
+			var original = element && element._chatbudgieOriginalHighlightStyle
+			if (!original) continue
+
+			element.style.outline = original.outline
+			element.style.outlineOffset = original.outlineOffset
+			element.style.boxShadow = original.boxShadow
+			delete element._chatbudgieOriginalHighlightStyle
+		}
+		highlightedElements = []
+	}
+
+	function ensureHighlightListeners() {
+		if (!highlightScrollHandler) {
+			highlightScrollHandler = scheduleHighlightUpdate
+			window.addEventListener('scroll', highlightScrollHandler, true)
+		}
+		if (!highlightResizeHandler) {
+			highlightResizeHandler = scheduleHighlightUpdate
+			window.addEventListener('resize', highlightResizeHandler)
+		}
+	}
+
+	function scheduleHighlightUpdate() {
+		if (highlightUpdateFrame) return
+		highlightUpdateFrame = requestAnimationFrame(function () {
+			highlightUpdateFrame = null
+			updateHighlightPositions()
+		})
+	}
+
+	function updateHighlightPositions() {
+		var container = activeHighlightContainer
+		if (!container || !container.isConnected || !container._chatbudgieHighlightItems) return
+
+		for (var i = 0; i < container._chatbudgieHighlightItems.length; i++) {
+			var item = container._chatbudgieHighlightItems[i]
+			updateHighlightLabel(item.element, item.label)
+		}
+	}
+
+	function updateHighlightLabel(element, label) {
+		if (!element || !element.isConnected) {
+			label.style.display = 'none'
+			return
+		}
+
+		var rect = element.getBoundingClientRect()
+		if (!rect.width || !rect.height) {
+			label.style.display = 'none'
+			return
+		}
+
+		label.style.display = ''
+		label.style.left = Math.max(0, rect.left) + 'px'
+		label.style.top = Math.max(0, rect.top - 18) + 'px'
 	}
 
 	function getPageInfo() {
