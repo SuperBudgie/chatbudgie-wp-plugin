@@ -4,7 +4,7 @@ Tags: ai chatbot, chat bot, chatgpt, customer support, chat button
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -123,8 +123,8 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Changelog ==
 
-= 1.1.4 =
-* Optimize query embedding algorithm.
+= 1.1.5 =
+* Optimize localization of admin pages.
 
 = 1.1.2 =
 * Redirect administrators to the ChatBudgie settings page after plugin activation.
@@ -149,5 +149,5 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Upgrade Notice ==
 
-= 1.1.4 =
-Optimize query embedding algorithm.
+= 1.1.5 =
+Optimize localization of admin pages.

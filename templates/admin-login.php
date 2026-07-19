@@ -45,10 +45,10 @@ function chatbudgie_get_login_url( string $provider ) {
 			<div class="panel__inner">
 				<div class="login__head">
 					<h1 id="login-title" class="login__title">
-						Get Started
-						<span class="wave" role="img" aria-label="waving hand">👋</span>
+						<?php echo esc_html__( 'Get Started', 'chatbudgie' ); ?>
+						<span class="wave" role="img" aria-label="<?php echo esc_attr__( 'waving hand', 'chatbudgie' ); ?>">👋</span>
 					</h1>
-					<p class="login__sub">Login to your ChatBudgie account. <br />New users will receive a certain amount of free tokens.</p>
+					<p class="login__sub"><?php echo esc_html__( 'Login to your ChatBudgie account.', 'chatbudgie' ); ?> <br /><?php echo esc_html__( 'New users will receive a certain amount of free tokens.', 'chatbudgie' ); ?></p>
 				</div>
 
 				<div class="providers">
@@ -56,21 +56,21 @@ function chatbudgie_get_login_url( string $provider ) {
 						<span class="provider__icon">
 							<img src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/google.svg' ); ?>" alt="" />
 						</span>
-						<span class="provider__label">Sign in with Google</span>
+						<span class="provider__label"><?php echo esc_html__( 'Sign in with Google', 'chatbudgie' ); ?></span>
 					</a>
 
 					<a href="<?php echo esc_url( chatbudgie_get_login_url( 'microsoft' ) ); ?>" class="provider">
 						<span class="provider__icon">
 							<img src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/microsoft.svg' ); ?>" alt="" />
 						</span>
-						<span class="provider__label">Sign in with Microsoft</span>
+						<span class="provider__label"><?php echo esc_html__( 'Sign in with Microsoft', 'chatbudgie' ); ?></span>
 					</a>
 
 					<a href="<?php echo esc_url( chatbudgie_get_login_url( 'github' ) ); ?>" class="provider">
 						<span class="provider__icon">
 							<img src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/github.svg' ); ?>" alt="" />
 						</span>
-						<span class="provider__label">Sign in with GitHub</span>
+						<span class="provider__label"><?php echo esc_html__( 'Sign in with GitHub', 'chatbudgie' ); ?></span>
 					</a>
 
 					<div class="divider" aria-hidden="true">
@@ -80,9 +80,32 @@ function chatbudgie_get_login_url( string $provider ) {
 					<p class="legal">
 						<img class="legal__icon" src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/lock.svg' ); ?>" alt="" />
 						<span>
-							By continuing, you agree to our
-							<a href="<?php echo esc_url( 'https://chat.superbudgie.com/terms-of-service' ); ?>" target="_blank" rel="noopener noreferrer">Terms of Service</a>
-							and <a href="<?php echo esc_url( 'https://chat.superbudgie.com/privacy-policy' ); ?>" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+							<?php
+							$chatbudgie_terms_link   = sprintf(
+								'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+								esc_url( 'https://chat.superbudgie.com/terms-of-service' ),
+								esc_html__( 'Terms of Service', 'chatbudgie' )
+							);
+							$chatbudgie_privacy_link = sprintf(
+								'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+								esc_url( 'https://chat.superbudgie.com/privacy-policy' ),
+								esc_html__( 'Privacy Policy', 'chatbudgie' )
+							);
+
+							/* translators: 1: Terms of Service link, 2: Privacy Policy link. */
+							$chatbudgie_legal_text = sprintf( __( 'By continuing, you agree to our %1$s and %2$s.', 'chatbudgie' ), $chatbudgie_terms_link, $chatbudgie_privacy_link );
+
+							echo wp_kses(
+								$chatbudgie_legal_text,
+								array(
+									'a' => array(
+										'href'   => true,
+										'target' => true,
+										'rel'    => true,
+									),
+								)
+							);
+							?>
 						</span>
 					</p>
 				</div>
@@ -107,10 +130,10 @@ function chatbudgie_get_login_url( string $provider ) {
 			<div class="panel__inner promo__inner">
 				<div class="promo__head">
 					<h2 id="promo-title" class="promo__title">
-						Smart AI Chatbot for WordPress
+						<?php echo esc_html__( 'Smart AI Chatbot for WordPress', 'chatbudgie' ); ?>
 					</h2>
 					<p class="promo__sub">
-						Turn your WordPress to a smart chatbot.
+						<?php echo esc_html__( 'Turn your WordPress to a smart chatbot.', 'chatbudgie' ); ?>
 					</p>
 				</div>
 
@@ -120,8 +143,8 @@ function chatbudgie_get_login_url( string $provider ) {
 							<img src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/f-chat.svg' ); ?>" alt="" />
 						</span>
 						<div class="feature__body">
-							<h3 class="feature__title">Smart Chat</h3>
-							<p class="feature__text">Answers from your content, not the internet.</p>
+							<h3 class="feature__title"><?php echo esc_html__( 'Smart Chat', 'chatbudgie' ); ?></h3>
+							<p class="feature__text"><?php echo esc_html__( 'Answers from your content, not the internet.', 'chatbudgie' ); ?></p>
 						</div>
 					</li>
 
@@ -130,8 +153,8 @@ function chatbudgie_get_login_url( string $provider ) {
 							<img src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/f-bolt.svg' ); ?>" alt="" />
 						</span>
 						<div class="feature__body">
-							<h3 class="feature__title">Easy to Setup</h3>
-							<p class="feature__text">Get started in just a few minutes.</p>
+							<h3 class="feature__title"><?php echo esc_html__( 'Easy to Setup', 'chatbudgie' ); ?></h3>
+							<p class="feature__text"><?php echo esc_html__( 'Get started in just a few minutes.', 'chatbudgie' ); ?></p>
 						</div>
 					</li>
 
@@ -140,15 +163,15 @@ function chatbudgie_get_login_url( string $provider ) {
 							<img src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/f-gear.svg' ); ?>" alt="" />
 						</span>
 						<div class="feature__body">
-							<h3 class="feature__title">Zero Maintenance</h3>
-							<p class="feature__text">We keep your knowledge base up to date automatically.</p>
+							<h3 class="feature__title"><?php echo esc_html__( 'Zero Maintenance', 'chatbudgie' ); ?></h3>
+							<p class="feature__text"><?php echo esc_html__( 'We keep your knowledge base up to date automatically.', 'chatbudgie' ); ?></p>
 						</div>
 					</li>
 				</ul>
 
 				<div class="mascot">
 					<img class="mascot__bubble" src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/bubble.svg' ); ?>" alt="" />
-					<img class="mascot__img" src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie.png' ); ?>" alt="ChatBudgie mascot" />
+					<img class="mascot__img" src="<?php echo esc_url( CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie.png' ); ?>" alt="<?php echo esc_attr__( 'ChatBudgie mascot', 'chatbudgie' ); ?>" />
 				</div>
 			</div>
 		</section>
@@ -156,6 +179,11 @@ function chatbudgie_get_login_url( string $provider ) {
 
 	<!-- Footer -->
 	<footer class="footer">
-		<p class="footer__copy">© <?php echo esc_html( gmdate( 'Y' ) ); ?> ChatBudgie. All rights reserved.</p>
+		<p class="footer__copy">
+			<?php
+			/* translators: %s: Current year. */
+			echo esc_html( sprintf( __( '© %s ChatBudgie. All rights reserved.', 'chatbudgie' ), gmdate( 'Y' ) ) );
+			?>
+		</p>
 	</footer>
 </div>

@@ -2,11 +2,11 @@
 # This file is distributed under the GPL v3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: ChatBudgie 1.1.4\n"
+"Project-Id-Version: ChatBudgie 1.1.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-"
 "plugin\n"
-"POT-Creation-Date: 2026-07-03T08:03:02+00:00\n"
-"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"POT-Creation-Date: 2026-07-19T06:38:20+00:00\n"
+"PO-Revision-Date: 2026-07-19 00:00+0000\n"
 "Last-Translator: SuperBudgie Team <support@superbudgie.com>\n"
 "Language-Team: Chinese (China)\n"
 "Language: zh_CN\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Domain: chatbudgie\n"
 
 #. Plugin Name of the plugin
-#: chatbudgie.php class-chatbudgie.php:1752 class-chatbudgie.php:1753
+#: chatbudgie.php class-chatbudgie.php:1784 class-chatbudgie.php:1785
 msgid "ChatBudgie"
 msgstr "ChatBudgie"
 
@@ -43,16 +43,17 @@ msgstr "SuperBudgie Team"
 
 #. Author URI of the plugin
 #: chatbudgie.php
-msgid "https://chat.superbudgie.com"
+#, fuzzy
+msgid "https://chatbudgie.superbudgie.com"
 msgstr "https://chat.superbudgie.com"
 
-#: class-chatbudgie.php:472
+#: class-chatbudgie.php:504
 msgid ""
 "Action Scheduler is unavailable. Please make sure no other plugin is loading "
 "an incompatible copy."
 msgstr "Action Scheduler 不可用。请确保没有其他插件正在加载不兼容的副本。"
 
-#: class-chatbudgie.php:1409
+#: class-chatbudgie.php:1441
 msgid ""
 "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, "
 "please go to the plugin settings page to connect your ChatBudgie account."
@@ -60,19 +61,19 @@ msgstr ""
 "你好，我是 ChatBudgie，这个网站的助手。要使用聊天功能，请前往插件设置页面连接"
 "你的 ChatBudgie 账号。"
 
-#: class-chatbudgie.php:1413
+#: class-chatbudgie.php:1445
 msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
 msgstr "你好，我是 ChatBudgie，这个网站的助手。今天有什么可以帮你？"
 
-#: class-chatbudgie.php:1425
+#: class-chatbudgie.php:1457
 msgid "Please enter your question..."
 msgstr "请输入你的问题..."
 
-#: class-chatbudgie.php:1427
+#: class-chatbudgie.php:1459
 msgid "Failed to send, please try again"
 msgstr "发送失败，请重试"
 
-#: class-chatbudgie.php:1466
+#: class-chatbudgie.php:1498
 msgid ""
 "Are you sure you want to rebuild the index? This action will delete the "
 "existing index and rebuild it, it may take some time and consume your tokens."
@@ -80,115 +81,115 @@ msgstr ""
 "确定要重建索引吗？此操作会删除现有索引并重新构建，可能需要一些时间并消耗你的 "
 "token。"
 
-#: class-chatbudgie.php:1467
+#: class-chatbudgie.php:1499
 msgid "Choose Icon"
 msgstr "选择图标"
 
-#: class-chatbudgie.php:1468
+#: class-chatbudgie.php:1500
 msgid "Select Icon"
 msgstr "选择图标"
 
-#: class-chatbudgie.php:1513
+#: class-chatbudgie.php:1545
 msgid "Failed to create order"
 msgstr "创建订单失败"
 
-#: class-chatbudgie.php:1514
+#: class-chatbudgie.php:1546
 msgid "Failed to capture payment"
 msgstr "扣款失败"
 
-#: class-chatbudgie.php:1515
+#: class-chatbudgie.php:1547
 msgid "An error occurred during the transaction:"
 msgstr "交易过程中发生错误："
 
-#: class-chatbudgie.php:1557
+#: class-chatbudgie.php:1589
 msgid "Your session has expired. Please refresh the page and try again."
 msgstr "你的会话已过期。请刷新页面后重试。"
 
-#: class-chatbudgie.php:1670 class-chatbudgie.php:1682
-#: class-chatbudgie.php:1700 class-chatbudgie.php:1710
+#: class-chatbudgie.php:1702 class-chatbudgie.php:1714
+#: class-chatbudgie.php:1732 class-chatbudgie.php:1742
 msgid "ChatBudgie:"
 msgstr "ChatBudgie："
 
-#: class-chatbudgie.php:1671
+#: class-chatbudgie.php:1703
 msgid "Index build is scheduled and will start shortly."
 msgstr "索引构建已安排，将很快开始。"
 
 #. translators: 1: number of completed posts, 2: total number of scheduled posts, 3: progress percentage
-#: class-chatbudgie.php:1686
+#: class-chatbudgie.php:1718
 #, php-format
 msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
 msgstr "索引进度：已完成 %1$d / %2$d 篇文章（%3$d%%）"
 
-#: class-chatbudgie.php:1701
+#: class-chatbudgie.php:1733
 msgid "Index build completed successfully."
 msgstr "索引构建已成功完成。"
 
-#: class-chatbudgie.php:1711
+#: class-chatbudgie.php:1743
 msgid "Index build failed:"
 msgstr "索引构建失败："
 
-#: class-chatbudgie.php:1714 templates/chatbudgie-widget.php:60
+#: class-chatbudgie.php:1746 templates/chatbudgie-widget.php:60
 msgid "Try again"
 msgstr "重试"
 
-#: class-chatbudgie.php:1762 class-chatbudgie.php:1763
-#: class-chatbudgie.php:1798 templates/admin-settings.php:97
+#: class-chatbudgie.php:1794 class-chatbudgie.php:1795
+#: class-chatbudgie.php:1830 templates/admin-settings.php:97
 msgid "Settings"
 msgstr "设置"
 
-#: class-chatbudgie.php:1771 class-chatbudgie.php:1772
+#: class-chatbudgie.php:1803 class-chatbudgie.php:1804
 msgid "Usage"
 msgstr "用量"
 
-#: class-chatbudgie.php:1780 class-chatbudgie.php:1781
+#: class-chatbudgie.php:1812 class-chatbudgie.php:1813
 #: templates/admin-orders.php:19
 msgid "Orders"
 msgstr "订单"
 
-#: class-chatbudgie.php:1813 class-chatbudgie.php:1848
-#: class-chatbudgie.php:2019
+#: class-chatbudgie.php:1845 class-chatbudgie.php:1880
+#: class-chatbudgie.php:2051
 msgid "You do not have permission to access this page."
 msgstr "你没有权限访问此页面。"
 
-#: class-chatbudgie.php:1813 class-chatbudgie.php:1848
-#: class-chatbudgie.php:1883 class-chatbudgie.php:2019
+#: class-chatbudgie.php:1845 class-chatbudgie.php:1880
+#: class-chatbudgie.php:1915 class-chatbudgie.php:2051
 msgid "Unauthorized"
 msgstr "未授权"
 
-#: class-chatbudgie.php:1833
+#: class-chatbudgie.php:1865
 msgid "Failed to fetch usage info. Please try again later."
 msgstr "获取用量信息失败。请稍后重试。"
 
-#: class-chatbudgie.php:1868
+#: class-chatbudgie.php:1900
 msgid "Failed to fetch user info. Please try again later."
 msgstr "获取用户信息失败。请稍后重试。"
 
-#: class-chatbudgie.php:1883
+#: class-chatbudgie.php:1915
 msgid "You do not have permission to complete this action."
 msgstr "你没有权限完成此操作。"
 
-#: class-chatbudgie.php:1888
+#: class-chatbudgie.php:1920
 msgid "Invalid login callback request."
 msgstr "无效的登录回调请求。"
 
-#: class-chatbudgie.php:1888 class-chatbudgie.php:1894
-#: class-chatbudgie.php:1941
+#: class-chatbudgie.php:1920 class-chatbudgie.php:1926
+#: class-chatbudgie.php:1973
 msgid "Login Error"
 msgstr "登录错误"
 
-#: class-chatbudgie.php:1894
+#: class-chatbudgie.php:1926
 msgid "Authorization code is missing"
 msgstr "缺少授权码"
 
-#: class-chatbudgie.php:1913
+#: class-chatbudgie.php:1945
 msgid "API Error"
 msgstr "API 错误"
 
-#: class-chatbudgie.php:1941
+#: class-chatbudgie.php:1973
 msgid "Failed to retrieve appKey from login server"
 msgstr "无法从登录服务器获取 appKey"
 
-#: class-chatbudgie.php:2039
+#: class-chatbudgie.php:2071
 msgid "Failed to fetch account info. Please try again later."
 msgstr "获取账号信息失败。请稍后重试。"
 
@@ -223,90 +224,88 @@ msgstr "购买 Token"
 
 #: templates/admin-login.php:48
 msgid "Get Started"
-msgstr ""
+msgstr "开始使用"
 
 #: templates/admin-login.php:49
 msgid "waving hand"
-msgstr ""
+msgstr "挥手"
 
 #: templates/admin-login.php:51
 msgid "Login to your ChatBudgie account."
-msgstr ""
+msgstr "登录您的 ChatBudgie 账户。"
 
 #: templates/admin-login.php:51
 msgid "New users will receive a certain amount of free tokens."
-msgstr ""
+msgstr "新用户将获得一定数量的免费 Token。"
 
 #: templates/admin-login.php:59
 msgid "Sign in with Google"
-msgstr ""
+msgstr "使用 Google 登录"
 
 #: templates/admin-login.php:66
 msgid "Sign in with Microsoft"
-msgstr ""
+msgstr "使用 Microsoft 登录"
 
 #: templates/admin-login.php:73
 msgid "Sign in with GitHub"
-msgstr ""
+msgstr "使用 GitHub 登录"
 
-#: templates/admin-login.php:83
-msgid "By continuing, you agree to our"
-msgstr ""
-
-#: templates/admin-login.php:84
+#: templates/admin-login.php:87
 msgid "Terms of Service"
-msgstr ""
+msgstr "服务条款"
 
-#: templates/admin-login.php:85
-msgid "and"
-msgstr ""
-
-#: templates/admin-login.php:85
+#: templates/admin-login.php:92
 msgid "Privacy Policy"
-msgstr ""
+msgstr "隐私政策"
 
-#: templates/admin-login.php:110
-msgid "Smart AI Chatbot for WordPress"
-msgstr ""
-
-#: templates/admin-login.php:113
-msgid "Turn your WordPress to a smart chatbot."
-msgstr ""
-
-#: templates/admin-login.php:123
-msgid "Smart Chat"
-msgstr ""
-
-#: templates/admin-login.php:124
-msgid "Answers from your content, not the internet."
-msgstr ""
+#. translators: 1: Terms of Service link, 2: Privacy Policy link.
+#: templates/admin-login.php:96
+#, php-format
+msgid "By continuing, you agree to our %1$s and %2$s."
+msgstr "继续即表示您同意我们的%1$s和%2$s。"
 
 #: templates/admin-login.php:133
+msgid "Smart AI Chatbot for WordPress"
+msgstr "适用于 WordPress 的智能 AI 聊天机器人"
+
+#: templates/admin-login.php:136
+msgid "Turn your WordPress to a smart chatbot."
+msgstr "将您的 WordPress 网站变成智能聊天机器人。"
+
+#: templates/admin-login.php:146
+msgid "Smart Chat"
+msgstr "智能聊天"
+
+#: templates/admin-login.php:147
+msgid "Answers from your content, not the internet."
+msgstr "根据您的内容而非互联网信息提供回答。"
+
+#: templates/admin-login.php:156
 msgid "Easy to Setup"
-msgstr ""
+msgstr "轻松设置"
 
-#: templates/admin-login.php:134
+#: templates/admin-login.php:157
 msgid "Get started in just a few minutes."
-msgstr ""
+msgstr "只需几分钟即可开始使用。"
 
-#: templates/admin-login.php:143
+#: templates/admin-login.php:166
 msgid "Zero Maintenance"
-msgstr ""
+msgstr "零维护"
 
-#: templates/admin-login.php:144
+#: templates/admin-login.php:167
 msgid "We keep your knowledge base up to date automatically."
-msgstr ""
+msgstr "我们会自动让您的知识库保持最新。"
 
-#: templates/admin-login.php:151
-#, fuzzy
+#: templates/admin-login.php:174
+
 msgid "ChatBudgie mascot"
-msgstr "ChatBudgie 头像"
+msgstr "ChatBudgie 吉祥物"
 
 #. translators: %s: Current year.
-#: templates/admin-login.php:163
+#: templates/admin-login.php:185
 #, php-format
 msgid "© %s ChatBudgie. All rights reserved."
-msgstr ""
+msgstr "© %s ChatBudgie。保留所有权利。"
 
 #: templates/admin-orders.php:20
 msgid "Track purchases, account balance, and token top-ups in one place."

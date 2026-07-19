@@ -2,22 +2,22 @@
 # This file is distributed under the GPL v3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: ChatBudgie 1.1.4\n"
+"Project-Id-Version: ChatBudgie 1.1.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/chatbudgie-wp-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-03T08:03:02+00:00\n"
+"POT-Creation-Date: 2026-07-19T06:38:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: chatbudgie\n"
 
 #. Plugin Name of the plugin
 #: chatbudgie.php
-#: class-chatbudgie.php:1752
-#: class-chatbudgie.php:1753
+#: class-chatbudgie.php:1784
+#: class-chatbudgie.php:1785
 msgid "ChatBudgie"
 msgstr ""
 
@@ -38,153 +38,153 @@ msgstr ""
 
 #. Author URI of the plugin
 #: chatbudgie.php
-msgid "https://chat.superbudgie.com"
+msgid "https://chatbudgie.superbudgie.com"
 msgstr ""
 
-#: class-chatbudgie.php:472
+#: class-chatbudgie.php:504
 msgid "Action Scheduler is unavailable. Please make sure no other plugin is loading an incompatible copy."
 msgstr ""
 
-#: class-chatbudgie.php:1409
+#: class-chatbudgie.php:1441
 msgid "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account."
 msgstr ""
 
-#: class-chatbudgie.php:1413
+#: class-chatbudgie.php:1445
 msgid "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?"
 msgstr ""
 
-#: class-chatbudgie.php:1425
+#: class-chatbudgie.php:1457
 msgid "Please enter your question..."
 msgstr ""
 
-#: class-chatbudgie.php:1427
+#: class-chatbudgie.php:1459
 msgid "Failed to send, please try again"
 msgstr ""
 
-#: class-chatbudgie.php:1466
+#: class-chatbudgie.php:1498
 msgid "Are you sure you want to rebuild the index? This action will delete the existing index and rebuild it, it may take some time and consume your tokens."
 msgstr ""
 
-#: class-chatbudgie.php:1467
+#: class-chatbudgie.php:1499
 msgid "Choose Icon"
 msgstr ""
 
-#: class-chatbudgie.php:1468
+#: class-chatbudgie.php:1500
 msgid "Select Icon"
 msgstr ""
 
-#: class-chatbudgie.php:1513
+#: class-chatbudgie.php:1545
 msgid "Failed to create order"
 msgstr ""
 
-#: class-chatbudgie.php:1514
+#: class-chatbudgie.php:1546
 msgid "Failed to capture payment"
 msgstr ""
 
-#: class-chatbudgie.php:1515
+#: class-chatbudgie.php:1547
 msgid "An error occurred during the transaction:"
 msgstr ""
 
-#: class-chatbudgie.php:1557
+#: class-chatbudgie.php:1589
 msgid "Your session has expired. Please refresh the page and try again."
 msgstr ""
 
-#: class-chatbudgie.php:1670
-#: class-chatbudgie.php:1682
-#: class-chatbudgie.php:1700
-#: class-chatbudgie.php:1710
+#: class-chatbudgie.php:1702
+#: class-chatbudgie.php:1714
+#: class-chatbudgie.php:1732
+#: class-chatbudgie.php:1742
 msgid "ChatBudgie:"
 msgstr ""
 
-#: class-chatbudgie.php:1671
+#: class-chatbudgie.php:1703
 msgid "Index build is scheduled and will start shortly."
 msgstr ""
 
 #. translators: 1: number of completed posts, 2: total number of scheduled posts, 3: progress percentage
-#: class-chatbudgie.php:1686
+#: class-chatbudgie.php:1718
 #, php-format
 msgid "Indexing progress: %1$d of %2$d posts completed (%3$d%%)"
 msgstr ""
 
-#: class-chatbudgie.php:1701
+#: class-chatbudgie.php:1733
 msgid "Index build completed successfully."
 msgstr ""
 
-#: class-chatbudgie.php:1711
+#: class-chatbudgie.php:1743
 msgid "Index build failed:"
 msgstr ""
 
-#: class-chatbudgie.php:1714
+#: class-chatbudgie.php:1746
 #: templates/chatbudgie-widget.php:60
 msgid "Try again"
 msgstr ""
 
-#: class-chatbudgie.php:1762
-#: class-chatbudgie.php:1763
-#: class-chatbudgie.php:1798
+#: class-chatbudgie.php:1794
+#: class-chatbudgie.php:1795
+#: class-chatbudgie.php:1830
 #: templates/admin-settings.php:97
 msgid "Settings"
 msgstr ""
 
-#: class-chatbudgie.php:1771
-#: class-chatbudgie.php:1772
+#: class-chatbudgie.php:1803
+#: class-chatbudgie.php:1804
 msgid "Usage"
 msgstr ""
 
-#: class-chatbudgie.php:1780
-#: class-chatbudgie.php:1781
+#: class-chatbudgie.php:1812
+#: class-chatbudgie.php:1813
 #: templates/admin-orders.php:19
 msgid "Orders"
 msgstr ""
 
-#: class-chatbudgie.php:1813
-#: class-chatbudgie.php:1848
-#: class-chatbudgie.php:2019
+#: class-chatbudgie.php:1845
+#: class-chatbudgie.php:1880
+#: class-chatbudgie.php:2051
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: class-chatbudgie.php:1813
-#: class-chatbudgie.php:1848
-#: class-chatbudgie.php:1883
-#: class-chatbudgie.php:2019
+#: class-chatbudgie.php:1845
+#: class-chatbudgie.php:1880
+#: class-chatbudgie.php:1915
+#: class-chatbudgie.php:2051
 msgid "Unauthorized"
 msgstr ""
 
-#: class-chatbudgie.php:1833
+#: class-chatbudgie.php:1865
 msgid "Failed to fetch usage info. Please try again later."
 msgstr ""
 
-#: class-chatbudgie.php:1868
+#: class-chatbudgie.php:1900
 msgid "Failed to fetch user info. Please try again later."
 msgstr ""
 
-#: class-chatbudgie.php:1883
+#: class-chatbudgie.php:1915
 msgid "You do not have permission to complete this action."
 msgstr ""
 
-#: class-chatbudgie.php:1888
+#: class-chatbudgie.php:1920
 msgid "Invalid login callback request."
 msgstr ""
 
-#: class-chatbudgie.php:1888
-#: class-chatbudgie.php:1894
-#: class-chatbudgie.php:1941
+#: class-chatbudgie.php:1920
+#: class-chatbudgie.php:1926
+#: class-chatbudgie.php:1973
 msgid "Login Error"
 msgstr ""
 
-#: class-chatbudgie.php:1894
+#: class-chatbudgie.php:1926
 msgid "Authorization code is missing"
 msgstr ""
 
-#: class-chatbudgie.php:1913
+#: class-chatbudgie.php:1945
 msgid "API Error"
 msgstr ""
 
-#: class-chatbudgie.php:1941
+#: class-chatbudgie.php:1973
 msgid "Failed to retrieve appKey from login server"
 msgstr ""
 
-#: class-chatbudgie.php:2039
+#: class-chatbudgie.php:2071
 msgid "Failed to fetch account info. Please try again later."
 msgstr ""
 
@@ -245,60 +245,58 @@ msgstr ""
 msgid "Sign in with GitHub"
 msgstr ""
 
-#: templates/admin-login.php:83
-msgid "By continuing, you agree to our"
-msgstr ""
-
-#: templates/admin-login.php:84
+#: templates/admin-login.php:87
 msgid "Terms of Service"
 msgstr ""
 
-#: templates/admin-login.php:85
-msgid "and"
-msgstr ""
-
-#: templates/admin-login.php:85
+#: templates/admin-login.php:92
 msgid "Privacy Policy"
 msgstr ""
 
-#: templates/admin-login.php:110
-msgid "Smart AI Chatbot for WordPress"
-msgstr ""
-
-#: templates/admin-login.php:113
-msgid "Turn your WordPress to a smart chatbot."
-msgstr ""
-
-#: templates/admin-login.php:123
-msgid "Smart Chat"
-msgstr ""
-
-#: templates/admin-login.php:124
-msgid "Answers from your content, not the internet."
+#. translators: 1: Terms of Service link, 2: Privacy Policy link.
+#: templates/admin-login.php:96
+#, php-format
+msgid "By continuing, you agree to our %1$s and %2$s."
 msgstr ""
 
 #: templates/admin-login.php:133
+msgid "Smart AI Chatbot for WordPress"
+msgstr ""
+
+#: templates/admin-login.php:136
+msgid "Turn your WordPress to a smart chatbot."
+msgstr ""
+
+#: templates/admin-login.php:146
+msgid "Smart Chat"
+msgstr ""
+
+#: templates/admin-login.php:147
+msgid "Answers from your content, not the internet."
+msgstr ""
+
+#: templates/admin-login.php:156
 msgid "Easy to Setup"
 msgstr ""
 
-#: templates/admin-login.php:134
+#: templates/admin-login.php:157
 msgid "Get started in just a few minutes."
 msgstr ""
 
-#: templates/admin-login.php:143
+#: templates/admin-login.php:166
 msgid "Zero Maintenance"
 msgstr ""
 
-#: templates/admin-login.php:144
+#: templates/admin-login.php:167
 msgid "We keep your knowledge base up to date automatically."
 msgstr ""
 
-#: templates/admin-login.php:151
+#: templates/admin-login.php:174
 msgid "ChatBudgie mascot"
 msgstr ""
 
 #. translators: %s: Current year.
-#: templates/admin-login.php:163
+#: templates/admin-login.php:185
 #, php-format
 msgid "© %s ChatBudgie. All rights reserved."
 msgstr ""
