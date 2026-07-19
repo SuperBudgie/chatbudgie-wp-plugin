@@ -33,6 +33,7 @@
 		'value',
 		'placeholder',
 		'alt',
+		'href',
 		'aria-label',
 		'aria-expanded',
 		'aria-haspopup',
@@ -314,7 +315,8 @@
 		var elements = Array.prototype.slice.call(root.querySelectorAll('*'))
 
 		for (var i = 0; i < elements.length; i++) {
-			var element = elements[i]
+			var element = getInteractiveOwner(elements[i])
+			if (isElementIndexed(element, this.selectorMap)) continue
 			if (!shouldIncludeElement(element, this.options)) continue
 			if (
 				hasAcceptedInteractiveAncestor(element, this.selectorMap) &&
@@ -332,9 +334,8 @@
 			if (attrsText) line += ' ' + attrsText
 			if (scrollData) line += ' data-scrollable="' + scrollData + '"'
 
-			if (text) line += '>' + text
-			else line += ' '
-			line += ' />'
+			if (text) line += '>' + text + '</' + element.tagName.toLowerCase() + '>'
+			else line += ' />'
 
 			lines.push(line)
 			this.selectorMap.set(index, element)
@@ -501,6 +502,34 @@
 			current = current.parentElement
 		}
 		return false
+	}
+
+	function isElementIndexed(element, selectorMap) {
+		var iterator = selectorMap.values()
+		var next = iterator.next()
+		while (!next.done) {
+			if (next.value === element) return true
+			next = iterator.next()
+		}
+		return false
+	}
+
+	function getInteractiveOwner(element) {
+		if (!element || element.namespaceURI !== 'http://www.w3.org/2000/svg') return element
+
+		var outermostSvg = element
+		var current = element.parentElement
+		while (current) {
+			if (current.namespaceURI === 'http://www.w3.org/2000/svg') {
+				outermostSvg = current
+				current = current.parentElement
+				continue
+			}
+			if (isInteractive(current)) return current
+			break
+		}
+
+		return outermostSvg
 	}
 
 	function hasInteractiveAria(element) {
