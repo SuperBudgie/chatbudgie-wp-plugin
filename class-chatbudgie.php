@@ -125,9 +125,10 @@ class ChatBudgie {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_action( 'wp_footer', array( $this, 'render_chat_widget' ) );
 		add_action( 'wp_ajax_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'wp_ajax_nopriv_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
+		add_action( 'wp_ajax_chatbudgie_rag_search', array( $this, 'handle_rag_search' ) );
+		add_action( 'wp_ajax_nopriv_chatbudgie_rag_search', array( $this, 'handle_rag_search' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'maybe_redirect_after_activation' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -1059,6 +1060,75 @@ class ChatBudgie {
 	}
 
 	/**
+	 * Get multiple chunk texts in a single database query.
+	 *
+	 * @param array $vector_ids Vector IDs in post_id_chunk_id format.
+	 * @return array<string, string> Chunk texts keyed by vector ID.
+	 */
+	private function get_chunk_texts( $vector_ids ) {
+		global $wpdb;
+
+		if ( ! is_array( $vector_ids ) || empty( $vector_ids ) ) {
+			return array();
+		}
+
+		$chunk_table  = esc_sql( $wpdb->prefix . self::CHUNK_TABLE );
+		$vector_pairs = array();
+
+		foreach ( $vector_ids as $vector_id ) {
+			if ( ! is_string( $vector_id ) && ! is_numeric( $vector_id ) ) {
+				continue;
+			}
+
+			$matches = array();
+			if ( 1 !== preg_match( '/^([1-9][0-9]*)_([0-9]+)$/D', (string) $vector_id, $matches ) ) {
+				continue;
+			}
+
+			$post_id      = (int) $matches[1];
+			$chunk_id     = (int) $matches[2];
+			$canonical_id = $post_id . '_' . $chunk_id;
+
+			$vector_pairs[ $canonical_id ] = array( $post_id, $chunk_id );
+		}
+
+		if ( empty( $vector_pairs ) ) {
+			return array();
+		}
+
+		$conditions = array();
+		$query_args = array();
+
+		foreach ( $vector_pairs as $pair ) {
+			$conditions[] = '(post_id = %d AND chunk_id = %d)';
+			$query_args[] = $pair[0];
+			$query_args[] = $pair[1];
+		}
+
+		$query          = "SELECT post_id, chunk_id, chunk_text FROM {$chunk_table} WHERE " . implode( ' OR ', $conditions );
+		$prepared_query = $wpdb->prepare( $query, $query_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is escaped and conditions contain placeholders only.
+		if ( ! is_string( $prepared_query ) || '' === $prepared_query ) {
+			return array();
+		}
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$prepared_query, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query was prepared immediately above.
+			'ARRAY_A'
+		);
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		$chunk_texts = array();
+		foreach ( $rows as $row ) {
+			$vector_id                 = (int) $row['post_id'] . '_' . (int) $row['chunk_id'];
+			$chunk_texts[ $vector_id ] = (string) $row['chunk_text'];
+		}
+
+		return $chunk_texts;
+	}
+
+	/**
 	 * Plugin deactivation handler
 	 * Cleans up scheduled cron jobs and deletes vector index data
 	 *
@@ -1395,70 +1465,64 @@ class ChatBudgie {
 	}
 
 	/**
-	 * Enqueue frontend scripts and styles
-	 * Loads CSS, JavaScript, and passes PHP variables to the frontend via wp_localize_script
+	 * Enqueue and configure the packed frontend agent.
 	 *
 	 * @return void
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_style(
-			'chatbudgie-style',
-			CHATBUDGIE_PLUGIN_URL . 'assets/css/chatbudgie.css',
-			array(),
-			CHATBUDGIE_VERSION
-		);
+		$app_key = get_option( CHATBUDGIE_APP_KEY_OPTION, '' );
 
 		$chatbudgie_primary_color = $this->sanitize_hex_color(
 			get_option( 'chatbudgie_primary_color', '#2f7bff' )
 		);
 
-		wp_add_inline_style(
-			'chatbudgie-style',
-			sprintf(
-				'#chatbudgie-widget{--chatbudgie-accent:%1$s;--chatbudgie-accent-strong:%1$s;}',
-				esc_html( $chatbudgie_primary_color )
-			)
-		);
-
 		wp_enqueue_script(
-			'marked-js',
-			CHATBUDGIE_PLUGIN_URL . 'assets/js/marked.min.js',
+			'chatbudgie-agent',
+			CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie-agent.iife.js',
 			array(),
-			'12.0.0',
-			true
-		);
-
-		wp_enqueue_script(
-			'chatbudgie-script',
-			CHATBUDGIE_PLUGIN_URL . 'assets/js/chatbudgie.js',
-			array( 'jquery', 'marked-js' ),
 			CHATBUDGIE_VERSION,
 			true
 		);
 
-		$app_key = get_option( CHATBUDGIE_APP_KEY_OPTION, '' );
 		if ( empty( $app_key ) ) {
-			$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. To use the chat feature, please go to the plugin settings page to connect your ChatBudgie account.", 'chatbudgie' );
+			$welcome = __( 'Please log in to ChatBudgie from the WordPress plugin settings to enable chat.', 'chatbudgie' );
 		} else {
 			$welcome = get_option( 'chatbudgie_welcome_message' );
-			if ( empty( $welcome ) ) {
-				$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?", 'chatbudgie' );
-			}
 		}
 
+		if ( ! empty( $app_key ) && empty( $welcome ) ) {
+			$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?", 'chatbudgie' );
+		}
+
+		$nonce      = wp_create_nonce( 'chatbudgie_nonce' );
+		$avatar_url = get_option( 'chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png' );
+
 		wp_localize_script(
-			'chatbudgie-script',
-			'chatbudgie_params',
+			'chatbudgie-agent',
+			'chatbudgieAgentConfig',
 			array(
-				'ajax_url'     => admin_url( 'admin-ajax.php' ),
-				'chat_api_url' => self::CHAT_API,
-				'nonce'        => wp_create_nonce( 'chatbudgie_nonce' ),
-				'strings'      => array(
-					'placeholder' => __( 'Please enter your question...', 'chatbudgie' ),
-					'welcome'     => $welcome,
-					'error'       => __( 'Failed to send, please try again', 'chatbudgie' ),
+				'agentBaseUrl' => CHATBUDGIE_BASE_URL,
+				'appKey'       => $app_key,
+				'ragSearchAPI' => add_query_arg(
+					array(
+						'action' => 'chatbudgie_rag_search',
+						'nonce'  => $nonce,
+					),
+					admin_url( 'admin-ajax.php' )
 				),
+				'welcomeMessage'    => $welcome,
+				'theme'             => array(
+					'avatarUrl'   => $avatar_url,
+					'accentColor' => $chatbudgie_primary_color,
+				),
+				'debug'             => defined( 'WP_DEBUG' ) && WP_DEBUG,
 			)
+		);
+
+		wp_add_inline_script(
+			'chatbudgie-agent',
+			'window.ChatBudgieAgent.createChatBudgieAgent(window.chatbudgieAgentConfig);',
+			'after'
 		);
 	}
 
@@ -1568,16 +1632,6 @@ class ChatBudgie {
 	}
 
 	/**
-	 * Render the chat widget HTML markup
-	 * Outputs the chat bubble toggle, container, header, message area, and input form
-	 *
-	 * @return void
-	 */
-	public function render_chat_widget() {
-		include CHATBUDGIE_PLUGIN_DIR . 'templates/chatbudgie-widget.php';
-	}
-
-	/**
 	 * Handle AJAX request to search the vector index using chat history
 	 * Calls remote embedding API with chat history, then performs local vector search
 	 *
@@ -1684,6 +1738,242 @@ class ChatBudgie {
 			}
 			wp_send_json_error( array( 'message' => $error_message ), absint( $status_code ) );
 		}
+	}
+
+	/**
+	 * Handle a JSON AJAX request for hybrid RAG search.
+	 *
+	 * The query is embedded remotely and the local vector candidates are re-ranked
+	 * using keyword occurrence counts.
+	 *
+	 * @return void Outputs a JSON response and exits.
+	 * @throws Exception If the document embedding response is invalid.
+	 */
+	public function handle_rag_search() {
+		if ( ! check_ajax_referer( 'chatbudgie_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Your session has expired. Please refresh the page and try again.', 'chatbudgie' ) ), 403 );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- php://input is required for JSON requests.
+		$request_body = file_get_contents( 'php://input' );
+		$request_data = json_decode( $request_body, true );
+
+		if ( ! is_array( $request_data ) ) {
+			wp_send_json_error( array( 'message' => __( 'The request body must contain valid JSON.', 'chatbudgie' ) ), 400 );
+		}
+
+		$query = isset( $request_data['query'] ) && is_string( $request_data['query'] )
+			? sanitize_textarea_field( $request_data['query'] )
+			: '';
+
+		if ( '' === $query ) {
+			wp_send_json_error( array( 'message' => __( 'Query is required.', 'chatbudgie' ) ), 400 );
+		}
+
+		$keywords = $request_data['keywords'] ?? array();
+
+		try {
+			$chunks    = $this->get_embedding( '', $query, '' );
+			$embedding = $chunks[0]['embedding'] ?? array();
+
+			if ( ! is_array( $embedding ) || self::EMBEDDING_DIMENSION !== count( $embedding ) ) {
+				throw new Exception( 'Invalid response format: document embedding has an unexpected dimension', 502 );
+			}
+
+			// Retrieve extra semantic candidates so keyword matches can affect ranking.
+			$candidates = $this->searcher->search( $embedding, 50, false );
+
+			wp_send_json_success( $this->rank_rag_search_results( $candidates, $keywords, 10 ) );
+		} catch ( Exception $e ) {
+			$status_code   = $this->normalize_error_status_code( $e->getCode() );
+			$error_message = $this->format_api_error_message( $e );
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'ChatBudgie handle_rag_search error: ' . $error_message );
+			wp_send_json_error( array( 'message' => $error_message ), $status_code );
+		}
+	}
+
+	/**
+	 * Re-rank vector candidates using keyword occurrence counts.
+	 *
+	 * @param array $candidates Vector search candidates.
+	 * @param mixed $keywords Client-supplied keywords.
+	 * @param int   $limit Maximum number of chunks to return.
+	 * @return array Ranked chunk search results.
+	 */
+	private function rank_rag_search_results( $candidates, $keywords, $limit ) {
+		$candidates = array_values(
+			array_filter(
+				$candidates,
+				static function ( $candidate ) {
+					if ( ! is_array( $candidate ) || ! isset( $candidate['id'] ) ) {
+						return false;
+					}
+
+					return count( explode( '_', (string) $candidate['id'] ) ) >= 2;
+				}
+			)
+		);
+
+		$vector_ids  = array_column( $candidates, 'id' );
+		$chunk_texts = $this->get_chunk_texts( $vector_ids );
+		$ranked      = array();
+
+		foreach ( $candidates as $candidate ) {
+			$vector_id      = isset( $candidate['id'] ) ? (string) $candidate['id'] : '';
+			$semantic_score = isset( $candidate['score'] ) ? (float) $candidate['score'] : 0.0;
+			$parts          = explode( '_', $vector_id, 2 );
+			$post_id        = (int) $parts[0];
+			$chunk_text     = $chunk_texts[ $vector_id ] ?? '';
+			$keyword_score  = $this->calculate_keyword_match( $chunk_text, $keywords );
+
+			if ( $semantic_score < 0.2 && 0.0 === $keyword_score ) {
+				continue;
+			}
+
+			$combined_score = empty( $keywords )
+				? $semantic_score
+				: ( 0.5 * $semantic_score ) + ( 0.5 * $keyword_score );
+
+			$ranked[] = array(
+				'id'             => $vector_id,
+				'post_id'        => $post_id,
+				'content'        => $chunk_text,
+				'score'          => $combined_score,
+				'semantic_score' => $semantic_score,
+				'keyword_score'  => $keyword_score,
+			);
+		}
+
+		usort(
+			$ranked,
+			static function ( $first, $second ) {
+				return $second['score'] <=> $first['score'];
+			}
+		);
+
+		$ranked        = array_slice( $ranked, 0, max( 0, (int) $limit ) );
+		$post_cache    = array();
+		$ranked_chunks = array();
+
+		foreach ( $ranked as $result ) {
+			$post_id = $result['post_id'];
+			if ( ! array_key_exists( $post_id, $post_cache ) ) {
+				$post_cache[ $post_id ] = get_post( $post_id );
+			}
+
+			$post           = $post_cache[ $post_id ];
+			$title          = $post ? get_the_title( $post ) : '';
+			$url            = $post ? get_permalink( $post ) : '';
+			$citation_title = str_replace( array( '\\', '[', ']' ), array( '\\\\', '\[', '\]' ), $title );
+			$citation_url   = str_replace( array( '\\', '(', ')' ), array( '\\\\', '\(', '\)' ), $url );
+			$citation       = '[' . $citation_title . '](' . $citation_url . ')';
+
+			$ranked_chunks[] = array(
+				'id'             => $result['id'],
+				'post_id'        => $post_id,
+				'citation'       => $citation,
+				'title'          => $title,
+				'content'        => $result['content'],
+				'score'          => $result['score'],
+				'semantic_score' => $result['semantic_score'],
+				'keyword_score'  => $result['keyword_score'],
+			);
+		}
+
+		return $ranked_chunks;
+	}
+
+	/**
+	 * Count keyword occurrences in a piece of text.
+	 *
+	 * @param string $text Text to search.
+	 * @param mixed  $keywords Client-supplied keywords.
+	 * @return float Normalized keyword frequency score.
+	 */
+	private function calculate_keyword_match( $text, $keywords ) {
+		$text_length = function_exists( 'mb_strlen' ) ? mb_strlen( $text, 'UTF-8' ) : strlen( $text );
+		if ( $text_length <= 0 ) {
+			return 0.0;
+		}
+
+		if ( is_string( $keywords ) ) {
+			$keywords = array( $keywords );
+		}
+
+		$sanitized_keywords = array();
+		if ( is_array( $keywords ) ) {
+			foreach ( $keywords as $raw_keyword ) {
+				if ( ! is_string( $raw_keyword ) ) {
+					continue;
+				}
+
+				$keyword = trim( sanitize_text_field( $raw_keyword ) );
+				if ( '' === $keyword ) {
+					continue;
+				}
+
+				$keyword = function_exists( 'mb_strtolower' ) ? mb_strtolower( $keyword, 'UTF-8' ) : strtolower( $keyword );
+				if ( ! in_array( $keyword, $sanitized_keywords, true ) ) {
+					$sanitized_keywords[] = $keyword;
+				}
+
+				if ( count( $sanitized_keywords ) >= 20 ) {
+					break;
+				}
+			}
+		}
+
+		$keywords = $sanitized_keywords;
+		if ( empty( $keywords ) ) {
+			return 0.0;
+		}
+
+		$haystack        = function_exists( 'mb_strtolower' ) ? mb_strtolower( $text, 'UTF-8' ) : strtolower( $text );
+		$total_frequency = 0;
+
+		$keywords_match_count = 0;
+		foreach ( $keywords as $keyword ) {
+			$frequency = substr_count( $haystack, $keyword );
+			if ( $frequency > 0 ) {
+				$total_frequency += $frequency;
+				++$keywords_match_count;
+			}
+		}
+
+		return $total_frequency / log( $text_length + 1 ) + 0.1 * $keywords_match_count / count( $keywords );
+	}
+
+	/**
+	 * Normalize an exception code for an HTTP JSON response.
+	 *
+	 * @param int $code Exception code.
+	 * @return int Valid HTTP status code.
+	 */
+	private function normalize_error_status_code( $code ) {
+		$code = absint( $code );
+		return $code >= 400 && $code <= 599 ? $code : 500;
+	}
+
+	/**
+	 * Format known API errors for the frontend.
+	 *
+	 * @param Exception $exception API exception.
+	 * @return string Frontend error message.
+	 */
+	private function format_api_error_message( $exception ) {
+		$status_code = (int) $exception->getCode();
+
+		if ( 401 === $status_code ) {
+			return '401 - You are not allowed to access the API. Please login ChatBudgie account in the settings page.';
+		}
+
+		if ( 402 === $status_code ) {
+			return '402 - Your token has been used up. Please go to ChatBudgie settings page to recharge.';
+		}
+
+		return $status_code . ' - ' . $exception->getMessage();
 	}
 
 	/**
