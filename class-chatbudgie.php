@@ -92,7 +92,7 @@ class ChatBudgie {
 
 				if ( $stored_major !== $current_major ) {
 					// Major version mismatch - clear data.
-					self::delete_index_data();
+					$this->delete_all_index_data();
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log( "ChatBudgie: Major version mismatch ($stored_version vs " . CHATBUDGIE_VERSION . '). Cleared data directory.' );
 				}
