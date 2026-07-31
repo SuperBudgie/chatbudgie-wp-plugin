@@ -14,6 +14,7 @@ use SuperBudgie\ChatBudgie\Vektor\Services\Indexer;
 use SuperBudgie\ChatBudgie\Vektor\Services\Searcher;
 use SuperBudgie\ChatBudgie\Vektor\Services\Optimizer;
 use WP_Error;
+use WP_Post;
 use WP_Query;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,14 +30,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ChatBudgie {
 	public const EMBEDDING_DIMENSION      = 1536;
 	public const EMBEDDING_API            = CHATBUDGIE_BASE_URL . 'api/rag/embedding/v1';
-	public const CHAT_API                 = CHATBUDGIE_BASE_URL . 'api/rag/chat';
 	public const USER_INFO_API            = CHATBUDGIE_BASE_URL . 'api/user/info';
 	public const REFRESH_APP_KEY_API      = CHATBUDGIE_BASE_URL . 'api/app/refreshkey';
 	public const TOKEN_USAGE_API          = CHATBUDGIE_BASE_URL . 'api/user/tokenusage';
 	public const USER_ORDERS_API          = CHATBUDGIE_BASE_URL . 'api/user/orders';
 	public const CREATE_PAYPAL_ORDER_API  = CHATBUDGIE_BASE_URL . 'api/payment/paypal/create';
 	public const CAPTURE_PAYPAL_ORDER_API = CHATBUDGIE_BASE_URL . 'api/payment/paypal/capture';
-	public const QUERY_EMBEDDING_API      = CHATBUDGIE_BASE_URL . 'api/rag/embedding/query/v1';
 	public const SSL_VERIFY               = false;
 	public const INDEX_META_TABLE         = 'chatbudgie_index_meta';
 	public const CHUNK_TABLE              = 'chatbudgie_chunk_data';
@@ -125,8 +124,6 @@ class ChatBudgie {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_action( 'wp_ajax_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
-		add_action( 'wp_ajax_nopriv_chatbudgie_search_index', array( $this, 'handle_search_index' ) );
 		add_action( 'wp_ajax_chatbudgie_rag_search', array( $this, 'handle_rag_search' ) );
 		add_action( 'wp_ajax_nopriv_chatbudgie_rag_search', array( $this, 'handle_rag_search' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
@@ -153,6 +150,8 @@ class ChatBudgie {
 
 		// Hook into post save to schedule/remove indexing.
 		add_action( 'save_post', array( $this, 'handle_post_save' ), 10, 2 );
+		add_action( 'woocommerce_new_product', array( $this, 'schedule_post_index' ) );
+		add_action( 'woocommerce_update_product', array( $this, 'schedule_post_index' ) );
 
 		// Hook into post deletion and status changes to remove indexes.
 		add_action( 'before_delete_post', array( $this, 'handle_post_delete' ) );
@@ -607,7 +606,7 @@ class ChatBudgie {
 		}
 
 		// Skip if post is not published.
-		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
+		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
 			return null;
 		}
 
@@ -650,8 +649,8 @@ class ChatBudgie {
 			return;
 		}
 
-		// Only index posts and pages.
-		if ( ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
+		// Only index supported public content.
+		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
 			return;
 		}
 
@@ -753,7 +752,7 @@ class ChatBudgie {
 
 			do {
 				$args = array(
-					'post_type'      => array( 'post', 'page' ),
+					'post_type'      => array( 'post', 'page', 'product' ),
 					'post_status'    => 'publish',
 					'posts_per_page' => $posts_per_page,
 					'paged'          => $paged,
@@ -820,7 +819,7 @@ class ChatBudgie {
 		}
 
 		// Skip if post is not published.
-		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
+		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'ChatBudgie: Skipping post ' . $post_id . ' - not published or wrong post type' );
 			return;
@@ -843,6 +842,10 @@ class ChatBudgie {
 			$title   = wp_strip_all_tags( $post->post_title );
 			$content = wp_strip_all_tags( strip_shortcodes( $post->post_content ) );
 			$excerpt = wp_strip_all_tags( strip_shortcodes( $post->post_excerpt ) );
+
+			if ( 'product' === $post->post_type ) {
+				$content = $this->append_product_attributes_to_content( $post_id, $content );
+			}
 
 			// Get embedding chunks from API.
 			$chunks = $this->get_embedding( $title, $content, $excerpt );
@@ -922,9 +925,58 @@ class ChatBudgie {
 	}
 
 	/**
-	 * Save chunk text to the database for a specific post
+	 * Append WooCommerce product attributes to the content sent for embedding.
 	 *
-	 * @param int   $post_id The WordPress post ID.
+	 * @param int    $post_id Product post ID.
+	 * @param string $content Existing product description.
+	 * @return string Product description followed by its labeled attributes.
+	 */
+	private function append_product_attributes_to_content( $post_id, $content ) {
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return $content;
+		}
+
+		$product = wc_get_product( $post_id );
+		if ( ! $product ) {
+			return $content;
+		}
+
+		$content_lines = array();
+		if ( '' !== trim( $content ) ) {
+			$content_lines[] = 'description: ' . trim( $content );
+		}
+
+		foreach ( $product->get_attributes() as $attribute ) {
+			if ( ! is_object( $attribute ) || ! method_exists( $attribute, 'get_name' ) ) {
+				continue;
+			}
+
+			$attribute_name = $attribute->get_name();
+			$label          = 0 === strpos( $attribute_name, 'pa_' ) ? substr( $attribute_name, 3 ) : $attribute_name;
+			$label          = ucwords( str_replace( array( '-', '_' ), ' ', $label ) );
+
+			if ( ! method_exists( $product, 'get_attribute' ) ) {
+				continue;
+			}
+
+			$value = trim( wp_strip_all_tags( $product->get_attribute( $attribute_name ) ) );
+
+			if ( '' !== $value ) {
+				$content_lines[] = wp_strip_all_tags( $label ) . ': ' . $value;
+			}
+		}
+
+		if ( empty( $content_lines ) ) {
+			return $content;
+		}
+
+		return implode( "\n", $content_lines );
+	}
+
+	/**
+	 * Save chunk text to the database for a specific post.
+	 *
+	 * @param int   $post_id WordPress post ID.
 	 * @param array $chunks Array of chunks with 'content' key.
 	 * @return void
 	 */
@@ -1025,38 +1077,6 @@ class ChatBudgie {
 
 		// Return the chunks array (contains content and embedding for each chunk).
 		return $chunks;
-	}
-
-	/**
-	 * Get chunk text by vector ID from the database
-	 *
-	 * @param string $vector_id The vector ID (e.g., '123_0').
-	 * @return string The chunk text or empty string if not found
-	 */
-	private function get_chunk_text( $vector_id ) {
-		global $wpdb;
-
-		$chunk_table = esc_sql( $wpdb->prefix . self::CHUNK_TABLE );
-
-		// Parse vector_id to get post_id and chunk_id.
-		$parts = explode( '_', $vector_id );
-		if ( count( $parts ) < 2 ) {
-			return '';
-		}
-
-		$post_id  = (int) $parts[0];
-		$chunk_id = (int) $parts[1];
-
-		$result = $wpdb->get_var(
-			$wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe and escaped.
-				"SELECT chunk_text FROM {$chunk_table} WHERE post_id = %d AND chunk_id = %d",
-				$post_id,
-				$chunk_id
-			)
-		);
-
-		return $result ? $result : '';
 	}
 
 	/**
@@ -1293,41 +1313,6 @@ class ChatBudgie {
 	}
 
 	/**
-	 * Sanitize client-supplied conversation history for the chat API.
-	 *
-	 * @param mixed $conversation_history Raw decoded conversation history.
-	 * @return array Sanitized conversation history.
-	 */
-	private function sanitize_conversation_history( $conversation_history ) {
-		if ( ! is_array( $conversation_history ) ) {
-			return array();
-		}
-
-		$allowed_roles     = array( 'user', 'assistant', 'system' );
-		$sanitized_history = array();
-
-		foreach ( $conversation_history as $message ) {
-			if ( ! is_array( $message ) ) {
-				continue;
-			}
-
-			$role    = isset( $message['role'] ) ? sanitize_key( $message['role'] ) : '';
-			$content = isset( $message['content'] ) ? sanitize_textarea_field( $message['content'] ) : '';
-
-			if ( ! in_array( $role, $allowed_roles, true ) || '' === $content ) {
-				continue;
-			}
-
-			$sanitized_history[] = array(
-				'role'    => $role,
-				'content' => $content,
-			);
-		}
-
-		return $sanitized_history;
-	}
-
-	/**
 	 * Handle API response and return the data (usually a PagedModel for paginated requests)
 	 *
 	 * @param array|WP_Error $response The response from wp_remote_get/post.
@@ -1515,7 +1500,7 @@ class ChatBudgie {
 					'avatarUrl'   => $avatar_url,
 					'accentColor' => $chatbudgie_primary_color,
 				),
-				'debug'             => defined( 'WP_DEBUG' ) && WP_DEBUG,
+				'debug'             => defined( 'WP_DEBUG' ) && constant( 'WP_DEBUG' ),
 			)
 		);
 
@@ -1629,115 +1614,6 @@ class ChatBudgie {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Handle AJAX request to search the vector index using chat history
-	 * Calls remote embedding API with chat history, then performs local vector search
-	 *
-	 * @throws Exception If the API request fails or returns an error.
-	 * @return void Outputs JSON response and exits
-	 */
-	public function handle_search_index() {
-		if ( ! check_ajax_referer( 'chatbudgie_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'Your session has expired. Please refresh the page and try again.', 'chatbudgie' ) ), 403 );
-		}
-
-		$conversation_history_raw = sanitize_textarea_field( wp_unslash( $_POST['conversation_history'] ?? '[]' ) );
-		$conversation_history     = $this->sanitize_conversation_history(
-			json_decode( $conversation_history_raw, true )
-		);
-
-		try {
-			$headers = array(
-				'Content-Type' => 'application/json',
-				'appKey'       => get_option( CHATBUDGIE_APP_KEY_OPTION, '' ),
-				'Referer'      => site_url(),
-			);
-
-			$response = wp_remote_post(
-				self::QUERY_EMBEDDING_API,
-				array(
-					'headers'   => $headers,
-					'body'      => wp_json_encode( $conversation_history ),
-					'timeout'   => 60,
-					'sslverify' => self::SSL_VERIFY,
-				)
-			);
-
-			if ( is_wp_error( $response ) ) {
-				throw new Exception( $response->get_error_message(), 500 );
-			}
-
-			$response_body = wp_remote_retrieve_body( $response );
-			$data          = json_decode( $response_body, true );
-
-			if ( isset( $data['code'] ) && 200 !== (int) $data['code'] ) {
-				throw new Exception( $data['message'] ?? 'API error', (int) $data['code'] );
-			}
-
-			$result_data = $data['data'] ?? array();
-			$embedding   = $result_data['embedding'] ?? array();
-
-			$grouped_results = array();
-
-			if ( empty( $embedding ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'ChatBudgie handle_search_index: Failed to get query embedding from API' );
-			} else {
-				// Perform local vector search.
-				$k         = 5;
-				$threshold = 0.2;
-				$results   = $this->searcher->search( $embedding, $k, false );
-
-				foreach ( $results as $result ) {
-					if ( $result['score'] >= $threshold ) {
-						$chunk_text = $this->get_chunk_text( $result['id'] );
-
-						// Extract post_id from vector_id (format: post_id_chunk_id).
-						$parts   = explode( '_', $result['id'] );
-						$post_id = (int) $parts[0];
-
-						if ( ! isset( $grouped_results[ $post_id ] ) ) {
-							$post                        = get_post( $post_id );
-							$grouped_results[ $post_id ] = array(
-								'url'    => $post ? get_permalink( $post ) : '',
-								'title'  => $post ? get_the_title( $post ) : '',
-								'chunks' => array(),
-							);
-						}
-						$grouped_results[ $post_id ]['chunks'][] = array(
-							'content' => $chunk_text,
-							'score'   => $result['score'],
-						);
-					}
-				}
-			}
-
-			wp_send_json_success(
-				array(
-					'query'          => $result_data['query'] ?? '',
-					'appConfigId'    => $result_data['appConfigId'] ?? '',
-					'timestamp'      => $result_data['timestamp'] ?? '',
-					'signature'      => $result_data['signature'] ?? '',
-					'search_results' => array_values( $grouped_results ),
-				)
-			);
-
-		} catch ( Exception $e ) {
-			$status_code   = $e->getCode();
-			$error_message = $status_code . ' -' . $e->getMessage();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'ChatBudgie handle_search_index error: ' . $error_message );
-
-			// Format error message for frontend.
-			if ( 401 === $status_code ) {
-				$error_message = '401 - You are not allowed to access the API. Please login ChatBudgie account in the settings page.';
-			} elseif ( 402 === $status_code ) {
-				$error_message = '402 - Your token has been used up. Please go to ChatBudgie settings page to recharge.';
-			}
-			wp_send_json_error( array( 'message' => $error_message ), absint( $status_code ) );
-		}
 	}
 
 	/**
@@ -1873,6 +1749,7 @@ class ChatBudgie {
 			$ranked_chunks[] = array(
 				'id'             => $result['id'],
 				'post_id'        => $post_id,
+				'post_type'      => $post ? $post->post_type : '',
 				'citation'       => $citation,
 				'title'          => $title,
 				'content'        => $result['content'],
