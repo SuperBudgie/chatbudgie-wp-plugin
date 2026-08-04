@@ -90,7 +90,7 @@ final class RagKeywordMatchingTest extends TestCase {
 		self::assertSame( 0.0, $result );
 	}
 
-	public function test_it_groups_ranked_chunks_by_post_in_rank_order(): void {
+	public function test_it_groups_ranked_chunks_by_post_and_restores_chunk_order(): void {
 		$ranked = array(
 			array(
 				'id'             => '10_2',
@@ -120,7 +120,7 @@ final class RagKeywordMatchingTest extends TestCase {
 
 		$result = $this->group_ranked_chunks_by_post->invoke( $this->chatbudgie, $ranked );
 
-		self::assertSame( array( 10, 20 ), array_column( array_column( $result, 'post' ), 'id' ) );
+		self::assertSame( array( 10, 20 ), array_column( array_column( $result, 'doc' ), 'id' ) );
 		self::assertSame(
 			array(
 				'content',
@@ -132,11 +132,11 @@ final class RagKeywordMatchingTest extends TestCase {
 		);
 		self::assertSame(
 			array(
-				'Best chunk from the first post.',
 				'Another chunk from the first post.',
+				'Best chunk from the first post.',
 			),
 			array_column( $result[0]['chunks'], 'content' )
 		);
-		self::assertSame( '[First \[Post\]](https://example.com/post/10)', $result[0]['post']['citation'] );
+		self::assertSame( '[First \[Post\]](https://example.com/post/10)', $result[0]['doc']['citation'] );
 	}
 }

@@ -126,6 +126,8 @@ class ChatBudgie {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'wp_ajax_chatbudgie_rag_search', array( $this, 'handle_rag_search' ) );
 		add_action( 'wp_ajax_nopriv_chatbudgie_rag_search', array( $this, 'handle_rag_search' ) );
+		add_action( 'wp_ajax_chatbudgie_read_doc', array( $this, 'handle_read_doc' ) );
+		add_action( 'wp_ajax_nopriv_chatbudgie_read_doc', array( $this, 'handle_read_doc' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'maybe_redirect_after_activation' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -1486,21 +1488,29 @@ class ChatBudgie {
 			'chatbudgie-agent',
 			'chatbudgieAgentConfig',
 			array(
-				'agentBaseUrl' => CHATBUDGIE_BASE_URL,
-				'appKey'       => $app_key,
-				'ragSearchAPI' => add_query_arg(
+				'agentBaseUrl'   => CHATBUDGIE_BASE_URL,
+				'agentVersion'   => 2,
+				'appKey'         => $app_key,
+				'ragSearchAPI'   => add_query_arg(
 					array(
 						'action' => 'chatbudgie_rag_search',
 						'nonce'  => $nonce,
 					),
 					admin_url( 'admin-ajax.php' )
 				),
-				'welcomeMessage'    => $welcome,
-				'theme'             => array(
+				'ragReadAPI'     => add_query_arg(
+					array(
+						'action' => 'chatbudgie_read_doc',
+						'nonce'  => $nonce,
+					),
+					admin_url( 'admin-ajax.php' )
+				),
+				'welcomeMessage' => $welcome,
+				'theme'          => array(
 					'avatarUrl'   => $avatar_url,
 					'accentColor' => $chatbudgie_primary_color,
 				),
-				'debug'             => defined( 'WP_DEBUG' ) && constant( 'WP_DEBUG' ),
+				'debug'          => defined( 'WP_DEBUG' ) && constant( 'WP_DEBUG' ),
 			)
 		);
 
@@ -1671,6 +1681,53 @@ class ChatBudgie {
 	}
 
 	/**
+	 * Handle a JSON AJAX request to read a published indexed document.
+	 *
+	 * @return void Outputs a JSON response and exits.
+	 */
+	public function handle_read_doc() {
+		if ( ! check_ajax_referer( 'chatbudgie_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Your session has expired. Please refresh the page and try again.', 'chatbudgie' ) ), 403 );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- php://input is required for JSON requests.
+		$request_body = file_get_contents( 'php://input' );
+		$request_data = json_decode( $request_body, true );
+
+		if ( ! is_array( $request_data ) ) {
+			wp_send_json_error( array( 'message' => __( 'The request body must contain valid JSON.', 'chatbudgie' ) ), 400 );
+		}
+
+		$doc_id = absint( $request_data['id'] ?? 0 );
+		if ( 0 === $doc_id ) {
+			wp_send_json_error( array( 'message' => __( 'Document ID is required.', 'chatbudgie' ) ), 400 );
+		}
+
+		$post = get_post( $doc_id );
+		if (
+			! $post
+			|| 'publish' !== $post->post_status
+			|| ! empty( $post->post_password )
+			|| ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true )
+		) {
+			wp_send_json_error( array( 'message' => __( 'Document not found.', 'chatbudgie' ) ), 404 );
+		}
+
+		$title          = trim( wp_strip_all_tags( get_the_title( $post ) ) );
+		$url            = (string) get_permalink( $post );
+		$citation_title = str_replace( array( '\\', '[', ']' ), array( '\\\\', '\[', '\]' ), $title );
+		$citation_url   = str_replace( array( '\\', '(', ')' ), array( '\\\\', '\(', '\)' ), $url );
+
+		wp_send_json_success(
+			array(
+				'title'    => $title,
+				'content'  => trim( wp_strip_all_tags( strip_shortcodes( $post->post_content ) ) ),
+				'citation' => '[' . $citation_title . '](' . $citation_url . ')',
+			)
+		);
+	}
+
+	/**
 	 * Re-rank vector candidates using keyword occurrence counts.
 	 *
 	 * @param array $candidates Vector search candidates.
@@ -1737,8 +1794,8 @@ class ChatBudgie {
 	/**
 	 * Group ranked chunks by post without repeating post metadata for every chunk.
 	 *
-	 * Posts retain the order of their highest-ranked chunk, and chunks within each
-	 * post retain their ranking order.
+	 * Posts retain the order of their highest-ranked chunk, while chunks within
+	 * each post are restored to their original document order.
 	 *
 	 * @param array $ranked Ranked chunks containing post IDs, content, and scores.
 	 * @return array Ranked search results grouped by post.
@@ -1749,7 +1806,9 @@ class ChatBudgie {
 		$post_cache    = array();
 
 		foreach ( $ranked as $result ) {
-			$post_id = (int) $result['post_id'];
+			$post_id        = (int) $result['post_id'];
+			$vector_parts   = explode( '_', (string) $result['id'], 2 );
+			$chunk_position = isset( $vector_parts[1] ) ? (int) $vector_parts[1] : PHP_INT_MAX;
 
 			if ( ! array_key_exists( $post_id, $post_cache ) ) {
 				$post_cache[ $post_id ] = get_post( $post_id );
@@ -1764,7 +1823,7 @@ class ChatBudgie {
 
 				$post_indexes[ $post_id ] = count( $grouped_posts );
 				$grouped_posts[]          = array(
-					'doc'   => array(
+					'doc'    => array(
 						'id'       => $post_id,
 						'type'     => $post ? $post->post_type : '',
 						'title'    => $title,
@@ -1775,12 +1834,28 @@ class ChatBudgie {
 			}
 
 			$grouped_posts[ $post_indexes[ $post_id ] ]['chunks'][] = array(
+				'_position'      => $chunk_position,
 				'content'        => $result['content'],
 				'score'          => $result['score'],
 				'semantic_score' => $result['semantic_score'],
 				'keyword_score'  => $result['keyword_score'],
 			);
 		}
+
+		foreach ( $grouped_posts as &$grouped_post ) {
+			usort(
+				$grouped_post['chunks'],
+				static function ( $first, $second ) {
+					return $first['_position'] <=> $second['_position'];
+				}
+			);
+
+			foreach ( $grouped_post['chunks'] as &$chunk ) {
+				unset( $chunk['_position'] );
+			}
+			unset( $chunk );
+		}
+		unset( $grouped_post );
 
 		return $grouped_posts;
 	}
