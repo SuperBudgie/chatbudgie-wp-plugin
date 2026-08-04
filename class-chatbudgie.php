@@ -1676,7 +1676,7 @@ class ChatBudgie {
 	 * @param array $candidates Vector search candidates.
 	 * @param mixed $keywords Client-supplied keywords.
 	 * @param int   $limit Maximum number of chunks to return.
-	 * @return array Ranked chunk search results.
+	 * @return array Ranked search results grouped by post.
 	 */
 	private function rank_rag_search_results( $candidates, $keywords, $limit ) {
 		$candidates = array_values(
@@ -1729,29 +1729,52 @@ class ChatBudgie {
 			}
 		);
 
-		$ranked        = array_slice( $ranked, 0, max( 0, (int) $limit ) );
+		$ranked = array_slice( $ranked, 0, max( 0, (int) $limit ) );
+
+		return $this->group_ranked_chunks_by_post( $ranked );
+	}
+
+	/**
+	 * Group ranked chunks by post without repeating post metadata for every chunk.
+	 *
+	 * Posts retain the order of their highest-ranked chunk, and chunks within each
+	 * post retain their ranking order.
+	 *
+	 * @param array $ranked Ranked chunks containing post IDs, content, and scores.
+	 * @return array Ranked search results grouped by post.
+	 */
+	private function group_ranked_chunks_by_post( $ranked ) {
+		$grouped_posts = array();
+		$post_indexes  = array();
 		$post_cache    = array();
-		$ranked_chunks = array();
 
 		foreach ( $ranked as $result ) {
-			$post_id = $result['post_id'];
+			$post_id = (int) $result['post_id'];
+
 			if ( ! array_key_exists( $post_id, $post_cache ) ) {
 				$post_cache[ $post_id ] = get_post( $post_id );
 			}
 
-			$post           = $post_cache[ $post_id ];
-			$title          = $post ? get_the_title( $post ) : '';
-			$url            = $post ? get_permalink( $post ) : '';
-			$citation_title = str_replace( array( '\\', '[', ']' ), array( '\\\\', '\[', '\]' ), $title );
-			$citation_url   = str_replace( array( '\\', '(', ')' ), array( '\\\\', '\(', '\)' ), $url );
-			$citation       = '[' . $citation_title . '](' . $citation_url . ')';
+			if ( ! array_key_exists( $post_id, $post_indexes ) ) {
+				$post           = $post_cache[ $post_id ];
+				$title          = $post ? get_the_title( $post ) : '';
+				$url            = $post ? get_permalink( $post ) : '';
+				$citation_title = str_replace( array( '\\', '[', ']' ), array( '\\\\', '\[', '\]' ), $title );
+				$citation_url   = str_replace( array( '\\', '(', ')' ), array( '\\\\', '\(', '\)' ), $url );
 
-			$ranked_chunks[] = array(
-				'id'             => $result['id'],
-				'post_id'        => $post_id,
-				'post_type'      => $post ? $post->post_type : '',
-				'citation'       => $citation,
-				'title'          => $title,
+				$post_indexes[ $post_id ] = count( $grouped_posts );
+				$grouped_posts[]          = array(
+					'doc'   => array(
+						'id'       => $post_id,
+						'type'     => $post ? $post->post_type : '',
+						'title'    => $title,
+						'citation' => '[' . $citation_title . '](' . $citation_url . ')',
+					),
+					'chunks' => array(),
+				);
+			}
+
+			$grouped_posts[ $post_indexes[ $post_id ] ]['chunks'][] = array(
 				'content'        => $result['content'],
 				'score'          => $result['score'],
 				'semantic_score' => $result['semantic_score'],
@@ -1759,7 +1782,7 @@ class ChatBudgie {
 			);
 		}
 
-		return $ranked_chunks;
+		return $grouped_posts;
 	}
 
 	/**
