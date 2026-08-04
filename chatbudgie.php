@@ -6,7 +6,7 @@
  * Plugin Name: ChatBudgie
  * Plugin URI: https://github.com/SuperBudgie/chatbudgie-wp-plugin
  * Description: Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers
- * Version: 2.0.2
+ * Version: 2.0.3
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Tested up to: 7.0
@@ -52,7 +52,7 @@ if ( file_exists( __DIR__ . '/lib/Vektor/Core/Config.php' ) ) {
 	require_once __DIR__ . '/lib/Vektor/Services/Optimizer.php';
 }
 
-define( 'CHATBUDGIE_VERSION', '2.0.2' );
+define( 'CHATBUDGIE_VERSION', '2.0.3' );
 define( 'CHATBUDGIE_APP_NAME', 'chatbudgie' );
 define( 'CHATBUDGIE_APP_KEY_OPTION', 'chatbudgie_app_key' );
 // define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox.
@@ -60,8 +60,8 @@ define( 'CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64V
 define( 'CHATBUDGIE_PLUGIN_FILE', __FILE__ );
 define( 'CHATBUDGIE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHATBUDGIE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-//define( 'CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/' );
-define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');  // Docker test.
+define( 'CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/' );
+// define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');  // Docker test.
 // define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');    // Local test.
 
 require_once __DIR__ . '/class-chatbudgie.php';
