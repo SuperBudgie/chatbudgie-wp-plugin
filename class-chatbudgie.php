@@ -80,7 +80,8 @@ class ChatBudgie {
 	private function __construct() {
 		// Initialize the vector index dimension and data directory.
 		Config::setDimensions( self::EMBEDDING_DIMENSION );
-		$data_dir = self::get_data_dir();
+		$data_dir               = self::get_data_dir();
+		$index_rebuild_required = false;
 
 		if ( ! empty( $data_dir ) ) {
 			$version_file = trailingslashit( $data_dir ) . 'version';
@@ -93,6 +94,7 @@ class ChatBudgie {
 				if ( $stored_major !== $current_major ) {
 					// Major version mismatch - clear data.
 					$this->delete_all_index_data();
+					$index_rebuild_required = true;
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log( "ChatBudgie: Major version mismatch ($stored_version vs " . CHATBUDGIE_VERSION . '). Cleared data directory.' );
 				}
@@ -160,6 +162,15 @@ class ChatBudgie {
 
 		// Hook into post deletion and status changes to remove indexes.
 		add_action( 'before_delete_post', array( $this, 'handle_post_delete' ) );
+
+		// Rebuild immediately after a version mismatch invalidates the index.
+		if ( $index_rebuild_required ) {
+			if ( did_action( 'action_scheduler_init' ) ) {
+				$this->schedule_index_build();
+			} else {
+				add_action( 'action_scheduler_init', array( $this, 'schedule_index_build' ) );
+			}
+		}
 	}
 
 	/**
@@ -1620,7 +1631,7 @@ class ChatBudgie {
 			'chatbudgieAgentConfig',
 			array(
 				'agentBaseUrl'   => CHATBUDGIE_BASE_URL,
-				'agentVersion'   => 2,
+				'agentVersion'   => 1,
 				'appKey'         => $widget_key,
 				'ragSearchAPI'   => add_query_arg(
 					array(
@@ -1638,7 +1649,7 @@ class ChatBudgie {
 				),
 				'welcomeMessage' => $welcome,
 				'controller'     => array(
-					'maxContentLength' => 40000,
+					'maxContentLength' => 10000,
 				),
 				'theme'          => array(
 					'avatarUrl'   => $avatar_url,
