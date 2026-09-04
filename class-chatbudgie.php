@@ -143,6 +143,9 @@ class ChatBudgie {
 		add_action( 'admin_post_chatbudgie_login_callback', array( $this, 'handle_login_callback' ) );
 		add_action( 'admin_post_nopriv_chatbudgie_login_callback', array( $this, 'handle_login_callback' ) );
 
+		// Add plugin upgrade hook.
+		add_action( 'upgrader_process_complete', array( $this, 'on_plugin_upgrade' ), 10, 2 );
+
 		// Add cron job hook.
 		add_action( 'chatbudgie_daily_task', array( $this, 'daily_task' ) );
 
@@ -1163,8 +1166,9 @@ class ChatBudgie {
 			as_unschedule_all_actions( 'chatbudgie_daily_task', array(), 'chatbudgie' );
 		}
 
-		// Delete app key.
+		// Delete app key and app id.
 		delete_option( CHATBUDGIE_APP_KEY_OPTION );
+		delete_option( CHATBUDGIE_APP_ID_OPTION );
 
 		// Delete all index data (vectors + truncate tables).
 		$this->delete_all_index_data();
@@ -1175,6 +1179,117 @@ class ChatBudgie {
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'ChatBudgie plugin deactivated, cron jobs cleaned up, index data deleted, app key removed' );
+	}
+
+	/**
+	 * Handle plugin upgrade: refresh appKey and appId using the old appKey.
+	 *
+	 * @param WP_Upgrader $upgrader   WP_Upgrader instance.
+	 * @param array       $hook_extra Extra hook data.
+	 * @return void
+	 */
+	public function on_plugin_upgrade( $upgrader, $hook_extra ) {
+		if ( 'update' !== ( $hook_extra['action'] ?? '' ) ) {
+			return;
+		}
+
+		if ( 'plugin' !== ( $hook_extra['type'] ?? '' ) ) {
+			return;
+		}
+
+		$our_plugin      = plugin_basename( CHATBUDGIE_PLUGIN_FILE );
+		$updated_plugins = $hook_extra['plugins'] ?? array();
+
+		if ( ! in_array( $our_plugin, $updated_plugins, true ) ) {
+			return;
+		}
+
+		$old_app_key = get_option( CHATBUDGIE_APP_KEY_OPTION, '' );
+
+		if ( empty( $old_app_key ) ) {
+			return;
+		}
+
+		$this->refresh_app_key( $old_app_key );
+	}
+
+	/**
+	 * Extract a value from API response body, trying multiple key formats.
+	 *
+	 * @param array  $body API response body.
+	 * @param string $key  CamelCase key name (e.g. 'appKey', 'appId').
+	 * @return string Extracted value or empty string.
+	 */
+	private function extract_value_from_response( $body, $key ) {
+		$snake_key = $this->camel_to_snake( $key );
+
+		if ( isset( $body['data'][ $key ] ) ) {
+			return $body['data'][ $key ];
+		}
+		if ( isset( $body['data'][ $snake_key ] ) ) {
+			return $body['data'][ $snake_key ];
+		}
+		if ( isset( $body[ $key ] ) ) {
+			return $body[ $key ];
+		}
+		if ( isset( $body[ $snake_key ] ) ) {
+			return $body[ $snake_key ];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Convert CamelCase string to snake_case.
+	 *
+	 * @param string $input CamelCase string.
+	 * @return string snake_case string.
+	 */
+	private function camel_to_snake( $input ) {
+		return strtolower( preg_replace( '/(?<!^)[A-Z]/', '_$0', $input ) );
+	}
+
+	/**
+	 * Refresh appKey and appId from server using the existing appKey.
+	 *
+	 * @param string $app_key Current appKey.
+	 * @return void
+	 */
+	private function refresh_app_key( $app_key ) {
+		$response = wp_remote_post(
+			self::REFRESH_APP_KEY_API,
+			array(
+				'headers'   => array( 'Content-Type' => 'application/x-www-form-urlencoded' ),
+				'body'      => array(
+					'appKey'  => $app_key,
+					'appName' => CHATBUDGIE_APP_NAME,
+					'siteUrl' => get_site_url(),
+				),
+				'timeout'   => 30,
+				'sslverify' => self::SSL_VERIFY,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! is_array( $body ) ) {
+			return;
+		}
+
+		$new_app_key = $this->extract_value_from_response( $body, 'appKey' );
+		$new_app_id  = $this->extract_value_from_response( $body, 'appId' );
+
+		if ( $new_app_key ) {
+			update_option( CHATBUDGIE_APP_KEY_OPTION, $new_app_key );
+		}
+
+		if ( $new_app_id ) {
+			update_option( CHATBUDGIE_APP_ID_OPTION, $new_app_id );
+		}
 	}
 
 	/**
@@ -1458,6 +1573,15 @@ class ChatBudgie {
 	 */
 	public function enqueue_scripts() {
 		$app_key = get_option( CHATBUDGIE_APP_KEY_OPTION, '' );
+		$app_id  = get_option( CHATBUDGIE_APP_ID_OPTION, '' );
+
+		// If app_key exists but app_id is missing, try to refresh from server.
+		if ( ! empty( $app_key ) && empty( $app_id ) ) {
+			$this->refresh_app_key( $app_key );
+			$app_id = get_option( CHATBUDGIE_APP_ID_OPTION, '' );
+		}
+
+		$is_configured = ! empty( $app_key ) && ! empty( $app_id );
 
 		$chatbudgie_primary_color = $this->sanitize_hex_color(
 			get_option( 'chatbudgie_primary_color', '#2f7bff' )
@@ -1471,18 +1595,25 @@ class ChatBudgie {
 			true
 		);
 
-		if ( empty( $app_key ) ) {
+		if ( ! $is_configured ) {
 			$welcome = __( 'Please log in to ChatBudgie from the WordPress plugin settings to enable chat.', 'chatbudgie' );
 		} else {
 			$welcome = get_option( 'chatbudgie_welcome_message' );
 		}
 
-		if ( ! empty( $app_key ) && empty( $welcome ) ) {
+		if ( $is_configured && empty( $welcome ) ) {
 			$welcome = __( "Hi, I'm ChatBudgie, assistant of the website. How can I help you today?", 'chatbudgie' );
 		}
 
 		$nonce      = wp_create_nonce( 'chatbudgie_nonce' );
 		$avatar_url = get_option( 'chatbudgie_custom_icon', CHATBUDGIE_PLUGIN_URL . 'assets/images/budgie-avatar.png' );
+
+		$widget_key = '';
+		if ( $is_configured ) {
+			$timestamp  = time();
+			$hash_input = $timestamp . $app_id . $app_key;
+			$widget_key = $timestamp . '_' . $app_id . '_' . hash( 'sha256', $hash_input );
+		}
 
 		wp_localize_script(
 			'chatbudgie-agent',
@@ -1490,7 +1621,7 @@ class ChatBudgie {
 			array(
 				'agentBaseUrl'   => CHATBUDGIE_BASE_URL,
 				'agentVersion'   => 2,
-				'appKey'         => $app_key,
+				'appKey'         => $widget_key,
 				'ragSearchAPI'   => add_query_arg(
 					array(
 						'action' => 'chatbudgie_rag_search',
@@ -1506,6 +1637,9 @@ class ChatBudgie {
 					admin_url( 'admin-ajax.php' )
 				),
 				'welcomeMessage' => $welcome,
+				'controller'     => array(
+					'maxContentLength' => 40000,
+				),
 				'theme'          => array(
 					'avatarUrl'   => $avatar_url,
 					'accentColor' => $chatbudgie_primary_color,
@@ -2125,6 +2259,7 @@ class ChatBudgie {
 			if ( $e->getCode() === 401 ) {
 				// Key is invalid, clear it and show login page.
 				update_option( CHATBUDGIE_APP_KEY_OPTION, '' );
+				update_option( CHATBUDGIE_APP_ID_OPTION, '' );
 				$this->render_login_page();
 			} else {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to fetch usage info. Please try again later.', 'chatbudgie' ) . ' (' . esc_html( $e->getMessage() ) . ')</p></div>';
@@ -2160,6 +2295,7 @@ class ChatBudgie {
 			if ( $e->getCode() === 401 ) {
 				// Key is invalid, clear it and show login page.
 				update_option( CHATBUDGIE_APP_KEY_OPTION, '' );
+				update_option( CHATBUDGIE_APP_ID_OPTION, '' );
 				$this->render_login_page();
 			} else {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to fetch user info. Please try again later.', 'chatbudgie' ) . ' (' . esc_html( $e->getMessage() ) . ')</p></div>';
@@ -2212,20 +2348,16 @@ class ChatBudgie {
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		// Extract appkey from response. Try different common keys.
-		$app_key = '';
-		if ( isset( $body['data']['appKey'] ) ) {
-			$app_key = $body['data']['appKey'];
-		} elseif ( isset( $body['data']['app_key'] ) ) {
-			$app_key = $body['data']['app_key'];
-		} elseif ( isset( $body['appKey'] ) ) {
-			$app_key = $body['appKey'];
-		} elseif ( isset( $body['app_key'] ) ) {
-			$app_key = $body['app_key'];
-		}
+		// Extract appkey and appId from response.
+		$app_key = $this->extract_value_from_response( $body, 'appKey' );
+		$app_id  = $this->extract_value_from_response( $body, 'appId' );
 
 		if ( $app_key ) {
 			update_option( CHATBUDGIE_APP_KEY_OPTION, $app_key );
+
+			if ( $app_id ) {
+				update_option( CHATBUDGIE_APP_ID_OPTION, $app_id );
+			}
 
 			// Schedule initial index build.
 			$this->schedule_index_build();
@@ -2331,6 +2463,7 @@ class ChatBudgie {
 			if ( $e->getCode() === 401 ) {
 				// Key is invalid, clear it and show login page.
 				update_option( CHATBUDGIE_APP_KEY_OPTION, '' );
+				update_option( CHATBUDGIE_APP_ID_OPTION, '' );
 				$this->render_login_page();
 			} else {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to fetch account info. Please try again later.', 'chatbudgie' ) . ' (' . esc_html( $e->getMessage() ) . ')</p></div>';

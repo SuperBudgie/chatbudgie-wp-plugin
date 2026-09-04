@@ -55,13 +55,14 @@ if ( file_exists( __DIR__ . '/lib/Vektor/Core/Config.php' ) ) {
 define( 'CHATBUDGIE_VERSION', '2.0.3' );
 define( 'CHATBUDGIE_APP_NAME', 'chatbudgie' );
 define( 'CHATBUDGIE_APP_KEY_OPTION', 'chatbudgie_app_key' );
+define( 'CHATBUDGIE_APP_ID_OPTION', 'chatbudgie_app_id' );
 // define('CHATBUDGIE_PAYPAL_CLIENT_ID', 'AekooxzVQrv7o8r58pnHigf0owNuUr0i8rXBQemNt1ADaCom1v-63rNhrxy48zYhNQBKbqttnm1yUpTE');  // Sandbox.
 define( 'CHATBUDGIE_PAYPAL_CLIENT_ID', 'AX6SyMmo4bBB1N1B0GagjoB_gjAwk47HYQk0T64VAAwj_YGTfYAWF3D0cLpmXCtYNxGG9jOvEk2Hv8-M' );  // Live.
 define( 'CHATBUDGIE_PLUGIN_FILE', __FILE__ );
 define( 'CHATBUDGIE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHATBUDGIE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/' );
-// define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');  // Docker test.
+//define( 'CHATBUDGIE_BASE_URL', 'https://chat.superbudgie.com/' );
+ define('CHATBUDGIE_BASE_URL', 'https://docker.internal:8443/');  // Docker test.
 // define('CHATBUDGIE_BASE_URL', 'https://localhost:8443/');    // Local test.
 
 require_once __DIR__ . '/class-chatbudgie.php';
