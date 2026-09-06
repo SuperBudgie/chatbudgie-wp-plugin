@@ -1,8 +1,8 @@
 === ChatBudgie - AI Chatbot based on ChatGPT, RAG and Knowledge Base ===
 Contributors: superbudgie
-Tags: ai chatbot, chat bot, chatgpt, customer support, chat button
+Tags: ai chatbot, chat bot, chatgpt, customer support, woocommerce
 Requires at least: 5.8
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 1.2.0
 License: GPLv3 or later
@@ -12,9 +12,9 @@ Adds AI Chatbot widget to your WordPress which answers questions from your conte
 
 == Description ==
 
-ChatBudgie is an AI chatbot plugin for WordPress that turns your website content into an intelligent knowledge base. It helps visitors get fast, accurate answers from your posts and pages using RAG (Retrieval-Augmented Generation), local vector search, and managed AI models such as OpenAI ChatGPT, Claude, and Qwen.
+ChatBudgie is an AI chatbot plugin for WordPress that turns your website content into an intelligent knowledge base. It helps visitors get fast, accurate answers from your posts, pages, and WooCommerce products using RAG (Retrieval-Augmented Generation), local vector search, and managed AI models such as OpenAI ChatGPT, Claude, and Qwen.
 
-Use ChatBudgie as a WordPress AI assistant, site search companion, product FAQ bot, documentation helper, or customer support chatbot. Once activated, it automatically indexes your public posts and pages, builds a local search index, and provides context-aware answers without complex setup.
+Use ChatBudgie as a WordPress AI assistant, site search companion, product FAQ bot, documentation helper, or customer support chatbot. Once activated, it automatically indexes your public posts, pages, and WooCommerce products, builds a local search index, and provides context-aware answers without complex setup.
 
 Learn more on the ChatBudgie homepage: https://chatbudgie.superbudgie.com/
 
@@ -54,7 +54,7 @@ ChatBudgie includes bundled translations for major WordPress locales and helps i
 
 ChatBudgie bridges the gap between your website content and AI through a sophisticated workflow:
 
-1. **Local Knowledge Base**: The plugin scans your WordPress posts and pages, breaking them into semantic "chunks."
+1. **Local Knowledge Base**: The plugin scans your WordPress posts, pages, and WooCommerce products, breaking them into semantic "chunks." For products it also includes the product attributes.
 2. **AI Embedding**: It calls superbudgie embedding API to select advanced AI models and transform these chunks into high-dimensional vector embeddings, which are stored securely in a **local** database on your server.
 3. **Smart Search**: When a user asks a question, ChatBudgie performs a local vector search to find the most relevant information from your local index.
 4. **LLM Generation**: The user query with retrieved context is sent to superbudgie chat API to select a Large Language Model (LLM) like GPT or Claude to generate a precise, human-like response, ensuring the answer is always grounded in your site's actual data.
@@ -69,13 +69,18 @@ ChatBudgie bridges the gap between your website content and AI through a sophist
 == Frequently Asked Questions ==
 
 = How does ChatBudgie index my site? =
-ChatBudgie uses Action Scheduler to process your posts and pages in the background. It breaks the text into chunks and generates vector embeddings for each chunk.
+ChatBudgie uses Action Scheduler to process your posts, pages, and WooCommerce products in the background. It breaks the text into chunks and generates vector embeddings for each chunk.
 
 = Can ChatBudgie answer questions from my WordPress content? =
-Yes. ChatBudgie is designed to answer visitor questions using your public WordPress posts and pages. It retrieves relevant content from your local index before generating a response.
+Yes. ChatBudgie is designed to answer visitor questions using your public WordPress posts, pages, and WooCommerce products. It retrieves relevant content from your local index before generating a response.
 
 = Can I use ChatBudgie as a customer support chatbot? =
 Yes. ChatBudgie can help visitors find answers from your website content, product information, documentation, FAQs, and support articles.
+
+= Does ChatBudgie work with WooCommerce? =
+Yes. Published WooCommerce products are indexed together with your posts and pages. For each product ChatBudgie indexes the title, short description, and long description, and it appends the product's attributes - both global attributes like Color and Size, and per-product custom attributes like Material - so the chatbot can answer detailed product questions.
+
+Products are re-indexed automatically when you create, update, unpublish, or delete them. WooCommerce is optional: ChatBudgie needs no extra configuration and behaves normally on sites that do not use it.
 
 = Is my data safe? =
 The vector index of the knowledge base is stored locally in this site's WordPress uploads directory.
@@ -85,7 +90,7 @@ Only public data of your website will be indexed.
 Yes! You can choose from several built-in icons or upload your own custom icon in the Appearance settings.
 
 = Does it support real-time updates? =
-Yes, whenever you publish or update a post, ChatBudgie automatically updates its index.
+Yes, whenever you publish or update a post, page, or product, ChatBudgie automatically updates its index.
 
 = Why should I buy tokens? =
 Tokens are the fuel for ChatBudgie's AI capabilities. They are consumed when indexing your content (creating AI embeddings) and when answering user questions (generating LLM responses). By purchasing tokens from ChatBudgie, you get access to leading models like OpenAI ChatGPT and Claude without needing to manage separate API accounts or complex billing with multiple AI providers—we handle all that for you.
@@ -128,6 +133,7 @@ ChatBudgie is built upon several high-quality open-source libraries:
 * Allow the agent to search in multiple rounds, using each result to refine subsequent searches when needed.
 * Multi-step searches may use more tokens than previous versions.
 * Limit extracted page content to 10,000 characters per agent step.
+* Add WooCommerce support: published products are indexed together with their attributes and kept in sync as products are created, updated, or deleted.
 
 = 1.1.6 =
 * Bump plugin version to 1.1.6.
@@ -156,4 +162,4 @@ ChatBudgie is built upon several high-quality open-source libraries:
 == Upgrade Notice ==
 
 = 1.2.0 =
-Upgrade to smarter agentic search with multi-step result refinement. Because the agent may perform multiple searches, some conversations will use more tokens than previous versions.
+Upgrade to smarter agentic search with multi-step result refinement. Because the agent may perform multiple searches, some conversations will use more tokens than previous versions. This release also adds WooCommerce support, so published products and their attributes join the knowledge base.

@@ -8,7 +8,8 @@ ChatBudgie is a powerful, AI-driven chat plugin for WordPress that provides a RA
 - ⚡ **Local Vector Search**: Utilizes a high-performance, local HNSW-based vector search engine (Vektor) for fast information retrieval.
 - 📱 **Responsive Design**: Modern, customizable chat widget optimized for both desktop and mobile users.
 - 🎨 **Deep Customization**: Adjust primary/secondary colors, welcome messages, and choose from multiple chat icons (or upload your own).
-- 🔄 **Real-time Indexing**: Automatically updates the search index when you create, edit, or delete posts and pages.
+- 🔄 **Real-time Indexing**: Automatically updates the search index when you create, edit, or delete posts, pages, and products.
+- 🛒 **WooCommerce Support**: Published products join the knowledge base, including their global and custom attributes. Optional — no configuration required.
 - 📊 **Account & Usage Tracking**: Monitor your token usage and manage your account directly from the WordPress admin.
 - 💳 **Seamless Top-ups**: Integrated PayPal support for purchasing additional token packages.
 - ⚡ **Background Processing**: Uses Action Scheduler for efficient, non-blocking background indexing tasks.
@@ -18,7 +19,7 @@ ChatBudgie is a powerful, AI-driven chat plugin for WordPress that provides a RA
 1. **Upload Plugin**: Download the plugin and upload the `chatbudgie-wp-plugin` folder to your `/wp-content/plugins/` directory.
 2. **Activate**: Go to the 'Plugins' menu in WordPress and activate **ChatBudgie**.
 3. **Login**: Navigate to the **ChatBudgie** menu in your admin sidebar. You will be redirected to the SuperBudgie login page to authenticate your site.
-4. **Indexing**: Upon activation and login, ChatBudgie will automatically start indexing your public posts and pages in the background.
+4. **Indexing**: Upon activation and login, ChatBudgie will automatically start indexing your public posts, pages, and WooCommerce products in the background.
 
 ## Configuration
 
@@ -41,9 +42,23 @@ ChatBudgie implements a local **HNSW (Hierarchical Navigable Small World)** grap
 3. Retrieves relevant content "chunks" from your WordPress database.
 4. Sends the context and query to the RAG API to generate a precise response.
 
+### WooCommerce Indexing
+Products are treated as first-class knowledge base documents. Before embedding, a product's long description is expanded into labelled lines:
+
+```
+description: A comfortable shirt.
+Color: Blue, Green
+Material: Cotton, Wool
+```
+
+Both global attributes (`pa_color`) and per-product custom attributes are included. Attribute names have the `pa_` prefix stripped and are title-cased; values are stripped of HTML. The title and short description are indexed as-is.
+
+Re-indexing is triggered by `save_post` plus the `woocommerce_new_product` and `woocommerce_update_product` hooks, so products written through the WooCommerce CRUD layer (including REST API writes) stay in sync. Deleting or unpublishing a product removes it from the index. All WooCommerce code paths are guarded by `function_exists( 'wc_get_product' )`, so the plugin behaves identically on sites without WooCommerce.
+
 ### Requirements
 - **PHP**: 7.4 or higher
 - **WordPress**: 5.8 or higher
+- **WooCommerce**: Optional. Products are indexed when WooCommerce is active; behaviour is unchanged when it is not.
 - **SSL**: Recommended for API communication
 
 ### Tech Stack
