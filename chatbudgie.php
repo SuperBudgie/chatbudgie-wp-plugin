@@ -6,7 +6,7 @@
  * Plugin Name: ChatBudgie
  * Plugin URI: https://github.com/SuperBudgie/chatbudgie-wp-plugin
  * Description: Display a chat dialog on WordPress pages, allowing users to talk with a RAG-based Agent to get website-related answers
- * Version: 1.2.0
+ * Version: 1.2.1
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Tested up to: 7.1
@@ -52,7 +52,7 @@ if ( file_exists( __DIR__ . '/lib/Vektor/Core/Config.php' ) ) {
 	require_once __DIR__ . '/lib/Vektor/Services/Optimizer.php';
 }
 
-define( 'CHATBUDGIE_VERSION', '1.2.0' );
+define( 'CHATBUDGIE_VERSION', '1.2.1' );
 define( 'CHATBUDGIE_APP_NAME', 'chatbudgie' );
 define( 'CHATBUDGIE_APP_KEY_OPTION', 'chatbudgie_app_key' );
 define( 'CHATBUDGIE_APP_ID_OPTION', 'chatbudgie_app_id' );
