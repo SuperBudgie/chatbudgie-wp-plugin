@@ -4,7 +4,7 @@ Tags: ai chatbot, chat bot, chatgpt, customer support, chat button
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -123,6 +123,12 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Changelog ==
 
+= 2.0.4 =
+* Add widget appKey authentication using app ID and timestamp.
+* Fix an invalid tool argument breaking the agent loop.
+* Report the upstream API status code for embedding errors, so an exhausted token balance returns 402 with the recharge prompt instead of a generic error.
+* Bump plugin version to 2.0.4.
+
 = 2.0.3 =
 * Bump plugin version to 2.0.3.
 
@@ -159,5 +165,5 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Upgrade Notice ==
 
-= 2.0.3 =
-Upgrade to ChatBudgie 2.0.3.
+= 2.0.4 =
+Upgrade to ChatBudgie 2.0.4.
