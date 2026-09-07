@@ -1061,7 +1061,7 @@ class ChatBudgie {
 
 		if ( isset( $data['code'] ) && 200 !== (int) $data['code'] ) {
 			$error_msg = isset( $data['message'] ) ? $data['message'] : 'Unknown API error';
-			throw new Exception( esc_html( 'API error: ' . $error_msg ) );
+			throw new Exception( esc_html( 'API error: ' . $error_msg ), (int) $data['code'] );
 		}
 
 		// Check the embedding dimension.
