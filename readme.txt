@@ -4,7 +4,7 @@ Tags: ai chatbot, chat bot, chatgpt, customer support, woocommerce
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -128,8 +128,8 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Changelog ==
 
-= 1.2.2 =
-* Bump plugin version to 1.2.2.
+= 1.2.3 =
+* Bump plugin version to 1.2.3.
 
 = 1.2.1 =
 * Upgrade to smarter agentic search for more relevant, refined answers.
@@ -164,8 +164,5 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Upgrade Notice ==
 
-= 1.2.2 =
-Upgrade to ChatBudgie 1.2.2.
-
-= 1.2.1 =
-Upgrade to smarter agentic search with multi-step result refinement. Because the agent may perform multiple searches, some conversations will use more tokens than previous versions. This release also adds WooCommerce support, so published products and their attributes join the knowledge base.
+= 1.2.3 =
+Upgrade to ChatBudgie 1.2.3. Fix js sdk overlay bug
