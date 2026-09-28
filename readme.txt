@@ -4,7 +4,7 @@ Tags: ai chatbot, chat bot, chatgpt, customer support, woocommerce
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -128,8 +128,8 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Changelog ==
 
-= 1.2.3 =
-* Bump plugin version to 1.2.3.
+= 1.2.4 =
+* Bump plugin version to 1.2.4.
 
 = 1.2.1 =
 * Upgrade to smarter agentic search for more relevant, refined answers.
@@ -164,5 +164,5 @@ ChatBudgie is built upon several high-quality open-source libraries:
 
 == Upgrade Notice ==
 
-= 1.2.3 =
-Upgrade to ChatBudgie 1.2.3. Fix js sdk overlay bug
+= 1.2.4 =
+Upgrade to ChatBudgie 1.2.4.
